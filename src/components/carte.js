@@ -94,7 +94,38 @@ export function carte({region, departements, traces, sites, width, height}) {
     .attr("stroke", (s) => (surMoselle(s) ? "white" : COULEURS.avecMesure))
     .attr("stroke-width", 1.2);
   traitFixe(points);
-  points.append("title").text((s) => s.libelle_site);
+
+  // Info-bulle : nom du site au survol (ou au toucher sur écran tactile).
+  const bulle = d3.create("div").attr("class", "bulle-carte").style("display", "none");
+  let echelle = 1; // facteur de zoom courant
+  const montrer = (event, s) => {
+    const cadre = conteneur.node().getBoundingClientRect();
+    const cercle = event.currentTarget.getBoundingClientRect();
+    d3.select(event.currentTarget).attr("r", (RAYON_SITE * 1.6) / echelle);
+    bulle
+      .style("display", null)
+      .text(s.libelle_site)
+      .style("left", `${cercle.left + cercle.width / 2 - cadre.left}px`)
+      .style("top", `${cercle.top - cadre.top}px`);
+  };
+  const cacher = () => {
+    points.attr("r", RAYON_SITE / echelle);
+    bulle.style("display", "none");
+  };
+  // Souris : la bulle suit le survol. Écran tactile : elle apparaît au
+  // toucher d'un site et disparaît au toucher ailleurs sur la carte.
+  points
+    .style("cursor", "pointer")
+    .on("pointerenter", (event, s) => event.pointerType !== "touch" && montrer(event, s))
+    .on("pointerleave", (event) => event.pointerType !== "touch" && cacher())
+    .on("pointerdown", (event, s) => {
+      if (event.pointerType !== "touch") return;
+      event.stopPropagation();
+      cacher();
+      montrer(event, s);
+    });
+  svg.on("pointerdown.bulle", (event) => event.pointerType === "touch" && cacher());
+  svg.on("pointerleave.bulle", (event) => event.pointerType !== "touch" && cacher());
 
   // Zoom : de 1 à 12 fois, sans sortir du cadre de la région. Sur écran
   // tactile, il faut deux doigts : un seul doigt fait défiler la page.
@@ -108,13 +139,23 @@ export function carte({region, departements, traces, sites, width, height}) {
       .on("end", () => svg.style("cursor", "grab"))
       .on("zoom", ({transform}) => {
         g.attr("transform", transform);
-        points.attr("r", RAYON_SITE / transform.k);
+        echelle = transform.k;
+        points.attr("r", RAYON_SITE / echelle);
+        bulle.style("display", "none");
       })
   );
   // d3 bloque tous les gestes tactiles du navigateur ; on rend le défilement.
   svg.style("touch-action", "pan-x pan-y");
 
-  return svg.node();
+  // Le SVG et l'info-bulle sont réunis dans un même bloc.
+  const conteneur = d3
+    .create("div")
+    .attr("class", "carte")
+    .style("width", `${width}px`)
+    .style("height", `${height}px`);
+  conteneur.append(() => svg.node());
+  conteneur.append(() => bulle.node());
+  return conteneur.node();
 }
 
 // Légende de la carte (traits pour les cours d'eau, cercle pour les sites).

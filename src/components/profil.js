@@ -35,34 +35,99 @@ export function preparerProfil({profilSites, profilSemaines, mesures}) {
   return {sites, debits, semaines, classees, haut: classees[0], bas: classees[classees.length - 1]};
 }
 
-// Curseur de semaine avec boutons « précédente / suivante ». Sa valeur est
-// l'indice de la semaine dans la liste.
-export function choixSemaine(semaines, valeur = semaines.length - 1) {
+// Durée d'affichage de chaque semaine pendant le film : 1 393 semaines en
+// 4 min 11 s, ce qui laisse de la marge pour des arrêts plus longs.
+export const DUREE_SEMAINE_MS = 180;
+
+// Curseur de semaine et film. Sa valeur est l'indice de la semaine dans la
+// liste.
+//   ▶ lance le défilement vers les semaines suivantes, ◀ vers les
+//     précédentes ; un nouveau clic sur la même flèche met en pause, un clic
+//     sur l'autre flèche inverse le sens.
+//   Le film s'arrête à la première ou à la dernière semaine ; relancé depuis
+//   ce bout, il repart de l'autre bout.
+//   Déplacer le curseur à la main met le film en pause.
+export function choixSemaine(semaines, {valeur = semaines.length - 1, invalidation} = {}) {
   const form = document.createElement("form");
   form.className = "choix-semaine";
   form.innerHTML = `<label>Semaine du</label>
-    <button type="button" title="Semaine précédente">◀</button>
-    <input type="range" min="0" max="${semaines.length - 1}" step="1" value="${valeur}">
-    <button type="button" title="Semaine suivante">▶</button>
+    <button type="button" data-sens="-1"></button>
+    <input type="range" min="0" max="${semaines.length - 1}" step="1" value="${valeur}" aria-label="Semaine">
+    <button type="button" data-sens="1"></button>
     <output></output>`;
-  const [precedent, suivant] = form.querySelectorAll("button");
+  const boutons = [...form.querySelectorAll("button")];
   const curseur = form.querySelector("input");
   const sortie = form.querySelector("output");
-  const maj = () => {
+  const dernier = semaines.length - 1;
+  let sens = 0; // 0 = en pause, 1 = vers les semaines suivantes, -1 = vers les précédentes
+  let film = 0; // numéro du film en cours ; change à chaque pause, pour ignorer les étapes déjà prévues
+  let prochaine = 0; // heure prévue de la prochaine semaine (ms)
+
+  const afficher = () => {
     form.value = +curseur.value;
     sortie.value = new Date(semaines[form.value].date).toLocaleDateString("fr-FR", {day: "numeric", month: "short", year: "numeric", timeZone: "UTC"});
   };
-  curseur.addEventListener("input", maj);
-  precedent.onclick = () => {
-    curseur.stepDown();
-    curseur.dispatchEvent(new Event("input", {bubbles: true}));
+  // Le bouton du sens en cours affiche « pause ».
+  const majBoutons = () => {
+    for (const b of boutons) {
+      const actif = +b.dataset.sens === sens;
+      b.textContent = actif ? "⏸" : +b.dataset.sens > 0 ? "▶" : "◀";
+      b.title = actif ? "Pause" : +b.dataset.sens > 0 ? "Défiler vers les semaines suivantes" : "Défiler vers les semaines précédentes";
+      b.setAttribute("aria-pressed", actif);
+    }
   };
-  suivant.onclick = () => {
-    curseur.stepUp();
-    curseur.dispatchEvent(new Event("input", {bubbles: true}));
+  const pause = () => {
+    film++;
+    sens = 0;
+    majBoutons();
   };
+  // Passe à la semaine suivante dans le sens du film et prévient la page.
+  const avancer = () => {
+    const i = +curseur.value + sens;
+    if (i < 0 || i > dernier) return pause();
+    curseur.value = i;
+    afficher();
+    form.dispatchEvent(new Event("input", {bubbles: true}));
+    if (i === 0 || i === dernier) pause();
+  };
+  // Une étape toutes les DUREE_SEMAINE_MS, calée sur une heure prévue pour
+  // ne pas accumuler de retard. Chaque étape attend aussi que le navigateur
+  // ait dessiné l'image précédente (requestAnimationFrame) : sur une machine
+  // lente, le film ralentit au lieu de laisser le graphique en retard sur
+  // le curseur.
+  const planifier = (numero) => {
+    prochaine += DUREE_SEMAINE_MS;
+    setTimeout(() => requestAnimationFrame(() => {
+      if (numero !== film) return; // film mis en pause entre-temps
+      avancer();
+      if (sens !== 0) planifier(numero);
+    }), Math.max(0, prochaine - performance.now()));
+  };
+  const lancer = (nouveauSens) => {
+    pause();
+    sens = nouveauSens;
+    // Depuis le bout du film, on repart de l'autre bout.
+    if (sens > 0 && +curseur.value === dernier) curseur.value = 0;
+    if (sens < 0 && +curseur.value === 0) curseur.value = dernier;
+    majBoutons();
+    afficher();
+    form.dispatchEvent(new Event("input", {bubbles: true}));
+    prochaine = performance.now();
+    planifier(film);
+  };
+
+  for (const b of boutons) {
+    b.onclick = () => (+b.dataset.sens === sens ? pause() : lancer(+b.dataset.sens));
+  }
+  // Curseur déplacé à la main : pause, puis mise à jour.
+  curseur.addEventListener("input", () => {
+    pause();
+    afficher();
+  });
   form.onsubmit = (e) => e.preventDefault();
-  maj();
+  invalidation?.then(pause);
+  majBoutons();
+  afficher();
   return form;
 }
 

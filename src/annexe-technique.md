@@ -203,7 +203,7 @@ La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers d
 | cours d'eau hors bassin | sans mesure `#a9b8c3`, avec mesure `#2b7bb9` | estompés (opacité 45 % et 35 %) |
 | cours d'eau du bassin | sans mesure `#a9b8c3`, avec mesure `#2b7bb9` | |
 | la Moselle et la Moselle canalisée | `#d6452b` | |
-| 64 sites de mesure du bassin | cercle blanc bordé de bleu, rouge pour les 13 sites de la Moselle | le nom du site s'affiche au survol |
+| 64 sites de mesure du bassin | cercle blanc bordé de bleu, rouge pour les 13 sites de la Moselle | le nom du site s'affiche dans une info-bulle au survol (au toucher sur écran tactile) |
 
 - **Zoom** : de 1 à 12 fois, à la molette ou au pincement, et déplacement en faisant glisser. Les traits et les sites gardent la même taille à l'écran quel que soit le zoom. Sur écran tactile, il faut deux doigts, pour qu'un seul doigt continue à faire défiler la page.
 - **Poids** : les tracés représentent environ 4,2 Mo à télécharger (1,2 Mo si le serveur compresse les fichiers).
@@ -216,12 +216,20 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 
 | Courbe | Couleur |
 | --- | --- |
-| semaine choisie avec le curseur (par défaut, la plus récente) | `#0b4f71`, trait épais |
+| semaine choisie avec la barre placée sous la carte (par défaut, la plus récente) | `#0b4f71`, trait épais |
 | semaine du débit le plus élevé (1ᵉʳ janvier 2018) | `#c77700` |
 | semaine du débit le plus faible (8 août 2022) | `#7b6bb0` |
 | débit médian de chaque site, toutes semaines confondues | gris, en tirets |
 
 - **Échelle** logarithmique par défaut, avec des graduations 1-3-10, ou linéaire. Les bornes de l'axe sont fixes, quelle que soit la semaine.
 - Sous le graphique sont affichés l'indice de la semaine choisie et son rang parmi les semaines classées.
+
+**Le film.** La barre de semaine, sous la carte, permet de faire défiler les semaines automatiquement :
+- ▶ lance le défilement vers les semaines suivantes, ◀ vers les précédentes. Le bouton du sens en cours affiche ⏸ : un nouveau clic met en pause, et un clic sur l'autre flèche inverse le sens.
+- Chaque semaine reste affichée **180 ms**. Les 1 393 semaines défilent donc en 4 min 11 s, ce qui laisse de la marge pour des arrêts plus longs sur certaines semaines.
+- Le film s'arrête à la première ou à la dernière semaine. Relancé depuis ce bout, il repart de l'autre bout.
+- Déplacer le curseur à la main met le film en pause.
+- Chaque étape attend que le navigateur ait affiché la précédente. Sur une machine lente, le film ralentit plutôt que de laisser le graphique en retard sur la date.
+- Pendant le film, seuls le graphique, sa légende et le résumé sont redessinés. La carte, plus lourde, n'est dessinée qu'une fois.
 - Les débits affichés viennent directement de `mesures.csv`, et l'indice de `profil_semaines.csv`.
 

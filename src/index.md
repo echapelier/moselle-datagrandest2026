@@ -25,33 +25,58 @@ const profil = preparerProfil({profilSites, profilSemaines, mesures});
 ```
 
 ```js
-// Commandes du profil, placées dans la carte du graphique plus bas.
-// Par défaut : la semaine la plus récente.
-const entreeSemaine = choixSemaine(profil.semaines);
+// Commandes. Par défaut : la semaine la plus récente.
+const entreeSemaine = choixSemaine(profil.semaines, {invalidation});
 const iSemaine = Generators.input(entreeSemaine);
 const entreeEchelle = Inputs.toggle({label: "Échelle log.", value: true});
 const echelleLog = Generators.input(entreeEchelle);
 ```
 
 ```js
+// La carte ne dépend pas de la semaine : elle n'est dessinée qu'une fois
+// (et à nouveau si la fenêtre change de taille).
+const blocCarte = resize((width, height) => carte({region, departements, traces, sites, width, height}));
+```
+
+```js
+// Emplacements du graphique, de sa légende et du résumé. Ils restent en
+// place ; seul leur contenu change à chaque semaine (voir plus bas), pour
+// que le film reste fluide.
+const blocGraphique = document.createElement("div");
+blocGraphique.className = "graphique-conteneur";
+const blocLegendeProfil = document.createElement("div");
+const blocResume = document.createElement("div");
+blocResume.className = "resume";
+// Taille disponible pour le graphique, suivie quand la fenêtre change.
+const tailleGraphique = Generators.observe((notifier) => {
+  const observateur = new ResizeObserver(([e]) => notifier({width: e.contentRect.width, height: e.contentRect.height}));
+  observateur.observe(blocGraphique);
+  return () => observateur.disconnect();
+});
+```
+
+```js
+// Mise à jour à chaque semaine (curseur ou film) et à chaque changement d'échelle.
 const semaine = profil.semaines[iSemaine];
+if (tailleGraphique.width > 0 && tailleGraphique.height > 0) {
+  blocGraphique.replaceChildren(graphiqueProfil(profil, {semaine, echelleLog, ...tailleGraphique}));
+}
+blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine));
+blocResume.textContent = resumeSemaine(profil, semaine);
 ```
 
 <div class="dataviz">
   <div class="card zone zone-carte">
+    <div class="carte-conteneur">${blocCarte}</div>
     ${legende()}
-    <div class="carte-conteneur">
-      ${resize((width, height) => carte({region, departements, traces, sites, width, height}))}
-    </div>
+    ${entreeSemaine}
   </div>
   <div class="card zone zone-graphique">
     <h2>Débits le long de la Moselle, d'amont en aval</h2>
-    <div class="commandes">${entreeSemaine}${entreeEchelle}</div>
-    ${legendeProfil(profil, semaine)}
-    <div class="graphique-conteneur">
-      ${resize((width, height) => graphiqueProfil(profil, {semaine, echelleLog, width, height}))}
-    </div>
-    <div class="resume">${resumeSemaine(profil, semaine)}</div>
+    <div class="commandes">${entreeEchelle}</div>
+    ${blocLegendeProfil}
+    ${blocGraphique}
+    ${blocResume}
   </div>
   <div class="card zone zone-texte">
     <h2>Lecture des graphiques</h2>

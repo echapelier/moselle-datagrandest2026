@@ -123,10 +123,18 @@
   margin: 0;
 }
 
-/* Le graphique occupe la place laissée par le titre, les commandes et le résumé. */
+/* Le graphique occupe la place laissée par le titre, les commandes et le
+   résumé. Il est posé en position absolue pour ne pas influer sur la taille
+   de son emplacement, qui sert à calculer la sienne. */
 .graphique-conteneur {
   flex: 1;
   min-height: 0;
+  position: relative;
+}
+
+.graphique-conteneur > svg {
+  position: absolute;
+  inset: 0;
 }
 
 .commandes {
@@ -145,13 +153,25 @@
 }
 
 .choix-semaine {
+  margin: 0;
+  font: 13px var(--sans-serif);
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  /* Prend la place disponible ; la case « Échelle log. » passe à la ligne
-     si besoin. */
-  flex: 1 1 18rem;
+  /* Sous la carte : hauteur naturelle, toute la largeur. */
+  flex: none;
   min-width: 0;
+}
+
+.choix-semaine button {
+  width: 2rem;
+  font-variant-emoji: text;
+}
+
+.choix-semaine button[aria-pressed="true"] {
+  background: var(--theme-foreground-focus);
+  color: var(--theme-background);
+  border-color: var(--theme-foreground-focus);
 }
 
 .choix-semaine input[type="range"] {
@@ -224,4 +244,23 @@
   height: 100%;
   color: var(--theme-foreground-muted);
   font: 14px var(--sans-serif);
+}
+
+/* ---------- Info-bulle de la carte ---------- */
+
+.carte {
+  position: relative;
+}
+
+.bulle-carte {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 6px));
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: var(--theme-background);
+  border: solid 1px var(--theme-foreground-faint);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  font: 12px var(--sans-serif);
+  white-space: nowrap;
+  pointer-events: none;
 }
