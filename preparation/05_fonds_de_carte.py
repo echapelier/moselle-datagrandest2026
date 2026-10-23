@@ -15,6 +15,11 @@
      precision=0.0001            coordonnées arrondies à 0,0001° (≈ 10 m) ;
      -filter remove-empty        dans un second passage, retire les objets
                                  devenus vides avec l'arrondi.
+   Enfin, les tracés sans site de mesure, qui ne servent qu'en fond, sont
+   regroupés : un seul objet (MultiLineString) par catégorie, sans
+   identifiant ni nom. Les tracés avec au moins un site de mesure restent
+   séparés, avec leur identifiant et leur nom. Les coordonnées ne changent
+   pas.
 2. Région et départements : pas de simplification, seulement le même
    arrondi des coordonnées (precision=0.0001), en gardant le sens des
    contours des fichiers d'origine (option gj2008), celui qu'attend d3.
@@ -25,7 +30,8 @@ Contrôles
     sont listés) ;
   - tous les tracés du bassin et tous les tracés rattachés à un site sont
     présents après simplification ;
-  - nombre de sommets et taille des fichiers, avant et après.
+  - nombre de sommets et taille des fichiers, avant et après ;
+  - le regroupement garde exactement les mêmes lignes et les mêmes sommets.
 
 Entrées : donnees-originales/cours-eau-region_1791104972648.geojson
           donnees-originales/region-grand-est.geojson
@@ -61,6 +67,7 @@ ENTREE_BASSIN = INTERMEDIAIRES / "02_bassin_moselle.csv"
 ENTREE_SITES = INTERMEDIAIRES / "03_sites_rattaches.csv"
 TEMPORAIRE = INTERMEDIAIRES / "05_cours_eau_proprietes.geojson"
 TEMPORAIRE_SIMPLIFIE = INTERMEDIAIRES / "05_cours_eau_simplifies.geojson"
+TEMPORAIRE_FILTRE = INTERMEDIAIRES / "05_cours_eau_simplifies_filtres.geojson"
 SORTIES = RACINE / "src" / "data"
 SORTIE_JOURNAL = RACINE / "preparation" / "journaux" / "05_fonds_de_carte.txt"
 SORTIE_CARTE = RACINE / "src" / "annexe" / "05_fond_de_carte.png"
@@ -131,7 +138,7 @@ def main() -> None:
     mapshaper(str(TEMPORAIRE), "-simplify", POURCENTAGE, "keep-shapes",
               "-o", f"precision={PRECISION}", "format=geojson", str(TEMPORAIRE_SIMPLIFIE))
     mapshaper(str(TEMPORAIRE_SIMPLIFIE), "-filter", "remove-empty",
-              "-o", f"precision={PRECISION}", "format=geojson", str(sortie_traces))
+              "-o", f"precision={PRECISION}", "format=geojson", str(TEMPORAIRE_FILTRE))
 
     # 2. Région et départements : arrondi des coordonnées seulement.
     # « gj2008 » garde le sens des contours des fichiers d'origine (sens des
@@ -144,7 +151,7 @@ def main() -> None:
                   "-o", f"precision={PRECISION}", "format=geojson", "gj2008", str(SORTIES / nom))
 
     # Contrôles.
-    simplifies = json.loads(sortie_traces.read_text(encoding="utf-8"))["features"]
+    simplifies = json.loads(TEMPORAIRE_FILTRE.read_text(encoding="utf-8"))["features"]
     codes_apres = {o["properties"]["CdOH"] for o in simplifies}
     retires = [o["properties"] for o in objets if o["properties"]["CdOH"] not in codes_apres]
     manquants_bassin = bassin - codes_apres
@@ -157,6 +164,37 @@ def main() -> None:
         return sum(1 for o in simplifies
                    if (categorie is None or o["properties"]["categorie"] == categorie)
                    and (mesure is None or o["properties"]["mesure"] == mesure))
+
+    # 3. Regroupement des tracés sans site de mesure, par catégorie.
+    def morceaux(geometrie):
+        return [geometrie["coordinates"]] if geometrie["type"] == "LineString" else geometrie["coordinates"]
+
+    separes = [o for o in simplifies if o["properties"]["mesure"] == 1]
+    groupes = {}
+    for o in simplifies:
+        if o["properties"]["mesure"] == 0:
+            groupe = groupes.setdefault(o["properties"]["categorie"], {"lignes": [], "nb": 0})
+            groupe["lignes"].extend(morceaux(o["geometry"]))
+            groupe["nb"] += 1
+    regroupes = [
+        {"type": "Feature",
+         "geometry": {"type": "MultiLineString", "coordinates": g["lignes"]},
+         "properties": {"categorie": categorie, "mesure": 0, "nb_traces": g["nb"]}}
+        for categorie, g in sorted(groupes.items())
+    ]
+    final = regroupes + separes
+    # Contrôle : mêmes lignes et mêmes sommets, dans le même ordre au sein de chaque groupe.
+    toutes = lambda liste: [l for o in liste for l in morceaux(o["geometry"])]
+    avant = toutes([o for o in simplifies if o["properties"]["mesure"] == 0])
+    if sorted(map(json.dumps, avant)) != sorted(map(json.dumps, toutes(regroupes))):
+        arreter("le regroupement a modifié des lignes")
+    if nb_sommets(final) != nb_sommets(simplifies):
+        arreter("le regroupement a modifié le nombre de sommets")
+    # Écriture : un objet par ligne, comme mapshaper.
+    with sortie_traces.open("w", encoding="utf-8") as f:
+        f.write('{"type":"FeatureCollection","features":[\n')
+        f.write(",\n".join(json.dumps(o, ensure_ascii=False, separators=(",", ":")) for o in final))
+        f.write("\n]}\n")
 
     resume = [
         f"mapshaper {version} : -simplify {POURCENTAGE} keep-shapes, -filter remove-empty, "
@@ -171,6 +209,11 @@ def main() -> None:
         f"hors_bassin {compte('hors_bassin')}",
         f"Tracés avec au moins un site de mesure : {compte(mesure=1)} "
         f"(dont {compte('moselle', 1) + compte('bassin', 1)} dans le bassin)",
+        f"Regroupement des tracés sans site de mesure : "
+        + ", ".join(f"{g['properties']['categorie']} {g['properties']['nb_traces']}" for g in regroupes)
+        + f" → {len(regroupes)} objets ; {len(separes)} tracés avec mesure gardés séparés",
+        f"Objets dans src/data/traces_cours_eau.geojson : {len(final)} ; sommets : "
+        + f"{nb_sommets(final):_}".replace("_", " "),
         "Tailles des fichiers :",
         f"  tracés d'origine                     {ENTREE_TRACES.stat().st_size / 1e6:6.2f} Mo",
     ]
@@ -198,7 +241,7 @@ def main() -> None:
         ("moselle", 0): dict(color="#0b3d66", lw=2.2, zorder=5),
         ("moselle", 1): dict(color="#0b3d66", lw=2.2, zorder=5),
     }
-    for o in simplifies:
+    for o in final:
         style = styles[(o["properties"]["categorie"], o["properties"]["mesure"])]
         for ligne in lignes(o["geometry"]):
             x, y = zip(*ligne)
@@ -222,7 +265,7 @@ def main() -> None:
     ax.set_title(f"Fond de carte : tracés simplifiés à {POURCENTAGE} (longitude, latitude)")
     # Un degré de longitude est plus court qu'un degré de latitude : on
     # corrige par le cosinus de la latitude moyenne des tracés.
-    latitudes = [pt[1] for o in simplifies for ligne in lignes(o["geometry"]) for pt in ligne]
+    latitudes = [pt[1] for o in final for ligne in lignes(o["geometry"]) for pt in ligne]
     ax.set_aspect(1 / math.cos(math.radians(sum(latitudes) / len(latitudes))))
     ax.axis("off")
     fig.savefig(SORTIE_CARTE, bbox_inches="tight")

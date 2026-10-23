@@ -146,13 +146,15 @@ Les tracés sont ensuite simplifiés avec **mapshaper 0.7.95**, dont la version 
 - `precision=0.0001` : les coordonnées sont arrondies à 0,0001°, soit environ 10 m ;
 - `-filter remove-empty`, dans un second passage : on retire les objets devenus vides avec l'arrondi. C'est le cas d'un seul tracé, « Ruisseau de Rebais », qui n'a que 2 sommets distants de 0,00001°.
 
+**Regroupement des tracés sans site de mesure.** Ces tracés ne servent que de fond. Après la simplification, on les regroupe en un seul objet (`MultiLineString`) par catégorie, sans identifiant ni nom : 1 531 tracés du bassin d'un côté, 7 274 hors bassin de l'autre. Les 123 tracés qui ont au moins un site de mesure restent séparés, avec leur identifiant et leur nom, pour pouvoir les désigner un par un si besoin. Le regroupement ne change aucune coordonnée : le script vérifie que les lignes et le nombre de sommets sont identiques avant et après. On évite ainsi de répéter 8 805 fois l'enveloppe d'un objet GeoJSON et ses propriétés, ce qui fait passer le fichier de 5,8 à 4,2 Mo.
+
 **Région et départements.** Ils ne sont pas simplifiés : leurs coordonnées sont seulement arrondies de la même façon. Avec l'option `gj2008`, mapshaper garde le sens des contours des fichiers d'origine (contour extérieur dans le sens des aiguilles d'une montre), qui est celui qu'attend la bibliothèque d3. Sans cette option, mapshaper suit la norme GeoJSON RFC 7946 (sens inverse), et d3 dessinerait le reste du globe au lieu de la région.
 
 **Résultat** (dans `src/data/`) :
 
 | Fichier | Contenu | Taille |
 | --- | --- | --- |
-| `traces_cours_eau.geojson` | 8 928 tracés : 2 Moselle, 1 560 bassin, 7 366 hors bassin. 250 163 sommets au lieu de 2 217 086 | 5,8 Mo (98 Mo à l'origine) |
+| `traces_cours_eau.geojson` | 8 928 tracés : 2 Moselle, 1 560 bassin, 7 366 hors bassin. 250 163 sommets au lieu de 2 217 086. 125 objets : 2 regroupements (tracés sans mesure) et 123 tracés avec mesure | 4,2 Mo (98 Mo à l'origine) |
 | `region.geojson` | contour de la région | 0,09 Mo |
 | `departements.geojson` | 10 départements | 0,31 Mo |
 
@@ -204,7 +206,7 @@ La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers d
 | 64 sites de mesure du bassin | cercle blanc bordé de bleu, rouge pour les 13 sites de la Moselle | le nom du site s'affiche au survol |
 
 - **Zoom** : de 1 à 12 fois, à la molette ou au pincement, et déplacement en faisant glisser. Les traits et les sites gardent la même taille à l'écran quel que soit le zoom. Sur écran tactile, il faut deux doigts, pour qu'un seul doigt continue à faire défiler la page.
-- **Poids** : les tracés représentent environ 5,8 Mo à télécharger (1,4 Mo si le serveur compresse les fichiers).
+- **Poids** : les tracés représentent environ 4,2 Mo à télécharger (1,2 Mo si le serveur compresse les fichiers).
 
 ## Le profil des débits
 

@@ -4,8 +4,10 @@ Tracés : 8929 avant, 8928 après
 Sommets des tracés : 2 217 086 avant, 250 163 après
 Catégories : moselle 2, bassin 1560, hors_bassin 7366
 Tracés avec au moins un site de mesure : 123 (dont 31 dans le bassin)
+Regroupement des tracés sans site de mesure : bassin 1531, hors_bassin 7274 → 2 objets ; 123 tracés avec mesure gardés séparés
+Objets dans src/data/traces_cours_eau.geojson : 125 ; sommets : 250 163
 Tailles des fichiers :
   tracés d'origine                      97.87 Mo
-  src/data/traces_cours_eau.geojson      5.83 Mo
+  src/data/traces_cours_eau.geojson      4.24 Mo
   src/data/region.geojson                0.09 Mo
   src/data/departements.geojson          0.31 Mo
