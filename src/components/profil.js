@@ -137,7 +137,7 @@ export function choixSemaine(semaines, {valeur = semaines.length - 1, invalidati
 // Les quatre courbes : débit médian, semaines extrêmes, semaine choisie.
 function courbesDuProfil(profil, semaine) {
   return [
-    {cle: "mediane", nom: "Débit médian de chaque site retenu", couleur: COULEURS_PROFIL.mediane, epaisseur: 1.5, tirets: "4,3"},
+    {cle: "mediane", nom: "Débit médian du site*", couleur: COULEURS_PROFIL.mediane, epaisseur: 1.5, tirets: "4,3"},
     {cle: "bas", nom: `Plus faible (${dateFr(profil.bas.date)})`, semaine: profil.bas.semaine, couleur: COULEURS_PROFIL.bas, epaisseur: 1.8},
     {cle: "haut", nom: `Plus élevé (${dateFr(profil.haut.date)})`, semaine: profil.haut.semaine, couleur: COULEURS_PROFIL.haut, epaisseur: 1.8},
     {cle: "choisie", nom: `Semaine du ${dateFr(semaine.date)}`, semaine: semaine.semaine, couleur: COULEURS_PROFIL.choisie, epaisseur: 3}
@@ -175,12 +175,17 @@ export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
   const haut = 10 ** Math.ceil(Math.log10(maxi));
   const gradLog = d3.range(Math.log10(bas), Math.log10(haut) + 1).flatMap((e) => [10 ** e, 3 * 10 ** e]).filter((t) => t <= haut);
 
+  const kmMax = d3.max(profil.sites, (s) => s.km) * 1.03;
+  const milieu = kmMax / 2;
+
   return Plot.plot({
     width,
     height,
     marginLeft: 64,
     marginRight: 16,
-    x: {label: width < 500 ? "Distance depuis l'amont (km) →" : "Distance depuis l'extrémité amont du tracé, dans la région (km) →", grid: true, domain: [0, d3.max(profil.sites, (s) => s.km) * 1.03]},
+    // Place au-dessus de la zone des courbes pour l'info-bulle des sites.
+    marginTop: 52,
+    x: {label: width < 500 ? "Distance depuis l'amont (km) →" : "Distance depuis l'extrémité amont du tracé, dans la région (km) →", grid: true, domain: [0, kmMax]},
     y: {
       type: echelleLog ? "log" : "linear",
       domain: echelleLog ? [bas, haut] : [0, maxi * 1.05],
@@ -192,37 +197,37 @@ export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
     color: {domain: courbes.map((c) => c.nom), range: courbes.map((c) => c.couleur)},
     marks: [
       // Une ligne verticale par site de mesure : pleine pour les sites
-      // retenus, en pointillés pour les autres. Le nom du site s'affiche au
-      // passage de la souris sur la ligne, qui se renforce.
+      // retenus, en pointillés pour les autres. Au passage de la souris, la
+      // ligne se renforce.
       Plot.ruleX(profil.sites.filter((s) => s.retenu), {x: "km", stroke: "#b5b5b5", strokeWidth: 1}),
       Plot.ruleX(profil.sites.filter((s) => !s.retenu), {x: "km", stroke: "#b5b5b5", strokeWidth: 1, strokeDasharray: "3,3"}),
       Plot.ruleX(profil.sites, Plot.pointerX({x: "km", stroke: "#555", strokeWidth: 1.5, maxRadius: 10})),
-      Plot.tip(
-        profil.sites,
-        Plot.pointerX({
-          x: "km",
-          frameAnchor: "top",
-          maxRadius: 10,
-          title: (s) => `${s.libelle_site}\n${s.km.toLocaleString("fr-FR", {maximumFractionDigits: 1})} km depuis l'amont` + (s.retenu ? "" : "\nsérie incomplète : hors calculs (semaines extrêmes, débit médian)")
-        })
-      ),
       ...courbes.flatMap((c) => {
         const donnees = points.filter((p) => p.courbe === c.nom);
         return [
           Plot.line(donnees, {x: "km", y: "debit", stroke: "courbe", strokeWidth: c.epaisseur, strokeDasharray: c.tirets}),
           Plot.dot(donnees, {x: "km", y: "debit", fill: "courbe", r: c.cle === "choisie" ? 4 : 2.5})
         ];
-      })
+      }),
+      // Nom du site, au-dessus de la zone des courbes (dans la marge du haut),
+      // dessiné en dernier pour passer devant tout le reste. L'info-bulle
+      // s'ouvre vers la droite pour les sites de la première moitié du
+      // graphique, vers la gauche pour les autres, pour ne pas être coupée.
+      ...[
+        {sites: profil.sites.filter((s) => s.km <= milieu), anchor: "bottom-left"},
+        {sites: profil.sites.filter((s) => s.km > milieu), anchor: "bottom-right"}
+      ].map(({sites, anchor}) =>
+        Plot.tip(
+          sites,
+          Plot.pointerX({
+            x: "km",
+            frameAnchor: "top",
+            anchor,
+            maxRadius: 10,
+            title: (s) => `${s.libelle_site}\n${s.km.toLocaleString("fr-FR", {maximumFractionDigits: 1})} km depuis l'amont`
+          })
+        )
+      )
     ]
   });
-}
-
-// Phrase sous le graphique : indice et rang de la semaine choisie.
-export function resumeSemaine(profil, semaine) {
-  if (semaine.nb_sites === 0) return "Aucun débit mesuré cette semaine-là sur la Moselle.";
-  const rang = profil.classees.indexOf(semaine);
-  const texte = `Indice de la semaine : ${nombreFr(semaine.indice)} (1 = débit habituel aux sites retenus)`;
-  return rang >= 0
-    ? `${texte}, ${rang + 1}ᵉ sur ${profil.classees.length} semaines classées (1ʳᵉ = la plus élevée).`
-    : `${texte} ; semaine non classée (${semaine.nb_sites} sites retenus mesurés sur ${profil.nbRetenus}).`;
 }

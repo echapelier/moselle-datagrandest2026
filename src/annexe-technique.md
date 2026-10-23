@@ -240,11 +240,12 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 | semaine choisie avec la barre placée sous le cadre de la carte (par défaut, la plus récente) | `#0b4f71`, trait épais |
 | semaine du débit le plus élevé (1ᵉʳ janvier 2018) | `#c77700` |
 | semaine du débit le plus faible (10 août 2026) | `#7b6bb0` |
-| débit médian de chaque site retenu, toutes semaines confondues | gris, en tirets |
+| débit médian de chaque site retenu, toutes semaines confondues (« Débit médian du site* » dans la légende ; l'astérisque renvoie aux sites retenus, voir l'étape 6) | gris, en tirets |
 
 - **Échelle** logarithmique par défaut, avec des graduations 1-3-10, ou linéaire. Les bornes de l'axe sont fixes, quelle que soit la semaine.
-- **Lignes verticales** : une par site de mesure, à sa distance depuis l'amont. Elles sont pleines pour les sites retenus et en pointillés pour les autres. Au passage de la souris, la ligne se renforce et le nom du site s'affiche.
-- Sous le graphique sont affichés l'indice de la semaine choisie et son rang parmi les semaines classées.
+- **Lignes verticales** : une par site de mesure, à sa distance depuis l'amont. Elles sont pleines pour les 8 sites retenus pour les calculs et en pointillés pour les 4 autres, dont la série est incomplète. Au passage de la souris, la ligne se renforce et une info-bulle donne le nom du site et sa distance. L'info-bulle s'affiche au-dessus de la zone des courbes, pour ne pas les masquer.
+- La **légende** est placée sous le graphique.
+- L'indice des semaines sert à choisir les semaines extrêmes ; il n'est pas affiché.
 
 **Le film.** La barre de semaine, sous le cadre de la carte, permet de faire défiler les semaines automatiquement :
 - ▶ lance le défilement vers les semaines suivantes, ◀ vers les précédentes. Le bouton du sens en cours affiche ⏸ : un nouveau clic met en pause, et un clic sur l'autre flèche inverse le sens.
@@ -252,6 +253,6 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 - Le film s'arrête à la première ou à la dernière semaine. Relancé depuis ce bout, il repart de l'autre bout.
 - Déplacer le curseur à la main met le film en pause.
 - Chaque étape attend que le navigateur ait affiché la précédente. Sur une machine lente, le film ralentit plutôt que de laisser le graphique en retard sur la date.
-- Pendant le film, seuls le graphique, sa légende et le résumé sont redessinés. La carte, plus lourde, n'est dessinée qu'une fois.
+- Pendant le film, seuls le graphique et sa légende sont redessinés. La carte, plus lourde, n'est dessinée qu'une fois.
 - Les débits affichés viennent directement de `mesures.csv`, et l'indice de `profil_semaines.csv`.
 

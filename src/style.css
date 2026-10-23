@@ -134,8 +134,8 @@
   margin: 0;
 }
 
-/* Le graphique occupe la place laissée par le titre, les commandes et le
-   résumé. Il est posé en position absolue pour ne pas influer sur la taille
+/* Le graphique occupe la place laissée par le titre, les commandes et la
+   légende. Il est posé en position absolue pour ne pas influer sur la taille
    de son emplacement, qui sert à calculer la sienne. */
 .graphique-conteneur {
   flex: 1;
@@ -202,10 +202,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.resume {
-  font: 12px var(--sans-serif);
-  color: var(--theme-foreground-muted);
-}
 
 .zone-texte {
   grid-area: texte;
