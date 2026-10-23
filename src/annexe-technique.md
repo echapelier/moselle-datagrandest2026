@@ -162,6 +162,30 @@ Les tracés sont ensuite simplifiés avec **mapshaper 0.7.95**, dont la version 
 
 ![Carte de contrôle du fond de carte](./annexe/05_fond_de_carte.png)
 
+## Étape 6 : profil le long de la Moselle
+
+Script : `preparation/06_profil_moselle.py`. Journal : `preparation/journaux/06_profil_moselle.txt`. Contrôle : `preparation/06b_verifier_indice.py`.
+
+**Distance de chaque site le long de la Moselle.**
+- Le tracé « la Moselle » est formé de 4 morceaux, avec une petite fourche. On en fait un graphe : les sommets sont les bouts des morceaux, les arêtes les morceaux, pondérées par leur longueur. On garde le plus long des plus courts chemins entre deux bouts libres, soit **314,3 km** dans la région.
+- Les sites de la Moselle et de la Moselle canalisée sont projetés sur ce chemin. Ils en sont tous à moins de 420 m, sous le seuil de l'étape 3. Les deux sites de la Moselle canalisée en sont à 0 et 27 m : on mesure donc tout le long du même tracé.
+- La distance d'un site est la longueur du chemin entre l'extrémité amont et son point projeté. Elle est mesurée depuis l'extrémité amont **du tracé dans la région**.
+- **Sens d'écoulement.** Le fichier ne dit pas de quel côté est l'amont. On le déduit des débits, puisque le débit médian augmente vers l'aval. La corrélation de rang (Spearman) entre la distance depuis la première extrémité et le débit médian vaut **-0,993**. L'amont est donc l'autre extrémité (6,892 ; 47,890), et l'aval est en (6,367 ; 49,467).
+- Le site « La Moselle à Metz [Pont des Morts] » n'a **aucun débit valide** sur toute la période : il est écarté. Le profil compte **12 sites**, de 12,1 à 283,0 km.
+
+**Indice des semaines.** On reprend la méthode des essais faits dans le notebook :
+- Seuls les débits strictement positifs sont pris en compte : les débits vides et les 0 sont écartés.
+- Le débit médian d'un site est la médiane de ses débits valides.
+- L'**indice** d'une semaine est la moyenne géométrique, sur les sites mesurés cette semaine-là, de (débit / débit médian du site). 1 = débit habituel aux sites, 2 = deux fois plus, 0,5 = deux fois moins.
+- Les **semaines classées** sont celles où les 12 sites ont un débit valide : il y en a 605. Comme ce nombre dépasse 20, la règle qui tolère des sites manquants n'est pas utilisée.
+- **Semaine du maximum : 1ᵉʳ janvier 2018** (indice 11,3). **Semaine du minimum : 8 août 2022** (indice 0,10).
+
+**Contrôle.** Le script `06b_verifier_indice.py` refait le calcul autrement, avec numpy, sous forme de tableau semaines × sites. Il retrouve le même nombre de sites pour chaque semaine, le même indice à 5·10⁻⁷ près (arrondi du fichier à 6 décimales) et les mêmes semaines extrêmes.
+
+**Fichiers produits** (dans `src/data/`) :
+- `profil_sites.csv` : site, libellé, distance, débit médian, nombre de débits valides, écart au tracé ;
+- `profil_semaines.csv` : semaine, date, nombre de sites mesurés, indice, semaine classée ou non.
+
 ## La carte
 
 Code : `src/components/carte.js`.
@@ -181,4 +205,21 @@ La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers d
 
 - **Zoom** : de 1 à 12 fois, à la molette ou au pincement, et déplacement en faisant glisser. Les traits et les sites gardent la même taille à l'écran quel que soit le zoom. Sur écran tactile, il faut deux doigts, pour qu'un seul doigt continue à faire défiler la page.
 - **Poids** : les tracés représentent environ 5,8 Mo à télécharger (1,4 Mo si le serveur compresse les fichiers).
+
+## Le profil des débits
+
+Code : `src/components/profil.js`.
+
+Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n'a pas de point.
+
+| Courbe | Couleur |
+| --- | --- |
+| semaine choisie avec le curseur (par défaut, la plus récente) | `#0b4f71`, trait épais |
+| semaine du débit le plus élevé (1ᵉʳ janvier 2018) | `#c77700` |
+| semaine du débit le plus faible (8 août 2022) | `#7b6bb0` |
+| débit médian de chaque site, toutes semaines confondues | gris, en tirets |
+
+- **Échelle** logarithmique par défaut, avec des graduations 1-3-10, ou linéaire. Les bornes de l'axe sont fixes, quelle que soit la semaine.
+- Sous le graphique sont affichés l'indice de la semaine choisie et son rang parmi les semaines classées.
+- Les débits affichés viennent directement de `mesures.csv`, et l'indice de `profil_semaines.csv`.
 

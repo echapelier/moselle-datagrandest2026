@@ -1,0 +1,13 @@
+site,libelle_site,distance_km,debit_median,nb_debits_valides,ecart_au_trace_m
+A4020610,La Moselle à Fresse-sur-Moselle,12.12,1810,1393,294
+A4050620,La Moselle à Rupt-sur-Moselle,24.06,3730,1366,48
+A4200630,La Moselle à Remiremont et à Saint-Nabord,50.66,15000,1386,231
+A4430640,La Moselle à Épinal,73.95,25300,1393,417
+A4550002,La Moselle à Châtel-sur-Moselle,94.48,25550,622,229
+A5110610,La Moselle à Saint-Mard et à Tonnoy et à Velle-sur-Moselle,133.77,30700,1328,111
+A5500610,La Moselle à Pont-Saint-Vincent,151.07,36350,1390,313
+A5730610,La Moselle à Toul,173.27,40500,1388,81
+A7010610,La Moselle à Custines,203.44,65700,1393,0
+A7400001,La Moselle à Corny-sur-Moselle,240.63,59900,645,27
+A7930610,La Moselle à Hagondange et à Hauconcourt,269.22,74200,720,232
+A8500610,La Moselle à Uckange,283.02,81400,1393,88

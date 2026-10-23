@@ -51,8 +51,8 @@
 .dataviz {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  /* À droite : 60 % de la hauteur pour le graphique, 40 % pour le texte. */
-  grid-template-rows: 3fr 2fr;
+  /* À droite : deux tiers de la hauteur pour le graphique, un tiers pour le texte. */
+  grid-template-rows: 2fr 1fr;
   grid-template-areas:
     "carte graphique"
     "carte texte";
@@ -114,6 +114,65 @@
 
 .zone-graphique {
   grid-area: graphique;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.zone-graphique h2 {
+  margin: 0;
+}
+
+/* Le graphique occupe la place laissée par le titre, les commandes et le résumé. */
+.graphique-conteneur {
+  flex: 1;
+  min-height: 0;
+}
+
+.commandes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.5rem;
+  font: 13px var(--sans-serif);
+}
+
+.commandes form {
+  margin: 0;
+  width: auto;
+  /* Étiquettes des commandes Inputs à leur largeur naturelle. */
+  --label-width: auto;
+}
+
+.choix-semaine {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  /* Prend la place disponible ; la case « Échelle log. » passe à la ligne
+     si besoin. */
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.choix-semaine input[type="range"] {
+  flex: 1;
+  min-width: 3rem;
+  width: auto;
+}
+
+.choix-semaine label,
+.choix-semaine output {
+  white-space: nowrap;
+}
+
+.choix-semaine output {
+  min-width: 7.5em;
+  font-variant-numeric: tabular-nums;
+}
+
+.resume {
+  font: 12px var(--sans-serif);
+  color: var(--theme-foreground-muted);
 }
 
 .zone-texte {
@@ -145,7 +204,7 @@
   }
 
   .dataviz > .zone-graphique {
-    min-height: 50vh;
+    min-height: 70vh;
   }
 
   .onglets {

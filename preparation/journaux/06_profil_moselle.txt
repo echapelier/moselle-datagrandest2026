@@ -1,0 +1,23 @@
+Tracé « la Moselle » : 4 morceaux, chemin principal de 314.3 km
+Corrélation de rang (distance, débit médian) depuis la première extrémité : -0.993
+Extrémité amont : 6.892, 47.890 ; extrémité aval : 6.367, 49.467 (longitude, latitude)
+
+Site écarté (aucun débit valide) : A7430610 La Moselle à Metz [Pont des Morts]
+Sites, d'amont en aval (distance depuis l'extrémité amont, débit médian, débits valides, écart au tracé)
+  A4020610 La Moselle à Fresse-sur-Moselle                               12.1 km      1810 L/s  1393   294 m
+  A4050620 La Moselle à Rupt-sur-Moselle                                 24.1 km      3730 L/s  1366    48 m
+  A4200630 La Moselle à Remiremont et à Saint-Nabord                     50.7 km     15000 L/s  1386   231 m
+  A4430640 La Moselle à Épinal                                           73.9 km     25300 L/s  1393   417 m
+  A4550002 La Moselle à Châtel-sur-Moselle                               94.5 km     25550 L/s   622   229 m
+  A5110610 La Moselle à Saint-Mard et à Tonnoy et à Velle-sur-Moselle   133.8 km     30700 L/s  1328   111 m
+  A5500610 La Moselle à Pont-Saint-Vincent                              151.1 km     36350 L/s  1390   313 m
+  A5730610 La Moselle à Toul                                            173.3 km     40500 L/s  1388    81 m
+  A7010610 La Moselle à Custines                                        203.4 km     65700 L/s  1393     0 m
+  A7400001 La Moselle à Corny-sur-Moselle                               240.6 km     59900 L/s   645    27 m
+  A7930610 La Moselle à Hagondange et à Hauconcourt                     269.2 km     74200 L/s   720   232 m
+  A8500610 La Moselle à Uckange                                         283.0 km     81400 L/s  1393    88 m
+
+Semaines : 1393 ; semaines où les 12 sites ont un débit valide : 605
+Semaines classées (au moins 12 sites sur 12) : 605
+Semaine du maximum : 2018W01 (2018-01-01), indice 11.265
+Semaine du minimum : 2022W32 (2022-08-08), indice 0.102

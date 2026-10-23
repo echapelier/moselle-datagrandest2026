@@ -46,9 +46,11 @@ uv run preparation/02_bassin_moselle.py
 uv run preparation/03_rapprocher_noms.py
 uv run preparation/04_filtrer_mesures.py
 uv run preparation/05_fonds_de_carte.py
+uv run preparation/06_profil_moselle.py
+uv run preparation/06b_verifier_indice.py
 ```
 
-Les scripts 04 et 05 écrivent les données de l'application dans `src/data/` (`sites.csv`, `cours_eau.csv`, `mesures.csv`, `traces_cours_eau.geojson`, `region.geojson`, `departements.geojson`), qui sont versionnées. Le script 05 utilise mapshaper, installé par `npm install`.
+Les scripts 04, 05 et 06 écrivent les données de l'application dans `src/data/` (`sites.csv`, `cours_eau.csv`, `mesures.csv`, `traces_cours_eau.geojson`, `region.geojson`, `departements.geojson`, `profil_sites.csv`, `profil_semaines.csv`), qui sont versionnées. Le script 05 utilise mapshaper, installé par `npm install`.
 
 Chaque script affiche ses contrôles ; certains écrivent aussi un journal dans `preparation/journaux/`.
 
