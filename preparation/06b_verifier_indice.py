@@ -1,7 +1,8 @@
 """Contrôle de l'étape 6 : recalculer l'indice des semaines autrement.
 
-Le calcul est refait avec numpy, sous forme de tableau semaines × sites,
-indépendamment du script 06, puis comparé à src/data/profil_semaines.csv :
+Le calcul est refait avec numpy, sous forme de tableau semaines × sites
+retenus, indépendamment du script 06, puis comparé à
+src/data/profil_semaines.csv :
 nombre de sites par semaine, indice (à l'arrondi près du fichier, 6
 décimales) et semaines du maximum et du minimum.
 
@@ -22,7 +23,7 @@ TOLERANCE = 1e-6
 
 def main() -> None:
     with (DONNEES / "profil_sites.csv").open(encoding="utf-8", newline="") as f:
-        sites = [r["site"] for r in csv.DictReader(f)]
+        sites = [r["site"] for r in csv.DictReader(f) if r["retenu_calcul"] == "1"]
     with (DONNEES / "mesures.csv").open(encoding="utf-8", newline="") as f:
         mesures = list(csv.DictReader(f))
     semaines = sorted({m["semaine"] for m in mesures})

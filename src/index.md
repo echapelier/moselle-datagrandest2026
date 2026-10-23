@@ -66,9 +66,11 @@ blocResume.textContent = resumeSemaine(profil, semaine);
 ```
 
 <div class="dataviz">
-  <div class="card zone zone-carte">
-    <div class="carte-conteneur">${blocCarte}</div>
-    ${legende()}
+  <div class="zone zone-carte">
+    <div class="card carte-cadre">
+      <div class="carte-conteneur">${blocCarte}</div>
+      ${legende()}
+    </div>
     ${entreeSemaine}
   </div>
   <div class="card zone zone-graphique">

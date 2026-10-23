@@ -18,11 +18,23 @@ le débit médian augmente vers l'aval. On calcule la corrélation de rang
 (Spearman) entre la distance depuis une extrémité et le débit médian des
 sites : si elle est positive, cette extrémité est l'amont.
 
-2. Indice des semaines (méthode des essais dans le notebook)
------------------------------------------------------------
+2. Sites retenus pour les calculs
+--------------------------------
 Débits valides : strictement positifs (vides et 0 sont écartés).
+Seuls les sites qui ont une série presque complète servent au calcul de
+l'indice et des semaines extrêmes. Un site est retenu s'il remplit les
+trois critères :
+  a) son premier débit valide date au plus tard de la semaine 2001W01
+     (première année du jeu de données) ;
+  b) il a un débit valide la dernière semaine du jeu de données (pas
+     d'interruption avant la fin) ;
+  c) au moins 97 % des semaines du jeu de données ont un débit valide.
+Les autres sites restent sur le profil (courbe de la semaine choisie).
+
+3. Indice des semaines (méthode des essais dans le notebook)
+-----------------------------------------------------------
 Débit médian d'un site = médiane de ses débits valides.
-Indice d'une semaine = moyenne géométrique, sur les sites qui ont un débit
+Indice d'une semaine = moyenne géométrique, sur les sites retenus qui ont un débit
 valide cette semaine-là, de (débit / débit médian du site). 1 = débit
 habituel aux sites, 2 = deux fois plus, 0,5 = deux fois moins.
 Semaines classées : celles où tous les sites ont un débit valide ; s'il y
@@ -65,6 +77,8 @@ SORTIE_JOURNAL = RACINE / "preparation" / "journaux" / "06_profil_moselle.txt"
 TRACE = "la Moselle"
 TRACES_DES_SITES = {"la Moselle", "la Moselle Canalisée"}
 MIN_SEMAINES = 20
+PREMIERE_SEMAINE_AU_PLUS_TARD = "2001W01"  # critère a
+PART_MIN_VALIDES = 0.97  # critère c
 
 VERS_LAMBERT93 = Transformer.from_crs("OGC:CRS84", "EPSG:2154", always_xy=True)
 
@@ -176,15 +190,28 @@ def main() -> None:
     aval = ligne.coords[-1] if rho > 0 else ligne.coords[0]
     sites.sort(key=lambda s: s["distance_km"])
 
-    # Indice des semaines.
+    # Sites retenus pour les calculs (critères a, b, c).
+    derniere = semaines[-1]
+    for s in sites:
+        valides = sorted(debits[s["site"]])
+        s["premiere"], s["derniere"] = valides[0], valides[-1]
+        s["part"] = len(valides) / len(semaines)
+        s["retenu"] = (s["premiere"] <= PREMIERE_SEMAINE_AU_PLUS_TARD
+                       and s["derniere"] == derniere
+                       and s["part"] >= PART_MIN_VALIDES)
+    retenus = [s for s in sites if s["retenu"]]
+    if len(retenus) < 2:
+        arreter(f"moins de deux sites retenus pour les calculs ({len(retenus)})")
+
+    # Indice des semaines, sur les sites retenus.
     lignes_semaines = []
     for semaine in semaines:
         rapports = [math.log(debits[s["site"]][semaine] / s["mediane"])
-                    for s in sites if semaine in debits[s["site"]]]
+                    for s in retenus if semaine in debits[s["site"]]]
         indice = math.exp(sum(rapports) / len(rapports)) if rapports else None
         lignes_semaines.append({"semaine": semaine, "date": dates[semaine],
                                 "nb_sites": len(rapports), "indice": indice})
-    min_sites = len(sites)
+    min_sites = len(retenus)
     while min_sites > 2 and sum(1 for w in lignes_semaines if w["nb_sites"] >= min_sites) < MIN_SEMAINES:
         min_sites -= 1
     classees = sorted((w for w in lignes_semaines if w["nb_sites"] >= min_sites),
@@ -196,10 +223,12 @@ def main() -> None:
     # Sorties.
     with SORTIE_SITES.open("w", encoding="utf-8", newline="") as f:
         e = csv.writer(f, lineterminator="\n")
-        e.writerow(["site", "libelle_site", "distance_km", "debit_median", "nb_debits_valides", "ecart_au_trace_m"])
+        e.writerow(["site", "libelle_site", "distance_km", "debit_median", "nb_debits_valides",
+                    "premiere_semaine", "derniere_semaine", "part_valides", "retenu_calcul", "ecart_au_trace_m"])
         for s in sites:
             e.writerow([s["site"], s["libelle_site"], f"{s['distance_km']:.2f}", f"{s['mediane']:g}",
-                        s["nb_valides"], f"{s['ecart_m']:.0f}"])
+                        s["nb_valides"], s["premiere"], s["derniere"], f"{s['part']:.4f}",
+                        1 if s["retenu"] else 0, f"{s['ecart_m']:.0f}"])
     with SORTIE_SEMAINES.open("w", encoding="utf-8", newline="") as f:
         e = csv.writer(f, lineterminator="\n")
         e.writerow(["semaine", "date", "nb_sites", "indice", "classee"])
@@ -215,16 +244,20 @@ def main() -> None:
         f"Extrémité amont : {lonlat(amont)} ; extrémité aval : {lonlat(aval)} (longitude, latitude)",
         "",
         *(f"Site écarté (aucun débit valide) : {s['site']} {s['libelle_site']}" for s in sans_debit),
-        "Sites, d'amont en aval (distance depuis l'extrémité amont, débit médian, débits valides, écart au tracé)",
+        "Sites, d'amont en aval (distance depuis l'extrémité amont, débit médian, écart au tracé,",
+        "première et dernière semaine valides, part de semaines valides, retenu pour les calculs)",
     ]
     for s in sites:
-        resume.append(f"  {s['site']} {s['libelle_site']:<58} {s['distance_km']:7.1f} km "
-                      f"{s['mediane']:>9g} L/s {s['nb_valides']:>5} {s['ecart_m']:>5.0f} m")
+        resume.append(f"  {s['site']} {s['libelle_site']:<58} {s['distance_km']:6.1f} km "
+                      f"{s['mediane']:>7g} L/s {s['ecart_m']:>4.0f} m  {s['premiere']} {s['derniere']} "
+                      f"{100 * s['part']:5.1f} %  {'oui' if s['retenu'] else 'non'}")
     resume += [
         "",
-        f"Semaines : {len(semaines)} ; semaines où les {len(sites)} sites ont un débit valide : "
-        f"{sum(1 for w in lignes_semaines if w['nb_sites'] == len(sites))}",
-        f"Semaines classées (au moins {min_sites} sites sur {len(sites)}) : {len(classees)}",
+        f"Critères : 1re semaine valide <= {PREMIERE_SEMAINE_AU_PLUS_TARD}, débit valide en {derniere}, "
+        f">= {100 * PART_MIN_VALIDES:.0f} % de semaines valides → {len(retenus)} sites retenus sur {len(sites)}",
+        f"Semaines : {len(semaines)} ; semaines où les {len(retenus)} sites retenus ont un débit valide : "
+        f"{sum(1 for w in lignes_semaines if w['nb_sites'] == len(retenus))}",
+        f"Semaines classées (au moins {min_sites} sites retenus sur {len(retenus)}) : {len(classees)}",
         f"Semaine du maximum : {haut['semaine']} ({haut['date']}), indice {haut['indice']:.3f}",
         f"Semaine du minimum : {bas['semaine']} ({bas['date']}), indice {bas['indice']:.3f}",
     ]

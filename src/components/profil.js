@@ -19,7 +19,9 @@ const nombreFr = (x) => x.toLocaleString("fr-FR", {maximumSignificantDigits: 3})
 // Prépare les données une fois pour toutes : sites dans l'ordre amont → aval,
 // débits valides (> 0) par site et par semaine, semaines extrêmes.
 export function preparerProfil({profilSites, profilSemaines, mesures}) {
-  const sites = profilSites.map((s) => ({...s, km: +s.distance_km, mediane: +s.debit_median}));
+  // « retenu » : site qui sert au calcul de l'indice, des semaines extrêmes
+  // et de la courbe du débit médian (série presque complète, voir l'Annexe).
+  const sites = profilSites.map((s) => ({...s, km: +s.distance_km, mediane: +s.debit_median, retenu: s.retenu_calcul === "1"}));
   const ensemble = new Set(sites.map((s) => s.site));
   const debits = new Map(sites.map((s) => [s.site, new Map()]));
   for (const m of mesures) {
@@ -32,12 +34,13 @@ export function preparerProfil({profilSites, profilSemaines, mesures}) {
     classee: w.classee === "1"
   }));
   const classees = d3.sort(semaines.filter((w) => w.classee), (w) => -w.indice);
-  return {sites, debits, semaines, classees, haut: classees[0], bas: classees[classees.length - 1]};
+  const nbRetenus = sites.filter((s) => s.retenu).length;
+  return {sites, nbRetenus, debits, semaines, classees, haut: classees[0], bas: classees[classees.length - 1]};
 }
 
 // Durée d'affichage de chaque semaine pendant le film : 1 393 semaines en
-// 4 min 11 s, ce qui laisse de la marge pour des arrêts plus longs.
-export const DUREE_SEMAINE_MS = 180;
+// 2 min 47 s, ce qui laisse de la marge pour des arrêts plus longs.
+export const DUREE_SEMAINE_MS = 120;
 
 // Curseur de semaine et film. Sa valeur est l'indice de la semaine dans la
 // liste.
@@ -134,7 +137,7 @@ export function choixSemaine(semaines, {valeur = semaines.length - 1, invalidati
 // Les quatre courbes : débit médian, semaines extrêmes, semaine choisie.
 function courbesDuProfil(profil, semaine) {
   return [
-    {cle: "mediane", nom: "Débit médian de chaque site", couleur: COULEURS_PROFIL.mediane, epaisseur: 1.5, tirets: "4,3"},
+    {cle: "mediane", nom: "Débit médian de chaque site retenu", couleur: COULEURS_PROFIL.mediane, epaisseur: 1.5, tirets: "4,3"},
     {cle: "bas", nom: `Plus faible (${dateFr(profil.bas.date)})`, semaine: profil.bas.semaine, couleur: COULEURS_PROFIL.bas, epaisseur: 1.8},
     {cle: "haut", nom: `Plus élevé (${dateFr(profil.haut.date)})`, semaine: profil.haut.semaine, couleur: COULEURS_PROFIL.haut, epaisseur: 1.8},
     {cle: "choisie", nom: `Semaine du ${dateFr(semaine.date)}`, semaine: semaine.semaine, couleur: COULEURS_PROFIL.choisie, epaisseur: 3}
@@ -149,9 +152,12 @@ export function legendeProfil(profil, semaine) {
 
 export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
   const courbes = courbesDuProfil(profil, semaine);
-  // Une courbe = une seule semaine ; un site sans débit cette semaine-là n'a pas de point.
+  // Une courbe = une seule semaine ; un site sans débit cette semaine-là n'a
+  // pas de point. Les courbes calculées (débit médian, semaines extrêmes) ne
+  // portent que sur les sites retenus ; la semaine choisie, sur tous les sites.
   const points = courbes.flatMap((c) =>
     profil.sites
+      .filter((s) => c.cle === "choisie" || s.retenu)
       .map((s) => ({
         courbe: c.nom,
         site: s.libelle_site,
@@ -185,21 +191,28 @@ export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
     },
     color: {domain: courbes.map((c) => c.nom), range: courbes.map((c) => c.couleur)},
     marks: [
+      // Une ligne verticale par site de mesure : pleine pour les sites
+      // retenus, en pointillés pour les autres. Le nom du site s'affiche au
+      // passage de la souris sur la ligne, qui se renforce.
+      Plot.ruleX(profil.sites.filter((s) => s.retenu), {x: "km", stroke: "#b5b5b5", strokeWidth: 1}),
+      Plot.ruleX(profil.sites.filter((s) => !s.retenu), {x: "km", stroke: "#b5b5b5", strokeWidth: 1, strokeDasharray: "3,3"}),
+      Plot.ruleX(profil.sites, Plot.pointerX({x: "km", stroke: "#555", strokeWidth: 1.5, maxRadius: 10})),
+      Plot.tip(
+        profil.sites,
+        Plot.pointerX({
+          x: "km",
+          frameAnchor: "top",
+          maxRadius: 10,
+          title: (s) => `${s.libelle_site}\n${s.km.toLocaleString("fr-FR", {maximumFractionDigits: 1})} km depuis l'amont` + (s.retenu ? "" : "\nsérie incomplète : hors calcul des extrêmes et du débit médian")
+        })
+      ),
       ...courbes.flatMap((c) => {
         const donnees = points.filter((p) => p.courbe === c.nom);
         return [
           Plot.line(donnees, {x: "km", y: "debit", stroke: "courbe", strokeWidth: c.epaisseur, strokeDasharray: c.tirets}),
           Plot.dot(donnees, {x: "km", y: "debit", fill: "courbe", r: c.cle === "choisie" ? 4 : 2.5})
         ];
-      }),
-      Plot.tip(
-        points,
-        Plot.pointer({
-          x: "km",
-          y: "debit",
-          title: (p) => `${p.site}\n${p.courbe}\n${p.km.toLocaleString("fr-FR", {maximumFractionDigits: 1})} km depuis l'amont\n${nombreFr(p.debit)} L/s`
-        })
-      )
+      })
     ]
   });
 }
@@ -208,8 +221,8 @@ export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
 export function resumeSemaine(profil, semaine) {
   if (semaine.nb_sites === 0) return "Aucun débit mesuré cette semaine-là sur la Moselle.";
   const rang = profil.classees.indexOf(semaine);
-  const texte = `Indice de la semaine : ${nombreFr(semaine.indice)} (1 = débit habituel aux sites)`;
+  const texte = `Indice de la semaine : ${nombreFr(semaine.indice)} (1 = débit habituel aux sites retenus)`;
   return rang >= 0
     ? `${texte}, ${rang + 1}ᵉ sur ${profil.classees.length} semaines classées (1ʳᵉ = la plus élevée).`
-    : `${texte} ; semaine non classée (${semaine.nb_sites} sites mesurés sur ${profil.sites.length}).`;
+    : `${texte} ; semaine non classée (${semaine.nb_sites} sites retenus mesurés sur ${profil.nbRetenus}).`;
 }

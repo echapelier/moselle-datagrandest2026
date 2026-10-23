@@ -175,17 +175,38 @@ Script : `preparation/06_profil_moselle.py`. Journal : `preparation/journaux/06_
 - **Sens d'écoulement.** Le fichier ne dit pas de quel côté est l'amont. On le déduit des débits, puisque le débit médian augmente vers l'aval. La corrélation de rang (Spearman) entre la distance depuis la première extrémité et le débit médian vaut **-0,993**. L'amont est donc l'autre extrémité (6,892 ; 47,890), et l'aval est en (6,367 ; 49,467).
 - Le site « La Moselle à Metz [Pont des Morts] » n'a **aucun débit valide** sur toute la période : il est écarté. Le profil compte **12 sites**, de 12,1 à 283,0 km.
 
-**Indice des semaines.** On reprend la méthode des essais faits dans le notebook :
-- Seuls les débits strictement positifs sont pris en compte : les débits vides et les 0 sont écartés.
-- Le débit médian d'un site est la médiane de ses débits valides.
-- L'**indice** d'une semaine est la moyenne géométrique, sur les sites mesurés cette semaine-là, de (débit / débit médian du site). 1 = débit habituel aux sites, 2 = deux fois plus, 0,5 = deux fois moins.
-- Les **semaines classées** sont celles où les 12 sites ont un débit valide : il y en a 605. Comme ce nombre dépasse 20, la règle qui tolère des sites manquants n'est pas utilisée.
-- **Semaine du maximum : 1ᵉʳ janvier 2018** (indice 11,3). **Semaine du minimum : 8 août 2022** (indice 0,10).
+**Sites retenus pour les calculs.** Un débit est **valide** s'il est strictement positif : les débits vides et les 0 sont écartés. Pour que les semaines extrêmes et le débit médian reposent sur des séries comparables, seuls les sites qui ont une série presque complète servent aux calculs. Un site est retenu s'il remplit les trois critères suivants :
+1. son premier débit valide date au plus tard de la semaine 2001W01, c'est-à-dire de la première année du jeu de données ;
+2. il a un débit valide la dernière semaine du jeu de données (2026W37, 7 septembre 2026), donc pas d'interruption avant la fin ;
+3. au moins **97 %** des 1 393 semaines ont un débit valide.
 
-**Contrôle.** Le script `06b_verifier_indice.py` refait le calcul autrement, avec numpy, sous forme de tableau semaines × sites. Il retrouve le même nombre de sites pour chaque semaine, le même indice à 5·10⁻⁷ près (arrondi du fichier à 6 décimales) et les mêmes semaines extrêmes.
+| Site | 1ʳᵉ semaine valide | Dernière | Semaines valides | Retenu |
+| --- | --- | --- | --- | --- |
+| Fresse-sur-Moselle | 2000W01 | 2026W37 | 100 % | oui |
+| Rupt-sur-Moselle | 2000W01 | 2026W37 | 98,1 % | oui |
+| Remiremont et Saint-Nabord | 2000W01 | 2026W37 | 99,5 % | oui |
+| Épinal | 2000W01 | 2026W37 | 100 % | oui |
+| Châtel-sur-Moselle | 2014W42 | 2026W37 | 44,7 % | non |
+| Saint-Mard, Tonnoy et Velle-sur-Moselle | 2001W01 | 2026W27 | 95,3 % | non |
+| Pont-Saint-Vincent | 2000W01 | 2026W37 | 99,8 % | oui |
+| Toul | 2000W01 | 2026W37 | 99,6 % | oui |
+| Custines | 2000W01 | 2026W37 | 100 % | oui |
+| Corny-sur-Moselle | 2014W17 | 2026W37 | 46,3 % | non |
+| Hagondange et Hauconcourt | 2012W48 | 2026W37 | 51,7 % | non |
+| Uckange | 2000W01 | 2026W37 | 100 % | oui |
+
+**8 sites sont retenus.** Aucun site n'a une part de semaines valides comprise entre 95,3 % et 98,1 %. Le seuil exact, autour de 97 %, ne change donc pas le résultat.
+
+**Indice des semaines.** On reprend la méthode des essais faits dans le notebook, sur les 8 sites retenus :
+- Le débit médian d'un site est la médiane de ses débits valides.
+- L'**indice** d'une semaine est la moyenne géométrique, sur les sites retenus mesurés cette semaine-là, de (débit / débit médian du site). 1 = débit habituel aux sites, 2 = deux fois plus, 0,5 = deux fois moins.
+- Les **semaines classées** sont celles où les 8 sites retenus ont un débit valide : il y en a 1 354. Comme ce nombre dépasse 20, la règle qui tolère des sites manquants n'est pas utilisée.
+- **Semaine du maximum : 1ᵉʳ janvier 2018** (indice 11,8). **Semaine du minimum : 10 août 2026** (indice 0,083).
+
+**Contrôle.** Le script `06b_verifier_indice.py` refait le calcul autrement, avec numpy, sous forme de tableau semaines × sites retenus. Il retrouve le même nombre de sites pour chaque semaine, le même indice à 5·10⁻⁷ près (arrondi du fichier à 6 décimales) et les mêmes semaines extrêmes.
 
 **Fichiers produits** (dans `src/data/`) :
-- `profil_sites.csv` : site, libellé, distance, débit médian, nombre de débits valides, écart au tracé ;
+- `profil_sites.csv` : site, libellé, distance, débit médian, nombre de débits valides, première et dernière semaines valides, part de semaines valides, site retenu ou non pour les calculs, écart au tracé ;
 - `profil_semaines.csv` : semaine, date, nombre de sites mesurés, indice, semaine classée ou non.
 
 ## La carte
@@ -212,21 +233,22 @@ La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers d
 
 Code : `src/components/profil.js`.
 
-Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n'a pas de point.
+Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n'a pas de point. La courbe de la semaine choisie passe par tous les sites mesurés cette semaine-là. Les courbes calculées (semaines extrêmes, débit médian) ne passent que par les 8 sites retenus.
 
 | Courbe | Couleur |
 | --- | --- |
-| semaine choisie avec la barre placée sous la carte (par défaut, la plus récente) | `#0b4f71`, trait épais |
+| semaine choisie avec la barre placée sous le cadre de la carte (par défaut, la plus récente) | `#0b4f71`, trait épais |
 | semaine du débit le plus élevé (1ᵉʳ janvier 2018) | `#c77700` |
-| semaine du débit le plus faible (8 août 2022) | `#7b6bb0` |
-| débit médian de chaque site, toutes semaines confondues | gris, en tirets |
+| semaine du débit le plus faible (10 août 2026) | `#7b6bb0` |
+| débit médian de chaque site retenu, toutes semaines confondues | gris, en tirets |
 
 - **Échelle** logarithmique par défaut, avec des graduations 1-3-10, ou linéaire. Les bornes de l'axe sont fixes, quelle que soit la semaine.
+- **Lignes verticales** : une par site de mesure, à sa distance depuis l'amont. Elles sont pleines pour les sites retenus et en pointillés pour les autres. Au passage de la souris, la ligne se renforce et le nom du site s'affiche.
 - Sous le graphique sont affichés l'indice de la semaine choisie et son rang parmi les semaines classées.
 
-**Le film.** La barre de semaine, sous la carte, permet de faire défiler les semaines automatiquement :
+**Le film.** La barre de semaine, sous le cadre de la carte, permet de faire défiler les semaines automatiquement :
 - ▶ lance le défilement vers les semaines suivantes, ◀ vers les précédentes. Le bouton du sens en cours affiche ⏸ : un nouveau clic met en pause, et un clic sur l'autre flèche inverse le sens.
-- Chaque semaine reste affichée **180 ms**. Les 1 393 semaines défilent donc en 4 min 11 s, ce qui laisse de la marge pour des arrêts plus longs sur certaines semaines.
+- Chaque semaine reste affichée **120 ms**. Les 1 393 semaines défilent donc en 2 min 47 s, ce qui laisse de la marge pour des arrêts plus longs sur certaines semaines.
 - Le film s'arrête à la première ou à la dernière semaine. Relancé depuis ce bout, il repart de l'autre bout.
 - Déplacer le curseur à la main met le film en pause.
 - Chaque étape attend que le navigateur ait affiché la précédente. Sur une machine lente, le film ralentit plutôt que de laisser le graphique en retard sur la date.
