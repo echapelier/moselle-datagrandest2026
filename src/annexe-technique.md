@@ -233,7 +233,7 @@ La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers d
 
 Code : `src/components/profil.js`.
 
-Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n'a pas de point. La courbe de la semaine choisie passe par tous les sites mesurés cette semaine-là. Les courbes calculées (semaines extrêmes, débit médian) ne passent que par les 8 sites retenus.
+Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n'a pas de point. Une courbe de semaine (semaine choisie, semaine du maximum, semaine du minimum) montre **tous les débits disponibles** cette semaine-là. Les **calculs**, eux, ne tiennent compte que des 8 sites retenus : l'indice, le classement, le choix des semaines extrêmes et la courbe du débit médian.
 
 | Courbe | Couleur |
 | --- | --- |

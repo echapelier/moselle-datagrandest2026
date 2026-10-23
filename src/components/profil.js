@@ -152,12 +152,12 @@ export function legendeProfil(profil, semaine) {
 
 export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
   const courbes = courbesDuProfil(profil, semaine);
-  // Une courbe = une seule semaine ; un site sans débit cette semaine-là n'a
-  // pas de point. Les courbes calculées (débit médian, semaines extrêmes) ne
-  // portent que sur les sites retenus ; la semaine choisie, sur tous les sites.
+  // Une courbe de semaine (choisie, maximum, minimum) montre tous les débits
+  // disponibles cette semaine-là ; un site sans débit n'a pas de point. Seule
+  // la courbe du débit médian, qui est un calcul, se limite aux sites retenus.
   const points = courbes.flatMap((c) =>
     profil.sites
-      .filter((s) => c.cle === "choisie" || s.retenu)
+      .filter((s) => c.cle !== "mediane" || s.retenu)
       .map((s) => ({
         courbe: c.nom,
         site: s.libelle_site,
@@ -203,7 +203,7 @@ export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
           x: "km",
           frameAnchor: "top",
           maxRadius: 10,
-          title: (s) => `${s.libelle_site}\n${s.km.toLocaleString("fr-FR", {maximumFractionDigits: 1})} km depuis l'amont` + (s.retenu ? "" : "\nsérie incomplète : hors calcul des extrêmes et du débit médian")
+          title: (s) => `${s.libelle_site}\n${s.km.toLocaleString("fr-FR", {maximumFractionDigits: 1})} km depuis l'amont` + (s.retenu ? "" : "\nsérie incomplète : hors calculs (semaines extrêmes, débit médian)")
         })
       ),
       ...courbes.flatMap((c) => {
