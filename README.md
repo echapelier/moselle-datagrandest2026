@@ -44,7 +44,10 @@ uv run preparation/00_verifier_empreintes.py
 uv run preparation/01_nettoyer_donnees.py
 uv run preparation/02_bassin_moselle.py
 uv run preparation/03_rapprocher_noms.py
+uv run preparation/04_filtrer_mesures.py
 ```
+
+Le dernier script écrit les données de l'application dans `src/data/` (`sites.csv`, `cours_eau.csv`, `mesures.csv`), qui sont versionnées.
 
 Chaque script affiche ses contrôles ; certains écrivent aussi un journal dans `preparation/journaux/`.
 

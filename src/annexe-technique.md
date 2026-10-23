@@ -109,4 +109,21 @@ Pour les sites rattachés, la distance au tracé est de 135 m en médiane et de 
 
 ## Étape 4 : filtrage des mesures
 
-<!-- À venir. -->
+Script : `preparation/04_filtrer_mesures.py`.
+
+On ne garde que les lignes de `donnees.csv` (nettoyé à l'étape 1) dont le site est dans le bassin de la Moselle (étape 3). Ces lignes sont réparties en trois fichiers, pour ne pas répéter à chaque semaine les informations qui ne changent pas. Ce sont les données de l'application, dans `src/data/` :
+
+| Fichier | Une ligne par | Colonnes | Lignes |
+| --- | --- | --- | --- |
+| `sites.csv` | site | site, libelle_site, code_cours_eau, libelle_commune, commune, dept, libelle_dept, lat, lon, etiage, et le tracé rattaché à l'étape 3 (CdOH, TopoOH, distance_m) | 64 |
+| `cours_eau.csv` | cours d'eau | code_cours_eau, uri_cours_eau, libelle_cours_eau | 31 |
+| `mesures.csv` | site et semaine | semaine, site, temp, pluie, neige, debit, humidite, date | 89 152 |
+
+Jointures : `mesures.site` → `sites.site`, puis `sites.code_cours_eau` → `cours_eau.code_cours_eau`. Les fichiers sont lus et écrits en texte : les valeurs restent exactement celles de l'étape 1, zéros initiaux compris.
+
+**Contrôles.**
+- Les colonnes de `sites.csv` sont constantes pour chaque site, et celles de `cours_eau.csv` pour chaque cours d'eau.
+- Chaque site a exactement une ligne par semaine : 1 393 semaines, de 2000W01 à 2026W37, soit 64 × 1 393 = 89 152 lignes.
+- **Jointure complète** : en recollant les trois fichiers écrits, on retrouve exactement les 89 152 lignes de l'étape 1 pour ces sites.
+
+**À savoir pour les calculs.** Dans `mesures.csv`, 17 645 valeurs de `debit` sont vides (sites qui ne mesurent pas sur toute la période) et 74 valeurs valent 0. La valeur -1 (code d'erreur) n'apparaît pas pour ces sites. Les autres mesures (temp, pluie, neige, humidite) n'ont aucune valeur vide.
