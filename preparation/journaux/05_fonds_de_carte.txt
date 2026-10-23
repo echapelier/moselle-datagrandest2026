@@ -1,0 +1,11 @@
+mapshaper 0.7.95 : -simplify 10% keep-shapes, -filter remove-empty, precision=0.0001
+Tracés : 8929 avant, 8928 après
+  retiré (vide après arrondi) : 02C0000002000797664 « Ruisseau de Rebais »
+Sommets des tracés : 2 217 086 avant, 250 163 après
+Catégories : moselle 2, bassin 1560, hors_bassin 7366
+Tracés avec au moins un site de mesure : 123 (dont 31 dans le bassin)
+Tailles des fichiers :
+  tracés d'origine                      97.87 Mo
+  src/data/traces_cours_eau.geojson      5.83 Mo
+  src/data/region.geojson                0.09 Mo
+  src/data/departements.geojson          0.31 Mo

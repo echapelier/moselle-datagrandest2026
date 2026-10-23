@@ -11,6 +11,7 @@
     "@observablehq/framework": "1.13.4"
   },
   "devDependencies": {
+    "mapshaper": "0.7.95",
     "rimraf": "^5.0.5"
   },
   "engines": {

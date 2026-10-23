@@ -127,3 +127,37 @@ Jointures : `mesures.site` → `sites.site`, puis `sites.code_cours_eau` → `co
 - **Jointure complète** : en recollant les trois fichiers écrits, on retrouve exactement les 89 152 lignes de l'étape 1 pour ces sites.
 
 **À savoir pour les calculs.** Dans `mesures.csv`, 17 645 valeurs de `debit` sont vides (sites qui ne mesurent pas sur toute la période) et 74 valeurs valent 0. La valeur -1 (code d'erreur) n'apparaît pas pour ces sites. Les autres mesures (temp, pluie, neige, humidite) n'ont aucune valeur vide.
+
+## Étape 5 : fonds de carte
+
+Script : `preparation/05_fonds_de_carte.py`. Journal : `preparation/journaux/05_fonds_de_carte.txt`.
+
+**Cours d'eau.** Tous les tracés de la région sont gardés pour la carte. On ne conserve que quatre propriétés :
+
+| Propriété | Contenu |
+| --- | --- |
+| `CdOH`, `TopoOH` | identifiant et nom du tracé |
+| `categorie` | `moselle` (la Moselle et la Moselle canalisée), `bassin` (autre tracé du bassin, étape 2) ou `hors_bassin` |
+| `mesure` | 1 si au moins un site de mesure de la région est rattaché au tracé (étape 3), sinon 0 |
+
+Les tracés sont ensuite simplifiés avec **mapshaper 0.7.95**, dont la version est figée dans `package.json` :
+
+- `-simplify 10% keep-shapes` : on garde 10 % des sommets qui peuvent être supprimés, sans faire disparaître de tracé ;
+- `precision=0.0001` : les coordonnées sont arrondies à 0,0001°, soit environ 10 m ;
+- `-filter remove-empty`, dans un second passage : on retire les objets devenus vides avec l'arrondi. C'est le cas d'un seul tracé, « Ruisseau de Rebais », qui n'a que 2 sommets distants de 0,00001°.
+
+**Région et départements.** Ils ne sont pas simplifiés : leurs coordonnées sont seulement arrondies de la même façon.
+
+**Résultat** (dans `src/data/`) :
+
+| Fichier | Contenu | Taille |
+| --- | --- | --- |
+| `traces_cours_eau.geojson` | 8 928 tracés : 2 Moselle, 1 560 bassin, 7 366 hors bassin. 250 163 sommets au lieu de 2 217 086 | 5,8 Mo (98 Mo à l'origine) |
+| `region.geojson` | contour de la région | 0,09 Mo |
+| `departements.geojson` | 10 départements | 0,31 Mo |
+
+123 tracés ont au moins un site de mesure, dont 31 dans le bassin de la Moselle.
+
+**Contrôles.** Le script vérifie la version de mapshaper. Il vérifie aussi que tous les tracés du bassin et tous les tracés rattachés à un site sont présents après simplification.
+
+![Carte de contrôle du fond de carte](./annexe/05_fond_de_carte.png)
