@@ -146,7 +146,7 @@ Les tracés sont ensuite simplifiés avec **mapshaper 0.7.95**, dont la version 
 - `precision=0.0001` : les coordonnées sont arrondies à 0,0001°, soit environ 10 m ;
 - `-filter remove-empty`, dans un second passage : on retire les objets devenus vides avec l'arrondi. C'est le cas d'un seul tracé, « Ruisseau de Rebais », qui n'a que 2 sommets distants de 0,00001°.
 
-**Région et départements.** Ils ne sont pas simplifiés : leurs coordonnées sont seulement arrondies de la même façon.
+**Région et départements.** Ils ne sont pas simplifiés : leurs coordonnées sont seulement arrondies de la même façon. Avec l'option `gj2008`, mapshaper garde le sens des contours des fichiers d'origine (contour extérieur dans le sens des aiguilles d'une montre), qui est celui qu'attend la bibliothèque d3. Sans cette option, mapshaper suit la norme GeoJSON RFC 7946 (sens inverse), et d3 dessinerait le reste du globe au lieu de la région.
 
 **Résultat** (dans `src/data/`) :
 
@@ -161,3 +161,24 @@ Les tracés sont ensuite simplifiés avec **mapshaper 0.7.95**, dont la version 
 **Contrôles.** Le script vérifie la version de mapshaper. Il vérifie aussi que tous les tracés du bassin et tous les tracés rattachés à un site sont présents après simplification.
 
 ![Carte de contrôle du fond de carte](./annexe/05_fond_de_carte.png)
+
+## La carte
+
+Code : `src/components/carte.js`.
+
+La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers de l'étape 5 et de `sites.csv`.
+
+- **Projection** : conique conforme de Lambert, avec les parallèles 44° et 49° et le méridien 3° E, ajustée au contour de la région.
+- **Couches**, de bas en haut :
+
+| Couche | Couleur | Remarque |
+| --- | --- | --- |
+| région, puis départements | fond `#f3efe6`, contours `#555` et `#b8b3a6` | |
+| cours d'eau hors bassin | sans mesure `#a9b8c3`, avec mesure `#2b7bb9` | estompés (opacité 45 % et 35 %) |
+| cours d'eau du bassin | sans mesure `#a9b8c3`, avec mesure `#2b7bb9` | |
+| la Moselle et la Moselle canalisée | `#d6452b` | |
+| 64 sites de mesure du bassin | cercle blanc bordé de bleu, rouge pour les 13 sites de la Moselle | le nom du site s'affiche au survol |
+
+- **Zoom** : de 1 à 12 fois, à la molette ou au pincement, et déplacement en faisant glisser. Les traits et les sites gardent la même taille à l'écran quel que soit le zoom. Sur écran tactile, il faut deux doigts, pour qu'un seul doigt continue à faire défiler la page.
+- **Poids** : les tracés représentent environ 5,8 Mo à télécharger (1,4 Mo si le serveur compresse les fichiers).
+

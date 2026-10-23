@@ -16,7 +16,8 @@
      -filter remove-empty        dans un second passage, retire les objets
                                  devenus vides avec l'arrondi.
 2. Région et départements : pas de simplification, seulement le même
-   arrondi des coordonnées (precision=0.0001).
+   arrondi des coordonnées (precision=0.0001), en gardant le sens des
+   contours des fichiers d'origine (option gj2008), celui qu'attend d3.
 
 Contrôles
 ---------
@@ -133,10 +134,14 @@ def main() -> None:
               "-o", f"precision={PRECISION}", "format=geojson", str(sortie_traces))
 
     # 2. Région et départements : arrondi des coordonnées seulement.
+    # « gj2008 » garde le sens des contours des fichiers d'origine (sens des
+    # aiguilles d'une montre pour le contour extérieur), celui qu'attend d3.
+    # Sans cette option, mapshaper suit la norme RFC 7946 (sens inverse) et
+    # d3 dessinerait le reste du globe au lieu de la région.
     for entree, nom in (("region-grand-est.geojson", "region.geojson"),
                         ("departements-grand-est.geojson", "departements.geojson")):
         mapshaper(str(ORIGINES / entree),
-                  "-o", f"precision={PRECISION}", "format=geojson", str(SORTIES / nom))
+                  "-o", f"precision={PRECISION}", "format=geojson", "gj2008", str(SORTIES / nom))
 
     # Contrôles.
     simplifies = json.loads(sortie_traces.read_text(encoding="utf-8"))["features"]

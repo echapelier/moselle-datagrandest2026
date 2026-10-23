@@ -70,6 +70,46 @@
 
 .zone-carte {
   grid-area: carte;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* La carte occupe toute la place laissée par la légende. */
+.carte-conteneur {
+  flex: 1;
+  min-height: 0;
+}
+
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  font: 12px var(--sans-serif);
+  color: var(--theme-foreground-muted);
+}
+
+.legende span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Trait de couleur (cours d'eau) et cercle (site de mesure). */
+.legende i {
+  display: inline-block;
+  width: 1.2rem;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.legende b {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid;
+  border-radius: 50%;
+  background: white;
 }
 
 .zone-graphique {
@@ -98,8 +138,10 @@
     height: auto;
   }
 
-  .dataviz > .zone-carte {
-    min-height: 70vh;
+  /* La carte prend à peu près les proportions de la région. */
+  .carte-conteneur {
+    flex: none;
+    aspect-ratio: 6 / 5;
   }
 
   .dataviz > .zone-graphique {
