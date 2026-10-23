@@ -41,7 +41,10 @@ Depuis la racine du projet, lancer les scripts dans l'ordre :
 
 ```
 uv run preparation/00_verifier_empreintes.py
+uv run preparation/01_nettoyer_donnees.py
 ```
+
+Les fichiers intermédiaires, trop volumineux pour Git, sont écrits dans `donnees-intermediaires/` (non versionné).
 
 ## Construire et prévisualiser le site
 
