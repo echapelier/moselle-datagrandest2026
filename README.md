@@ -42,7 +42,10 @@ Depuis la racine du projet, lancer les scripts dans l'ordre :
 ```
 uv run preparation/00_verifier_empreintes.py
 uv run preparation/01_nettoyer_donnees.py
+uv run preparation/02_bassin_moselle.py
 ```
+
+Chaque script affiche ses contrôles ; certains écrivent aussi un journal dans `preparation/journaux/`.
 
 Les fichiers intermédiaires, trop volumineux pour Git, sont écrits dans `donnees-intermediaires/` (non versionné).
 

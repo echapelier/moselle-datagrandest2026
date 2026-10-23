@@ -1,0 +1,46 @@
+Tracés lus : 8929
+Contacts extrémité → tracé : 12734
+Tracés du bassin de la Moselle (Moselle et Moselle canalisée comprises) : 1562
+  dont sans nom : 0
+  noms distincts : 1444
+Canaux et rigoles touchant le bassin ou un passage : 23, dont 6 traversés
+Tracés retenus grâce aux passages : 29
+Tracés non retenus car atteints seulement par un canal ou une rigole : 11
+
+Contrôle : recouvrement avec les bassins voisins (même méthode)
+  la Sarre               275 tracés, 0 en commun
+  la Meuse               866 tracés, 0 en commun
+  le Rhin                219 tracés, 0 en commun
+  l'Ill                  662 tracés, 0 en commun
+  la Marne               965 tracés, 0 en commun
+  la Seine              1021 tracés, 0 en commun
+  la Saône               101 tracés, 0 en commun
+  la Nied                133 tracés, 0 en commun
+  la Nied Allemande       45 tracés, 0 en commun
+
+Canaux et rigoles qui se terminent sur un tracé du bassin ou sur un passage
+(entre parenthèses : cours d'eau qui n'atteignent le bassin que par eux ;
+ « traversé » : ouvrage de la liste PASSAGES, ses cours d'eau sont retenus)
+  Ancien Canal de la Marne au Rhin (0) 
+  Ancien Canal de la Moselle (0) 
+  Canal de Flottage des Salines [traversé] reçoit directement : Ruisseau de Brû; Ruisseau de Névoine; Ruisseau de Varisaille; Ruisseau de Voilchematte; Ruisseau de l'Etang du Pre Bernard; Ruisseau de la Fosse; Ruisseau de la Grosse Behaie; Ruisseau de la Prêle; Ruisseau de la Saline; Ruisseau des Grandes Rayes; Ruisseau du Breuil; Ruisseau du Saussis
+  Canal de Jonction (0) 
+  Canal de Jonction (Embranchement de Nancy) (0) 
+  Canal de Morteau [traversé] reçoit directement : Ruisseau de Clos Pres
+  Canal de l'Est (11) Ruisseau Grandrupt; Ruisseau Pierre Boudiou; Ruisseau d'Hautmougey; Ruisseau de Beaumenil; Ruisseau de Francogney; Ruisseau de Quicorne; Ruisseau de Reblangotte; Ruisseau des Auriers; Ruisseau des Cailloux; Ruisseau des Colnots; Ruisseau des Sept Pêcheurs
+  Canal de l'Est (Branche Sud) [traversé] reçoit directement : Ruisseau de Bainville-aux-Miroirs; Ruisseau de l'Etang Garroy; Ruisseau de la Deuille; Ruisseau de la Laumont; Ruisseau des Aunots; Ruisseau des Clamées; Ruisseau du Bois Sarrasin; Rupt dit Miné
+  Canal de l'Est (Branche d'Épinal) (0) 
+  Canal de l'Obrion (0) 
+  Canal de la Moselle (0) 
+  Canal de la Vieille Seille (0) 
+  Canal des Grands Moulins (0) 
+  Canal des Usines [traversé] reçoit directement : Ruisseau d'Antilleux; la Lizerne
+  Canal des Écluses (0) 
+  Canal du Libauxaire (0) 
+  Canal du Moulin (0) 
+  Canal du Moulin (0) 
+  Canal du Moulin (0) 
+  Rigole d'Alimentation du Bassin de Virement [traversé] reçoit directement : Ruisseau de la Borne
+  Rigole d'Alimentation du Bief de Partage du Canal de l'Est (0) 
+  Rigole d'Alimentation du Reservoir de Bouzey [traversé] reçoit directement : Ruisseau de Pouxeux
+  le Petit Canal (0) 
