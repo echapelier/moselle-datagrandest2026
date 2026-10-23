@@ -76,7 +76,36 @@ Un seul ouvrage est refusé : le « Canal de l'Est » (contact en 6,304 ; 48,172
 
 ## Étape 3 : rapprochement des noms entre le CSV et le GeoJSON
 
-<!-- À venir. -->
+Script : `preparation/03_rapprocher_noms.py`. Journal : `preparation/journaux/03_rapprocher_noms.txt`.
+
+Les deux fichiers ne désignent pas les cours d'eau de la même façon. `donnees.csv` utilise un code (`code_cours_eau`) et un libellé (`libelle_cours_eau`), le GeoJSON un nom (`TopoOH`). On rattache donc **chaque site de mesure** à un tracé en combinant le nom et la position. On sait ensuite, grâce à l'étape 2, si le site est dans le bassin de la Moselle.
+
+**Précision des positions.** Les coordonnées des sites sont arrondies à 2 décimales en latitude et à 3 en longitude. La vraie position peut donc être éloignée de la position arrondie d'un demi-pas d'arrondi dans chaque direction, soit 556 m vers le nord ou le sud et 36 m vers l’est ou l’ouest. Le **seuil** de distance accepté entre un site et son tracé en découle : **558 m**.
+
+**Normalisation des noms.** On retire les accents, on met en minuscules, on remplace l'apostrophe typographique par l'apostrophe droite et on réduit les espaces multiples. Exemple : « La Moselle Canalisee » (CSV) et « la Moselle Canalisée » (GeoJSON) deviennent identiques.
+
+**Règles, appliquées site par site :**
+
+1. **Même nom** : parmi les tracés dont le nom normalisé est égal au libellé du cours d'eau, on prend le plus proche du site, s'il est à moins du seuil. 262 sites sont rattachés ainsi.
+2. **Mot commun** : sinon, on prend le tracé le plus proche, à moins du seuil, dont le nom partage un mot distinctif avec le libellé du cours d'eau ou avec le nom écrit dans le libellé du site (la partie avant « à »). Les mots comme « ruisseau », « le », « la » ou « de » sont ignorés. 3 sites sont rattachés ainsi :
+
+| Site | Libellé du cours d'eau | Tracé rattaché | Distance |
+| --- | --- | --- | --- |
+| La Béhine à Lapoutroie | La Bechine | la Béhine | 100 m |
+| L'Eberbach à Leutenheim | Ruisseau l'Eberbach | Eberbach | 34 m |
+| Le Veymerange à Thionville | Ruisseau le Veymerange | Ruisseau de Veymerange | 346 m |
+
+3. Sinon, le site reste non rattaché. C'est le cas d'un seul site, « [Source de Flanrupt] à Bourbonne-les-Bains », qui n'a ni code de cours d'eau (`0`) ni libellé.
+
+Pour les sites rattachés, la distance au tracé est de 135 m en médiane et de 538 m au maximum. Elle reste sous le seuil.
+
+**Homonymes.** Plusieurs tracés peuvent porter le même nom. C'est la position qui départage. Par exemple, le site « L'Horn à Bousseviller » est rattaché au tracé « la Horn » situé à 271 m, qui n'est pas dans le bassin de la Moselle, et non à son homonyme qui s'y trouve. Un seul site a deux tracés de même nom à moins du seuil (« La Marne à Joinville », à 4 m et à 68 m). Le plus proche est retenu, et ce site est hors du bassin.
+
+**Contrôles.**
+- Les coordonnées et libellés de chaque site sont identiques sur toutes ses lignes.
+- Tous les sites d'un même code de cours d'eau sont soit tous dans le bassin, soit tous dehors.
+
+**Résultat : 64 sites dans le bassin de la Moselle, sur 31 cours d'eau**, dont 11 sites sur la Moselle et 2 sur la Moselle canalisée. La liste complète est dans le journal.
 
 ## Étape 4 : filtrage des mesures
 

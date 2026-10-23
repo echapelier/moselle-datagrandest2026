@@ -43,6 +43,7 @@ Depuis la racine du projet, lancer les scripts dans l'ordre :
 uv run preparation/00_verifier_empreintes.py
 uv run preparation/01_nettoyer_donnees.py
 uv run preparation/02_bassin_moselle.py
+uv run preparation/03_rapprocher_noms.py
 ```
 
 Chaque script affiche ses contrôles ; certains écrivent aussi un journal dans `preparation/journaux/`.

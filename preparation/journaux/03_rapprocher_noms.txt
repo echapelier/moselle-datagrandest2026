@@ -1,0 +1,320 @@
+Sites : 266
+Précision des coordonnées : 2 décimales en latitude, 3 en longitude
+Seuil de distance site → tracé : 558 m
+Rattachés par le même nom : 262
+Rattachés par un mot commun : 3
+Non rattachés : 1
+Distance au tracé rattaché : médiane 135 m, maximum 538 m
+Sites dans le bassin de la Moselle : 64, sur 31 cours d'eau
+
+Rattachements par un mot commun
+  A2110300 « La Béhine à Lapoutroie » (La Bechine) → « la Béhine » à 100 m
+  A3680210 « L'Eberbach à Leutenheim » (Ruisseau l'Eberbach) → « Eberbach » à 34 m
+  A8603040 « Le Veymerange à Thionville » (Ruisseau le Veymerange) → « Ruisseau de Veymerange » à 346 m [bassin]
+
+Sites non rattachés
+  U0045005 « [Source de Flanrupt] à Bourbonne-les-Bains » (code « 0 », libellé «  »)
+
+Ambiguïtés (plusieurs tracés du même nom à moins du seuil ; le plus proche est retenu)
+  H5071020 « La Marne à Joinville » : 03C0000002000815787 à 4 m, 03C0000002000799082 à 68 m
+
+Cours d'eau mesurés dans le bassin de la Moselle (code, libellé, nombre de sites)
+  A---0060   La Moselle                     11
+  A---0082   La Moselle Canalisee           2
+  A41-0200   La Moselotte                   1
+  A4170300   Ruisseau de la Cleurie         1
+  A43-0200   La Vologne                     1
+  A4330300   Ruisseau le Neune              1
+  A46-0200   L'Aviere                       1
+  A5--0100   Le Madon                       3
+  A52-0200   Ruisseau la Gitte              1
+  A54-0200   Le Brenon                      1
+  A6--0100   La Meurthe                     8
+  A6--0110   La Vezouze                     3
+  A6--0120   La Mortagne                    3
+  A62-0200   La Plaine                      1
+  A64-0200   La Blette                      1
+  A6640300   Ruisseau l'Arentele            1
+  A68-0200   Le Sanon                       1
+  A7--0100   La Seille                      4
+  A71-0200   Ruisseau d'Esche               1
+  A73-0200   Ruisseau le Rupt de Mad        1
+  A76-0200   La Petite Seille               1
+  A8--0100   L'Orne                         5
+  A8010620   Ruisseau de Vaux               1
+  A81-0200   L'Yron                         2
+  A83-0200   Ruisseau le Woigot             2
+  A8310300   Ruisseau de la Vallee          1
+  A84-0200   Ruisseau le Conroy             1
+  A85-0200   La Fensch                      1
+  A8600300   Ruisseau le Veymerange         1
+  A8640300   Ruisseau la Kiesel             1
+  A87-0200   Ruisseau le Canner             1
+
+Tous les sites (site, tracé rattaché, distance, méthode, bassin)
+  A0220200  Ruisseau l'Augraben          → Ruisseau l'Augraben              338 m  même nom     0
+  A0610050  Le Rhin                      → le Rhin                           26 m  même nom     0
+  A1000030  L'Ill                        → l'Ill                             18 m  même nom     0
+  A1050030  L'Ill                        → l'Ill                            405 m  même nom     0
+  A1070200  Ruisseau le Thalbach         → Ruisseau le Thalbach             182 m  même nom     0
+  A1120100  La Largue                    → la Largue                        328 m  même nom     0
+  A1130300  Ruisseau le Traubach         → Ruisseau le Traubach             411 m  même nom     0
+  A1150200  La Largue                    → la Largue                        232 m  même nom     0
+  A1160030  L'Ill                        → l'Ill                            193 m  même nom     0
+  A1200203  La Doller                    → la Doller                        182 m  même nom     0
+  A1210001  La Doller                    → la Doller                         67 m  même nom     0
+  A1240201  La Doller                    → la Doller                        423 m  même nom     0
+  A1250200  La Doller                    → la Doller                        460 m  même nom     0
+  A1300001  L'Ill                        → l'Ill                            379 m  même nom     0
+  A1330030  L'Ill                        → l'Ill                            169 m  même nom     0
+  A1402020  La Thur                      → la Thur                           85 m  même nom     0
+  A1430200  La Thur                      → la Thur                          174 m  même nom     0
+  A1460203  La Thur                      → la Thur                          121 m  même nom     0
+  A1470040  L'Ill                        → l'Ill                             55 m  même nom     0
+  A1470041  L'Ill                        → l'Ill                            249 m  même nom     0
+  A1500200  La Lauch                     → la Lauch                         178 m  même nom     0
+  A1520200  La Lauch                     → la Lauch                          75 m  même nom     0
+  A1560201  La Lauch                     → la Lauch                          43 m  même nom     0
+  A1610030  L'Ill                        → l'Ill                             85 m  même nom     0
+  A2010100  La Fecht                     → la Fecht                         404 m  même nom     0
+  A2020300  Ruisseau la Petite Fecht     → Ruisseau la Petite Fecht         165 m  même nom     0
+  A2040102  La Fecht                     → la Fecht                         206 m  même nom     0
+  A2100201  La Weiss                     → la Weiss                         313 m  même nom     0
+  A2110300  La Bechine                   → la Béhine                        100 m  mot commun   0
+  A2120200  La Weiss                     → la Weiss                         429 m  même nom     0
+  A2140100  La Fecht                     → la Fecht                           6 m  même nom     0
+  A2140101  La Fecht                     → la Fecht                         196 m  même nom     0
+  A2150300  Ruisseau le Strengbach       → Ruisseau le Strengbach            19 m  même nom     0
+  A2200001  L'Ill                        → l'Ill                            203 m  même nom     0
+  A2260320  L'Ill                        → l'Ill                            177 m  même nom     0
+  A2280030  L'Ill                        → l'Ill                             63 m  même nom     0
+  A2310200  Le Giessen                   → le Giessen                       114 m  même nom     0
+  A2340210  La Liepvrette                → la Lièpvrette                      1 m  même nom     0
+  A2350200  Le Giessen                   → le Giessen                       209 m  même nom     0
+  A2360030  L'Ill                        → l'Ill                             35 m  même nom     0
+  A2430030  L'Ill                        → l'Ill                             12 m  même nom     0
+  A2510200  L'Andlau                     → l'Andlau                         377 m  même nom     0
+  A2610200  Ruisseau l'Ehn               → Ruisseau l'Ehn                   165 m  même nom     0
+  A2730110  La Bruche                    → la Bruche                        475 m  même nom     0
+  A2820001  La Mossig                    → la Mossig                        314 m  même nom     0
+  A2840200  La Mossig                    → la Mossig                        206 m  même nom     0
+  A2850110  La Bruche                    → la Bruche                        406 m  même nom     0
+  A2860110  La Bruche                    → la Bruche                         55 m  même nom     0
+  A3020090  Le Rhin                      → le Rhin                          298 m  même nom     0
+  A3120001  La Moder                     → la Moder                         500 m  même nom     0
+  A3250210  Ruisseau le Falkensteinbach  → Ruisseau le Falkensteinbach      109 m  même nom     0
+  A3300100  La Moder                     → la Moder                         254 m  même nom     0
+  A3410200  La Zorn                      → la Zorn                           64 m  même nom     0
+  A3430210  La Zinsel du Sud             → la Zinsel du Sud                   4 m  même nom     0
+  A3480200  La Zorn                      → la Zorn                           57 m  même nom     0
+  A3500100  La Moder                     → la Moder                         159 m  même nom     0
+  A3610110  La Sauer                     → la Sauer                          22 m  même nom     0
+  A3680210  Ruisseau l'Eberbach          → Eberbach                          34 m  mot commun   0
+  A3690110  La Sauer                     → la Sauer                          36 m  même nom     0
+  A3730200  Ruisseau le Seltzbach        → Ruisseau le Seltzbach            362 m  même nom     0
+  A3800200  La Lauter                    → la Lauter                         86 m  même nom     0
+  A4020610  La Moselle                   → la Moselle                       294 m  même nom     1
+  A4050620  La Moselle                   → la Moselle                        48 m  même nom     1
+  A4140202  La Moselotte                 → la Moselotte                     214 m  même nom     1
+  A4173010  Ruisseau de la Cleurie       → Ruisseau de la Cleurie           222 m  même nom     1
+  A4200630  La Moselle                   → la Moselle                       231 m  même nom     1
+  A4333010  Ruisseau le Neune            → Ruisseau le Neune                517 m  même nom     1
+  A4362030  La Vologne                   → la Vologne                       114 m  même nom     1
+  A4430640  La Moselle                   → la Moselle                       417 m  même nom     1
+  A4550002  La Moselle                   → la Moselle                       229 m  même nom     1
+  A4632010  L'Aviere                     → l'Avière                         100 m  même nom     1
+  A5110610  La Moselle                   → la Moselle                       111 m  même nom     1
+  A5230110  Le Madon                     → le Madon                          10 m  même nom     1
+  A5242010  Ruisseau la Gitte            → Ruisseau la Gitte                 38 m  même nom     1
+  A5261020  Le Madon                     → le Madon                          95 m  même nom     1
+  A5422011  Le Brenon                    → le Brénon                        390 m  même nom     1
+  A5431010  Le Madon                     → le Madon                         434 m  même nom     1
+  A5500610  La Moselle                   → la Moselle                       313 m  même nom     1
+  A5730610  La Moselle                   → la Moselle                        81 m  même nom     1
+  A6001010  La Meurthe                   → la Meurthe                       426 m  même nom     1
+  A6051020  La Meurthe                   → la Meurthe                       496 m  même nom     1
+  A6151030  La Meurthe                   → la Meurthe                       118 m  même nom     1
+  A6232010  La Plaine                    → la Plaine                        380 m  même nom     1
+  A6311010  La Meurthe                   → la Meurthe                        44 m  même nom     1
+  A6341010  La Meurthe                   → la Meurthe                       251 m  même nom     1
+  A6431120  La Vezouze                   → la Vezouze                       204 m  même nom     1
+  A6480001  La Blette                    → la Blette                         82 m  même nom     1
+  A6541110  La Vezouze                   → la Vezouze                        63 m  même nom     1
+  A6571110  La Vezouze                   → la Vezouze                       370 m  même nom     1
+  A6621212  La Mortagne                  → la Mortagne                      147 m  même nom     1
+  A6640310  Ruisseau l'Arentele          → Ruisseau l'Arentele               95 m  même nom     1
+  A6701210  La Mortagne                  → la Mortagne                      105 m  même nom     1
+  A6731220  La Mortagne                  → la Mortagne                      189 m  même nom     1
+  A6761010  La Meurthe                   → la Meurthe                       330 m  même nom     1
+  A6860001  Le Sanon                     → le Sânon                          37 m  même nom     1
+  A6921010  La Meurthe                   → la Meurthe                       258 m  même nom     1
+  A6941020  La Meurthe                   → la Meurthe                         9 m  même nom     1
+  A7010610  La Moselle Canalisee         → la Moselle Canalisée              89 m  même nom     1
+  A7122010  Ruisseau d'Esche             → Ruisseau d'Esche                  28 m  même nom     1
+  A7352010  Ruisseau le Rupt de Mad      → Ruisseau le Rupt de Mad          147 m  même nom     1
+  A7400001  La Moselle Canalisee         → la Moselle Canalisée              27 m  même nom     1
+  A7430610  La Moselle                   → la Moselle                       352 m  même nom     1
+  A7581020  La Seille                    → la Seille                         77 m  même nom     1
+  A7642010  La Petite Seille             → la Petite Seille                 240 m  même nom     1
+  A7701010  La Seille                    → la Seille                        427 m  même nom     1
+  A7821010  La Seille                    → la Seille                          1 m  même nom     1
+  A7881010  La Seille                    → la Seille                          1 m  même nom     1
+  A7930610  La Moselle                   → la Moselle                       232 m  même nom     1
+  A8006210  Ruisseau de Vaux             → Ruisseau de Vaux                 478 m  même nom     1
+  A8021010  L'Orne                       → l'Orne                           147 m  même nom     1
+  A8071010  L'Orne                       → l'Orne                           241 m  même nom     1
+  A8120201  L'Yron                       → l'Yron                            10 m  même nom     1
+  A8122000  L'Yron                       → l'Yron                           104 m  même nom     1
+  A8201010  L'Orne                       → l'Orne                           193 m  même nom     1
+  A8300201  Ruisseau le Woigot           → Ruisseau le Woigot               423 m  même nom     1
+  A8310300  Ruisseau de la Vallee        → Ruisseau de la Vallée            115 m  même nom     1
+  A8322010  Ruisseau le Woigot           → Ruisseau le Woigot                36 m  même nom     1
+  A8401010  L'Orne                       → l'Orne                           151 m  même nom     1
+  A8420201  Ruisseau le Conroy           → Ruisseau le Conroy                 3 m  même nom     1
+  A8431010  L'Orne                       → l'Orne                           396 m  même nom     1
+  A8500610  La Moselle                   → la Moselle                        88 m  même nom     1
+  A8603040  Ruisseau le Veymerange       → Ruisseau de Veymerange           346 m  mot commun   1
+  A8612020  La Fensch                    → la Fensch                        289 m  même nom     1
+  A8640300  Ruisseau la Kiesel           → Ruisseau la Kiesel               433 m  même nom     1
+  A8732010  Ruisseau le Canner           → Ruisseau le Canner                14 m  même nom     1
+  A8910301  Ruisseau Kaelbach            → Ruisseau Kaelbach                 99 m  même nom     0
+  A9001050  La Sarre                     → la Sarre                         120 m  même nom     0
+  A9013050  La Sarre Rouge               → la Sarre Rouge                    16 m  même nom     0
+  A9021010  La Sarre                     → la Sarre                          25 m  même nom     0
+  A9021020  La Sarre                     → la Sarre                         107 m  même nom     0
+  A9021021  Ruisseau de Gondrexange      → Ruisseau de Gondrexange           93 m  même nom     0
+  A9062150  L'Isch                       → l'Isch                            37 m  même nom     0
+  A9071050  La Sarre                     → la Sarre                          69 m  même nom     0
+  A9091060  La Sarre                     → la Sarre                           9 m  même nom     0
+  A9192050  L'Albe                       → l'Albe                           262 m  même nom     0
+  A9201070  La Sarre                     → la Sarre                         493 m  même nom     0
+  A9232050  Ruisseau l'Eichel            → Ruisseau l'Eichel                 41 m  même nom     0
+  A9260001  Ruisseau l'Eichel            → Ruisseau l'Eichel                 24 m  même nom     0
+  A9301080  La Sarre                     → la Sarre                         131 m  même nom     0
+  A9322150  La Horn                      → la Horn                          271 m  même nom     0
+  A9372050  La Blies                     → la Blies                         237 m  même nom     0
+  A9372053  La Blies                     → la Blies                          92 m  même nom     0
+  A9532050  Ruisseau la Rosselle         → Ruisseau la Rosselle             204 m  même nom     0
+  A9612050  La Bisten                    → la Bisten                        199 m  même nom     0
+  A9731210  La Nied                      → la Nied                            1 m  même nom     0
+  A9752010  La Nied                      → la Nied                          107 m  même nom     0
+  A9832010  La Nied Allemande            → la Nied Allemande                385 m  même nom     0
+  A9862010  La Nied Allemande            → la Nied Allemande                 57 m  même nom     0
+  A9942020  La Nied                      → la Nied                          245 m  même nom     0
+  B0220010  La Meuse                     → la Meuse                          24 m  même nom     0
+  B1052010  Le Mouzon                    → le Mouzon                        145 m  même nom     0
+  B1092010  Le Mouzon                    → le Mouzon                        173 m  même nom     0
+  B1100000  La Meuse                     → la Meuse                          55 m  même nom     0
+  B1150010  La Meuse                     → la Meuse                           3 m  même nom     0
+  B1222010  Le Vair                      → le Vair                          171 m  même nom     0
+  B1282010  Le Vair                      → le Vair                          122 m  même nom     0
+  B1300010  La Meuse                     → la Meuse                          40 m  même nom     0
+  B1340010  La Meuse                     → la Meuse                          95 m  même nom     0
+  B2042010  Ruisseau l'Aroffe            → Ruisseau l'Aroffe                 88 m  même nom     0
+  B2130010  La Meuse                     → la Meuse                         155 m  même nom     0
+  B2220010  La Meuse                     → la Meuse                          94 m  même nom     0
+  B3010010  La Meuse                     → la Meuse                         216 m  même nom     0
+  B3150020  La Meuse                     → la Meuse                         103 m  même nom     0
+  B4001010  La Chiers                    → la Chiers                        230 m  même nom     0
+  B4021010  La Chiers                    → la Chiers                         87 m  même nom     0
+  B4031010  La Chiers                    → la Chiers                        513 m  même nom     0
+  B4132010  La Crusnes                   → la Crusnes                        52 m  même nom     0
+  B4224310  Le Thon                      → le Thon                          461 m  même nom     0
+  B4352010  L'Othain                     → l'Othain                         326 m  même nom     0
+  B4530001  Le Loison                    → le Loison                        258 m  même nom     0
+  B4572010  Le Loison                    → le Loison                          2 m  même nom     0
+  B4601010  La Chiers                    → la Chiers                        250 m  même nom     0
+  B4631010  La Chiers                    → la Chiers                         56 m  même nom     0
+  B4660101  La Chiers                    → la Chiers                        135 m  même nom     0
+  B5020010  La Meuse                     → la Meuse                         234 m  même nom     0
+  B5172010  La Bar                       → la Bar                             2 m  même nom     0
+  B5322010  La Vence                     → la Vence                         141 m  même nom     0
+  B5400010  La Meuse                     → la Meuse                          75 m  même nom     0
+  B5572010  La Sormonne                  → la Sormonne                       12 m  même nom     0
+  B5600101  La Meuse                     → la Meuse                         211 m  même nom     0
+  B6111010  La Semoy                     → la Semoy                          27 m  même nom     0
+  B7000010  La Meuse                     → la Meuse                          53 m  même nom     0
+  B7200000  La Meuse                     → la Meuse                          95 m  même nom     0
+  B7322010  La Houille                   → la Houille                       418 m  même nom     0
+  F6130001  La Marne                     → la Marne                          50 m  même nom     0
+  F6240002  Le Petit Morin               → le Petit Morin                   286 m  même nom     0
+  H0100020  La Seine                     → la Seine                         281 m  même nom     0
+  H0203020  La Laignes                   → la Laignes                       173 m  même nom     0
+  H0400010  La Seine                     → la Seine                         167 m  même nom     0
+  H0400020  La Seine                     → la Seine                         426 m  même nom     0
+  H0503010  L'Hozain                     → l'Hozain                          18 m  même nom     0
+  H0702010  La Barse                     → la Barse                         186 m  même nom     0
+  H0800011  La Barse                     → la Barse                           6 m  même nom     0
+  H0800012  La Seine                     → la Seine                           8 m  même nom     0
+  H0810010  La Seine                     → la Seine                         268 m  même nom     0
+  H1001010  L'Aube                       → l'Aube                            54 m  même nom     0
+  H1051020  L'Aube                       → l'Aube                            66 m  même nom     0
+  H1102009  L'Aujon                      → l'Aujon                           47 m  même nom     0
+  H1122020  L'Aujon                      → l'Aujon                          282 m  même nom     0
+  H1201010  L'Aube                       → l'Aube                           107 m  même nom     0
+  H1231010  L'Aube                       → l'Aube                           192 m  même nom     0
+  H1501010  L'Aube                       → l'Aube                           222 m  même nom     0
+  H1550001  La Vesle                     → la Vesle                         304 m  même nom     0
+  H1603010  La Superbe                   → la Superbe                       203 m  même nom     0
+  H1700010  La Seine                     → la Seine                         275 m  même nom     0
+  H1713010  L'Ardusson                   → l'Ardusson                       127 m  même nom     0
+  H2473010  L'Armance                    → l'Armance                         56 m  même nom     0
+  H5011020  La Marne                     → la Marne                          24 m  même nom     0
+  H5023010  La Traire                    → la Traire                        186 m  même nom     0
+  H5031010  La Marne                     → la Marne                         106 m  même nom     0
+  H5031020  La Marne                     → la Marne                         150 m  même nom     0
+  H5033310  La Suize                     → la Suize                         125 m  même nom     0
+  H5042010  Le Rognon                    → le Rognon                         23 m  même nom     0
+  H5053210  La Manoise                   → la Manoise                       256 m  même nom     0
+  H5062010  Le Rognon                    → le Rognon                        106 m  même nom     0
+  H5071010  La Marne                     → la Marne                         303 m  même nom     0
+  H5071020  La Marne                     → la Marne                           4 m  même nom     0
+  H5071040  La Marne                     → la Marne                         121 m  même nom     0
+  H5071050  La Marne                     → la Marne                         240 m  même nom     0
+  H5083050  La Blaise                    → la Blaise                        205 m  même nom     0
+  H5083070  La Blaise                    → la Blaise                         82 m  même nom     0
+  H5091010  La Marne                     → la Marne                          47 m  même nom     0
+  H5102030  La Saulx                     → la Saulx                         538 m  même nom     0
+  H5102040  La Saulx                     → la Saulx                          14 m  même nom     0
+  H5112310  L'Ornain                     → l'Ornain                          22 m  même nom     0
+  H5122340  L'Ornain                     → l'Ornain                         123 m  même nom     0
+  H5122350  L'Ornain                     → l'Ornain                         169 m  même nom     0
+  H5142610  La Chee                      → la Chée                          334 m  même nom     0
+  H5142620  La Chee                      → la Chée                            8 m  même nom     0
+  H5153010  La Viere                     → la Vière                          83 m  même nom     0
+  H5172010  La Saulx                     → la Saulx                         339 m  même nom     0
+  H5173110  La Bruxenelle                → la Bruxenelle                    134 m  même nom     0
+  H5201005  La Marne                     → la Marne                         135 m  même nom     0
+  H5201010  La Marne                     → la Marne                          25 m  même nom     0
+  H5204210  La Coole                     → la Coole                         133 m  même nom     0
+  H5213310  La Soude                     → la Soudé                          41 m  même nom     0
+  H5224310  Le Cubry                     → le Cubry                          18 m  même nom     0
+  H5231025  La Marne                     → la Marne                          63 m  même nom     0
+  H5243010  La Semoigne                  → la Semoigne                      100 m  même nom     0
+  H5412030  Le Petit Morin               → le Petit Morin                   124 m  même nom     0
+  H6021020  L'Aisne                      → l'Aisne                          132 m  même nom     0
+  H6102010  L'Aire                       → l'Aire                           376 m  même nom     0
+  H6122010  L'Aire                       → l'Aire                            24 m  même nom     0
+  H6162010  L'Aire                       → l'Aire                           387 m  même nom     0
+  H6201010  L'Aisne                      → l'Aisne                          208 m  même nom     0
+  H6201020  L'Aisne                      → l'Aisne                           85 m  même nom     0
+  H6211010  L'Aisne                      → l'Aisne                          121 m  même nom     0
+  H6221010  L'Aisne                      → l'Aisne                          168 m  même nom     0
+  H6221020  L'Aisne                      → l'Aisne                          352 m  même nom     0
+  H6233020  La Vaux                      → la Vaux                           74 m  même nom     0
+  H6301010  L'Aisne                      → l'Aisne                          144 m  même nom     0
+  H6303830  La Retourne                  → la Retourne                       13 m  même nom     0
+  H6303840  La Retourne                  → la Retourne                      436 m  même nom     0
+  H6313030  La Suippe                    → la Suippe                        184 m  même nom     0
+  H6402010  La Vesle                     → la Vesle                         100 m  même nom     0
+  H6402030  La Vesle                     → la Vesle                         236 m  même nom     0
+  H6412010  La Vesle                     → la Vesle                         171 m  même nom     0
+  H6423010  L'Ardre                      → l'Ardre                          264 m  même nom     0
+  H6423020  L'Ardre                      → l'Ardre                          282 m  même nom     0
+  U0020010  La Saône                     → la Saône                         216 m  même nom     0
+  U0045004  L'Apance                     → l'Apance                         221 m  même nom     0
+  U0045005                               → -                                  - m  non rattaché 0
+  U0104010  Le Coney                     → le Coney                         127 m  même nom     0
+  U0124010  Le Coney                     → le Coney                         144 m  même nom     0
+  U0204001  L'Amance                     → l'Amance                          93 m  même nom     0
+  U0455010  La Combeauté                 → la Combeauté                     249 m  même nom     0
