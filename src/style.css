@@ -64,17 +64,18 @@
 
 
 /*
-  Grille de 12 colonnes :
+  Grille de 12 colonnes et deux lignes de même hauteur :
     à gauche, la carte, sur 4 colonnes et toute la hauteur ;
-    à droite, sur 8 colonnes, le graphique en haut et le texte en dessous.
+    en haut, le graphique des débits sur 4 colonnes (les 4 dernières
+    colonnes restent libres pour l'instant, « . ») ;
+    en bas, le texte sur 8 colonnes.
 */
 .dataviz {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  /* À droite : deux tiers de la hauteur pour le graphique, un tiers pour le texte. */
-  grid-template-rows: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
   grid-template-areas:
-    "carte carte carte carte graphique graphique graphique graphique graphique graphique graphique graphique"
+    "carte carte carte carte graphique graphique graphique graphique . . . ."
     "carte carte carte carte texte texte texte texte texte texte texte texte";
   gap: 0.6rem;
   /* Hauteur de la fenêtre, moins la barre de navigation et les marges de la page. */
