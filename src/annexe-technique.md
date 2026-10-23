@@ -4,6 +4,8 @@ title: Annexe technique
 
 # Annexe technique
 
+Toutes les étapes s'appuient uniquement sur les fichiers d'origine listés ci-dessous. Les données sont transformées par calcul, sans recours à une autre source.
+
 ## Sources des données
 
 <!-- À compléter : liens vers la source, date de téléchargement, version. -->
@@ -42,29 +44,35 @@ Le fichier des cours d'eau contient 8 929 tracés, chacun avec un nom (`TopoOH`)
 2. Pour chaque tracé, on calcule ses extrémités, une fois ses morceaux raccordés.
 3. On note « A se termine sur B » quand une extrémité de A est à moins de 1 m du tracé de B. Le tracé est topologiquement propre : les extrémités tombent exactement sur l'autre tracé.
 4. On part de la Moselle et de la Moselle canalisée, puis on **remonte** : on ajoute tout tracé qui se termine sur un tracé déjà retenu, et ainsi de suite. On ne fait que remonter : un tracé sur lequel se termine un cours d'eau du bassin n'est pas ajouté.
-5. **Exclusions.** La Sarre est exclue, et avec elle tout son sous-bassin : il n'est relié à la Moselle que par elle, et la confluence se trouve en Allemagne, hors du tracé. Les tracés dont le nom contient « canal » ou « rigole » sont aussi exclus, car ces ouvrages relient des bassins entre eux. Les **bras sont gardés** : la Seille, par exemple, rejoint la Moselle à Metz par le « Bras Mort Aval de la Moselle ». Exclure les bras ferait perdre tout le sous-bassin de la Seille.
-6. **Passages vérifiés.** Six canaux et rigoles sont tout de même traversés, pour rattacher les ruisseaux qui n'atteignent la Moselle que par eux. Ces ouvrages ne font pas eux-mêmes partie du résultat.
+5. **Exclusions.** La Sarre est exclue (choix du projet), et avec elle tout son sous-bassin, qui n'est atteint que par elle. Les tracés dont le nom contient « canal » ou « rigole », appelés ici « ouvrages », ne sont pas traversés à ce stade, parce qu'ils peuvent relier des bassins entre eux. Les **bras sont gardés** : dans le tracé, la Seille se termine sur le « Bras Mort Aval de la Moselle ». Exclure les bras ferait perdre tout le sous-bassin de la Seille (224 tracés).
+6. **Ouvrages traversés.** Certains ruisseaux n'atteignent le bassin que par un ouvrage. Pour chaque ouvrage qui touche le bassin, on regarde les cours d'eau qu'il apporterait :
+   - si **aucun** de ces cours d'eau ne se termine aussi sur un cours d'eau extérieur au bassin, l'ouvrage est traversé et ils sont ajoutés ;
+   - sinon, l'ouvrage est refusé.
 
-| Ouvrage traversé | Ruisseaux rattachés | Justification |
+   On répète jusqu'à ce que plus rien ne change, car un ouvrage traversé peut en faire toucher un autre. Les ouvrages eux-mêmes ne font pas partie du résultat.
+
+Sans traverser d'ouvrage, la remontée retient 1 533 tracés. Sur les 24 ouvrages examinés, 23 sont traversés et 6 d'entre eux apportent des cours d'eau :
+
+| Ouvrage traversé | Cours d'eau apportés | Contact avec le bassin (longitude, latitude) |
 | --- | --- | --- |
-| Canal de Flottage des Salines | 17 | près de Dieuze, dans le bassin de la Seille |
-| Canal des Usines | 2 | la Lizerne et le ruisseau d'Antilleux, avant la Vologne |
-| Canal de Morteau | 1 | ruisseau de Clos Pres, avant la Meurthe |
-| Canal de l'Est (branche sud) | 7 | entre le bief de partage, près de Golbey, et la Moselle à Neuves-Maisons : côté Moselle |
-| Rigole d'alimentation du bassin de virement | 1 | ruisseau de la Borne, près de Messein |
-| Rigole d'alimentation du réservoir de Bouzey | 1 | ruisseau de Pouxeux, dans la vallée de la Moselle |
+| Canal de Flottage des Salines | 17 | 6,589 ; 48,786 |
+| Canal de l'Est (Branche Sud) | 7 | 6,100 ; 48,608 |
+| Canal des Usines | 2 | 6,715 ; 48,187 |
+| Canal de Morteau | 1 | 6,370 ; 48,577 |
+| Rigole d'Alimentation du Bassin de Virement | 1 | 6,182 ; 48,578 |
+| Rigole d'Alimentation du Reservoir de Bouzey | 1 | 6,357 ; 48,167 |
 
-Le « Canal de l'Est », c'est-à-dire la partie qui descend vers la Saône par la vallée du Coney, n'est **pas** traversé. Les 11 ruisseaux qui s'y terminent sont dans le bassin de la Saône, et l'un d'eux, le ruisseau des Sept Pêcheurs, touche directement le Coney.
+Un seul ouvrage est refusé : le « Canal de l'Est » (contact en 6,304 ; 48,172). Il apporterait 11 ruisseaux, mais l'un d'eux, le « Ruisseau des Sept Pêcheurs », se termine aussi sur « le Coney », qui n'est pas dans le bassin. Le détail de chaque ouvrage est dans le journal.
 
 **Résultat : 1 562 tracés**, soit 1 444 noms distincts, Moselle et Moselle canalisée comprises.
 
-**Contrôle.** Les bassins voisins sont calculés de la même façon, en partant de la Sarre, de la Meuse, du Rhin, de l'Ill, de la Marne, de la Seine, de la Saône, de la Nied et de la Nied allemande. Aucun n'a de tracé en commun avec celui de la Moselle.
+**Contrôle.** On repère dans le tracé tous les « exutoires » hors bassin, c'est-à-dire les cours d'eau qui ne se terminent sur aucun autre : il y en a 599. Pour chacun, on remonte son bassin de la même façon. Aucun de ces bassins n'a de tracé en commun avec celui de la Moselle.
 
 ![Carte de contrôle du bassin de la Moselle](./annexe/02_bassin_moselle.png)
 
 **Limites.**
-- Le tracé est coupé aux limites du Grand Est. Un affluent qui rejoint la Moselle hors de la région n'est pas détecté, comme la Sûre au Luxembourg.
-- Le rattachement suppose que la confluence est bien dessinée. Un ruisseau qui se perd avant d'atteindre un autre tracé reste isolé.
+- Le tracé est coupé aux limites du Grand Est. Un affluent qui rejoint la Moselle hors de la région n'est pas détecté.
+- Le rattachement suppose que la confluence est dessinée dans le tracé. Un ruisseau qui ne touche aucun autre tracé reste isolé.
 
 ## Étape 3 : rapprochement des noms entre le CSV et le GeoJSON
 
