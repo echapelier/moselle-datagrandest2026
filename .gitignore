@@ -1,0 +1,16 @@
+# Fichiers d'origine (trop lourds, non redistribués via Git)
+donnees-originales/
+data/brut/
+
+# Node / Observable Framework
+node_modules/
+dist/
+src/.observablehq/cache/
+
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+
+# Système
+.DS_Store
