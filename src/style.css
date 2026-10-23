@@ -1,0 +1,126 @@
+/* Thème de Framework, puis réglages propres au projet. */
+@import url("observablehq:default.css");
+@import url("observablehq:theme-air.css");
+
+/* Toutes les pages utilisent toute la largeur de la fenêtre (Framework
+   la limite par défaut à 1440 px). Les paragraphes gardent leur largeur
+   de lecture habituelle. */
+:root {
+  --observablehq-max-width: 100vw;
+}
+
+/* ---------- Barre de navigation horizontale ---------- */
+
+.onglets {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  font: 14px var(--sans-serif);
+}
+
+.onglets-titre {
+  font-weight: 700;
+  margin-right: auto;
+}
+
+.onglets a {
+  color: var(--theme-foreground-muted);
+  text-decoration: none;
+  padding-bottom: 0.2rem;
+  border-bottom: 2px solid transparent;
+}
+
+.onglets a:hover {
+  color: var(--theme-foreground);
+}
+
+.onglets a[aria-current="page"] {
+  color: var(--theme-foreground);
+  border-bottom-color: var(--theme-foreground-focus);
+}
+
+/* ---------- Page Dataviz : écran partagé ---------- */
+
+
+/*
+  Deux colonnes égales :
+    à gauche, la carte, sur toute la hauteur ;
+    à droite, le graphique en haut et le texte en dessous.
+*/
+.dataviz {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* À droite : 60 % de la hauteur pour le graphique, 40 % pour le texte. */
+  grid-template-rows: 3fr 2fr;
+  grid-template-areas:
+    "carte graphique"
+    "carte texte";
+  gap: 1rem;
+  /* Hauteur de la fenêtre, moins l'en-tête et les marges de la page. */
+  height: calc(100vh - var(--observablehq-header-height) - 6rem);
+  min-height: 32rem;
+}
+
+.dataviz > .zone {
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+}
+
+.zone-carte {
+  grid-area: carte;
+}
+
+.zone-graphique {
+  grid-area: graphique;
+}
+
+.zone-texte {
+  grid-area: texte;
+  overflow-y: auto;
+}
+
+.zone-texte p,
+.zone-texte li {
+  max-width: none;
+}
+
+/* Petits écrans : les zones s'empilent (carte, graphique, texte). */
+@media (max-width: 900px) {
+  .dataviz {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "carte"
+      "graphique"
+      "texte";
+    height: auto;
+  }
+
+  .dataviz > .zone-carte {
+    min-height: 70vh;
+  }
+
+  .dataviz > .zone-graphique {
+    min-height: 50vh;
+  }
+
+  .onglets {
+    gap: 1rem;
+  }
+
+  .onglets-titre {
+    display: none;
+  }
+}
+
+/* Emplacements provisoires, en attendant la carte et le graphique. */
+.emplacement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--theme-foreground-muted);
+  font: 14px var(--sans-serif);
+}

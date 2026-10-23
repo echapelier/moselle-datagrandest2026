@@ -21,3 +21,6 @@ cellules_observable/
 
 # Fichiers intermédiaires de la préparation (volumineux, recréés par les scripts)
 donnees-intermediaires/
+
+# Réglages locaux de Claude Code
+.claude/
