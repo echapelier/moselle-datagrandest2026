@@ -243,7 +243,7 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 | débit médian de chaque site retenu, toutes semaines confondues (« Débit médian du site* » dans la légende ; l'astérisque renvoie aux sites retenus, voir l'étape 6) | gris, en tirets |
 
 - **Échelle** logarithmique par défaut, avec des graduations 1-3-10, ou linéaire. Les bornes de l'axe sont fixes, quelle que soit la semaine.
-- **Lignes verticales** : une par site de mesure, à sa distance depuis l'amont. Elles sont pleines pour les 8 sites retenus pour les calculs et en pointillés pour les 4 autres, dont la série est incomplète. Au passage de la souris, la ligne se renforce et une info-bulle donne le nom du site et sa distance. L'info-bulle s'affiche au-dessus de la zone des courbes, pour ne pas les masquer.
+- **Lignes verticales** : une par site de mesure, à sa distance depuis l'amont. Elles sont pleines pour les 8 sites retenus pour les calculs et en pointillés pour les 4 autres, dont la série est incomplète. Au passage de la souris, la ligne se renforce et le site correspondant est mis en évidence **sur la carte**, comme si la souris passait sur son cercle : le cercle grossit et le nom du site s'affiche. Quand la souris quitte le graphique, la mise en évidence disparaît.
 - La **légende** est placée sous le graphique.
 - L'indice des semaines sert à choisir les semaines extrêmes ; il n'est pas affiché.
 

@@ -45,6 +45,12 @@ const blocCarte = resize((width, height) => carte({region, departements, traces,
 const blocGraphique = document.createElement("div");
 blocGraphique.className = "graphique-conteneur";
 const blocLegendeProfil = document.createElement("div");
+// Met en évidence un site sur la carte (code du site, ou null pour effacer).
+// La carte est redessinée quand la fenêtre change de taille : on cherche
+// donc la carte affichée au moment de l'appel.
+const surlignerSurCarte = (code) => blocCarte.querySelector(".carte")?.surligner(code ?? null);
+// Quand la souris quitte le graphique, plus rien n'est mis en évidence.
+blocGraphique.addEventListener("pointerleave", () => surlignerSurCarte(null));
 // Taille disponible pour le graphique, suivie quand la fenêtre change.
 const tailleGraphique = Generators.observe((notifier) => {
   const observateur = new ResizeObserver(([e]) => notifier({width: e.contentRect.width, height: e.contentRect.height}));
@@ -57,7 +63,11 @@ const tailleGraphique = Generators.observe((notifier) => {
 // Mise à jour à chaque semaine (curseur ou film) et à chaque changement d'échelle.
 const semaine = profil.semaines[iSemaine];
 if (tailleGraphique.width > 0 && tailleGraphique.height > 0) {
-  blocGraphique.replaceChildren(graphiqueProfil(profil, {semaine, echelleLog, ...tailleGraphique}));
+  const graphique = graphiqueProfil(profil, {semaine, echelleLog, ...tailleGraphique});
+  // Survol d'une ligne verticale du graphique : le site est mis en évidence
+  // sur la carte.
+  graphique.addEventListener("input", () => surlignerSurCarte(graphique.value?.site));
+  blocGraphique.replaceChildren(graphique);
 }
 blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine));
 ```

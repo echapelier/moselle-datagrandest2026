@@ -176,15 +176,12 @@ export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
   const gradLog = d3.range(Math.log10(bas), Math.log10(haut) + 1).flatMap((e) => [10 ** e, 3 * 10 ** e]).filter((t) => t <= haut);
 
   const kmMax = d3.max(profil.sites, (s) => s.km) * 1.03;
-  const milieu = kmMax / 2;
 
   return Plot.plot({
     width,
     height,
     marginLeft: 64,
     marginRight: 16,
-    // Place au-dessus de la zone des courbes pour l'info-bulle des sites.
-    marginTop: 52,
     x: {label: width < 500 ? "Distance depuis l'amont (km) →" : "Distance depuis l'extrémité amont du tracé, dans la région (km) →", grid: true, domain: [0, kmMax]},
     y: {
       type: echelleLog ? "log" : "linear",
@@ -198,7 +195,9 @@ export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
     marks: [
       // Une ligne verticale par site de mesure : pleine pour les sites
       // retenus, en pointillés pour les autres. Au passage de la souris, la
-      // ligne se renforce.
+      // ligne se renforce ; le graphique prend alors pour valeur ce site
+      // (événement « input »), ce qui permet de le mettre en évidence sur la
+      // carte.
       Plot.ruleX(profil.sites.filter((s) => s.retenu), {x: "km", stroke: "#b5b5b5", strokeWidth: 1}),
       Plot.ruleX(profil.sites.filter((s) => !s.retenu), {x: "km", stroke: "#b5b5b5", strokeWidth: 1, strokeDasharray: "3,3"}),
       Plot.ruleX(profil.sites, Plot.pointerX({x: "km", stroke: "#555", strokeWidth: 1.5, maxRadius: 10})),
@@ -208,26 +207,7 @@ export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
           Plot.line(donnees, {x: "km", y: "debit", stroke: "courbe", strokeWidth: c.epaisseur, strokeDasharray: c.tirets}),
           Plot.dot(donnees, {x: "km", y: "debit", fill: "courbe", r: c.cle === "choisie" ? 4 : 2.5})
         ];
-      }),
-      // Nom du site, au-dessus de la zone des courbes (dans la marge du haut),
-      // dessiné en dernier pour passer devant tout le reste. L'info-bulle
-      // s'ouvre vers la droite pour les sites de la première moitié du
-      // graphique, vers la gauche pour les autres, pour ne pas être coupée.
-      ...[
-        {sites: profil.sites.filter((s) => s.km <= milieu), anchor: "bottom-left"},
-        {sites: profil.sites.filter((s) => s.km > milieu), anchor: "bottom-right"}
-      ].map(({sites, anchor}) =>
-        Plot.tip(
-          sites,
-          Plot.pointerX({
-            x: "km",
-            frameAnchor: "top",
-            anchor,
-            maxRadius: 10,
-            title: (s) => `${s.libelle_site}\n${s.km.toLocaleString("fr-FR", {maximumFractionDigits: 1})} km depuis l'amont`
-          })
-        )
-      )
+      })
     ]
   });
 }

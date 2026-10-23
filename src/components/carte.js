@@ -98,10 +98,11 @@ export function carte({region, departements, traces, sites, width, height}) {
   // Info-bulle : nom du site au survol (ou au toucher sur écran tactile).
   const bulle = d3.create("div").attr("class", "bulle-carte").style("display", "none");
   let echelle = 1; // facteur de zoom courant
-  const montrer = (event, s) => {
+  // Met en évidence un cercle (élément SVG) et affiche le nom de son site.
+  const montrer = (element, s) => {
     const cadre = conteneur.node().getBoundingClientRect();
-    const cercle = event.currentTarget.getBoundingClientRect();
-    d3.select(event.currentTarget).attr("r", (RAYON_SITE * 1.6) / echelle);
+    const cercle = element.getBoundingClientRect();
+    d3.select(element).attr("r", (RAYON_SITE * 1.6) / echelle);
     bulle
       .style("display", null)
       .text(s.libelle_site)
@@ -116,13 +117,13 @@ export function carte({region, departements, traces, sites, width, height}) {
   // toucher d'un site et disparaît au toucher ailleurs sur la carte.
   points
     .style("cursor", "pointer")
-    .on("pointerenter", (event, s) => event.pointerType !== "touch" && montrer(event, s))
+    .on("pointerenter", (event, s) => event.pointerType !== "touch" && montrer(event.currentTarget, s))
     .on("pointerleave", (event) => event.pointerType !== "touch" && cacher())
     .on("pointerdown", (event, s) => {
       if (event.pointerType !== "touch") return;
       event.stopPropagation();
       cacher();
-      montrer(event, s);
+      montrer(event.currentTarget, s);
     });
   svg.on("pointerdown.bulle", (event) => event.pointerType === "touch" && cacher());
   svg.on("pointerleave.bulle", (event) => event.pointerType !== "touch" && cacher());
@@ -155,6 +156,15 @@ export function carte({region, departements, traces, sites, width, height}) {
     .style("height", `${height}px`);
   conteneur.append(() => svg.node());
   conteneur.append(() => bulle.node());
+
+  // Mise en évidence commandée de l'extérieur (survol d'une ligne du
+  // graphique des débits) : code du site, ou null pour tout effacer.
+  conteneur.node().surligner = (code) => {
+    cacher();
+    if (code == null) return;
+    const cercle = points.filter((s) => s.site === code);
+    if (!cercle.empty()) montrer(cercle.node(), cercle.datum());
+  };
   return conteneur.node();
 }
 
