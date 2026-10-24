@@ -216,17 +216,15 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
     ${blocGraphique}
     ${blocLegendeProfil}
   </div>
-  <div class="zone zone-meteo">
-    <div class="card cadre-meteo">
-      <h2>Température moyenne des 12 sites</h2>
-      ${blocTemperature}
-      ${legendeMeteo([{libelle: "semaine (°C)", couleur: COULEURS_METEO.temp}])}
-    </div>
-    <div class="card cadre-meteo">
-      <h2>Pluie et neige, moyennes des 12 sites</h2>
-      ${blocPrecipitations}
-      ${legendeMeteo([{libelle: "pluie (mm)", couleur: COULEURS_METEO.pluie}, {libelle: "neige, équivalent eau (mm)", couleur: COULEURS_METEO.neige}])}
-    </div>
+  <div class="card zone cadre-meteo zone-temperature">
+    <h2>Température moyenne des 12 sites</h2>
+    ${blocTemperature}
+    ${legendeMeteo([{libelle: "semaine (°C)", couleur: COULEURS_METEO.temp}])}
+  </div>
+  <div class="card zone cadre-meteo zone-precipitations">
+    <h2>Pluie et neige, moyennes des 12 sites</h2>
+    ${blocPrecipitations}
+    ${legendeMeteo([{libelle: "pluie (mm)", couleur: COULEURS_METEO.pluie}, {libelle: "neige, équivalent eau (mm)", couleur: COULEURS_METEO.neige}])}
   </div>
   <div class="card zone zone-texte">
     <!--
