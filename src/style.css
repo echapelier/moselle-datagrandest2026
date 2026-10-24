@@ -24,18 +24,18 @@
 
 /*
   Grille de 12 colonnes et deux lignes de même hauteur :
-    à gauche, la carte, sur 6 colonnes et toute la hauteur ;
-    en haut, le graphique des débits sur 4 colonnes (les 2 dernières
-    colonnes restent libres pour l'instant, « . ») ;
-    en bas, le texte sur 6 colonnes.
+    à gauche, la carte, sur 4 colonnes et toute la hauteur ;
+    en haut, le graphique des débits sur 4 colonnes (les 4 dernières
+    colonnes restent libres pour d'autres graphiques, « . ») ;
+    en bas, le texte sur 8 colonnes.
 */
 .dataviz {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: 1fr 1fr;
   grid-template-areas:
-    "carte carte carte carte carte carte graphique graphique graphique graphique . ."
-    "carte carte carte carte carte carte texte texte texte texte texte texte";
+    "carte carte carte carte graphique graphique graphique graphique . . . ."
+    "carte carte carte carte texte texte texte texte texte texte texte texte";
   gap: 0.6rem;
   /* Hauteur de la fenêtre, moins les marges de la page. */
   height: calc(100vh - 1.2rem);
@@ -62,6 +62,13 @@
   gap: 0.5rem;
 }
 
+/* Titre de la carte : même style que les titres des cadres (graphique). */
+.zone-carte h2 {
+  margin: 0;
+  font: 500 15px var(--sans-serif);
+}
+
+/* La carte n'a ni cadre ni fond : elle repose directement sur la page. */
 .carte-cadre {
   flex: 1;
   min-height: 0;
@@ -215,10 +222,10 @@
     height: auto;
   }
 
-  /* La carte prend à peu près les proportions de la région. */
+  /* La carte prend à peu près les proportions du bassin, plus haut que large. */
   .carte-conteneur {
     flex: none;
-    aspect-ratio: 6 / 5;
+    aspect-ratio: 4 / 5;
   }
 
   .dataviz > .zone-graphique {
@@ -236,7 +243,22 @@
   font: 14px var(--sans-serif);
 }
 
-/* ---------- Info-bulle de la carte ---------- */
+/* ---------- Info-bulle et bouton de la carte ---------- */
+
+/* « Voir toute la région » / « Revenir au bassin », en haut à droite. */
+.bouton-carte {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  font: 12px var(--sans-serif);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: solid 1px var(--theme-foreground-faint);
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+  cursor: pointer;
+  opacity: 0.9;
+}
 
 .carte {
   position: relative;

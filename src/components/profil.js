@@ -4,9 +4,10 @@
 
 import * as Plot from "npm:@observablehq/plot";
 import * as d3 from "npm:d3";
+import {BLEU_MOSELLE} from "./couleurs.js";
 
 export const COULEURS_PROFIL = {
-  choisie: "#0b4f71",
+  choisie: BLEU_MOSELLE,
   haut: "#c77700",
   bas: "#7b6bb0",
   mediane: "#8a8a8a"
@@ -38,9 +39,12 @@ export function preparerProfil({profilSites, profilSemaines, mesures}) {
   return {sites, nbRetenus, debits, semaines, classees, haut: classees[0], bas: classees[classees.length - 1]};
 }
 
-// Durée d'affichage de chaque semaine pendant le film : 1 393 semaines en
-// 1 min 24 s, sans compter les arrêts.
-export const DUREE_SEMAINE_MS = 60;
+// Durée d'affichage de chaque semaine pendant le film (ms).
+//   Film guidé : vitesse de croisière rapide, puis ralentissement progressif
+//   sur les dernières semaines avant chaque arrêt, pour voir venir la
+//   semaine remarquable.
+//   Mode libre : vitesse constante.
+export const VITESSE = {croisiere: 25, ralenti: 150, semainesDeRalentissement: 20, libre: 60};
 
 // Barre de semaine : curseur et film. Sa valeur est l'indice de la semaine
 // dans la liste. Deux modes :
@@ -120,13 +124,24 @@ export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
     if (guide && sens > 0 && (form.arrets.includes(i) || i === dernier)) arreter(i);
     else if (i === 0 || i === dernier) pause();
   };
-  // Une étape toutes les DUREE_SEMAINE_MS, calée sur une heure prévue pour
+  // Une étape à chaque durée prévue (voir VITESSE), calée sur une heure pour
   // ne pas accumuler de retard. Chaque étape attend aussi que le navigateur
   // ait dessiné l'image précédente (requestAnimationFrame) : sur une machine
   // lente, le film ralentit au lieu de laisser le graphique en retard sur
   // le curseur.
+  // Durée d'affichage de la semaine d'indice i, qui va être montrée.
+  const duree = (i) => {
+    if (!guide || sens < 0) return VITESSE.libre;
+    // Nombre de semaines jusqu'au prochain arrêt (0 = c'est l'arrêt).
+    const arret = Math.min(dernier, ...form.arrets.filter((a) => a >= i));
+    const reste = arret - i;
+    if (reste >= VITESSE.semainesDeRalentissement) return VITESSE.croisiere;
+    // Ralentissement progressif (quadratique) jusqu'à la durée « ralenti ».
+    const t = 1 - reste / VITESSE.semainesDeRalentissement;
+    return VITESSE.croisiere + (VITESSE.ralenti - VITESSE.croisiere) * t * t;
+  };
   const planifier = (numero) => {
-    prochaine += DUREE_SEMAINE_MS;
+    prochaine += duree(+curseur.value + sens);
     setTimeout(() => requestAnimationFrame(() => {
       if (numero !== film) return; // film mis en pause entre-temps
       avancer();

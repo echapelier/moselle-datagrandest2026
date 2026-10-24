@@ -233,7 +233,9 @@ Code : `src/components/carte.js`.
 
 La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers de l'étape 5 et de `sites.csv`.
 
-- **Projection** : conique conforme de Lambert, avec les parallèles 44° et 49° et le méridien 3° E, ajustée au contour de la région.
+- **Projection** : conique conforme de Lambert, avec les parallèles 44° et 49° et le méridien 3° E.
+- **Cadrage** : au départ, la carte est ajustée au bassin de la Moselle (la Moselle et les tracés du bassin, étape 2). On peut dézoomer jusqu'à voir toute la région, à la molette ou avec le bouton « Voir toute la région ».
+- **Couleur de la Moselle** : le même bleu sombre (`#0b4f71`) que la courbe de la semaine choisie sur le graphique des débits.
 
 ## Le profil des débits
 
@@ -243,7 +245,7 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 
 | Courbe | Couleur |
 | --- | --- |
-| semaine choisie avec la barre placée sous le cadre de la carte (au chargement, la plus ancienne) | `#0b4f71`, trait épais |
+| semaine choisie avec la barre placée sous la carte (au chargement, la plus ancienne) | `#0b4f71`, trait épais |
 | semaine du débit le plus élevé (1ᵉʳ janvier 2018) | `#c77700` |
 | semaine du débit le plus faible (10 août 2026) | `#7b6bb0` |
 | débit médian de chaque site retenu, toutes semaines confondues (« Débit médian du site* » dans la légende ; l'astérisque renvoie aux sites retenus, voir l'étape 6) | gris, en tirets |
@@ -253,12 +255,12 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 - L'indice des semaines sert à choisir les semaines extrêmes ; il n'est pas affiché.
 
 **Le film.** Au chargement, la page affiche la semaine la plus ancienne (3 janvier 2000), sans les courbes des semaines extrêmes. Le film est d'abord **guidé** :
-- le bouton « Lancer le film » fait défiler les semaines, à raison de **60 ms par semaine** (1 393 semaines en 1 min 24 s, sans compter les arrêts) ;
+- le bouton « Lancer le film » fait défiler les semaines **à vitesse variable** : 25 ms par semaine en croisière, puis un ralentissement progressif sur les 20 semaines qui précèdent chaque arrêt, jusqu'à 150 ms par semaine. Le film complet dure ainsi environ **37 s**, sans compter les arrêts (24 s jusqu'au maximum, 12 s jusqu'au minimum, 1 s jusqu'à la fin) ;
 - le film s'arrête à la semaine du maximum : la courbe du maximum apparaît et un texte commente cette semaine, avec un bouton pour reprendre le film ;
 - il s'arrête de même à la semaine du minimum, puis à la dernière semaine, où s'affiche le texte final ;
 - pendant cette phase, le curseur de semaine est bloqué ; seul un bouton lecture / pause est disponible. Un lien « Passer le film » mène directement à la fin.
 
-Une fois le film terminé, la barre de semaine devient **libre** :
+Une fois le film terminé, la barre de semaine devient **libre** (60 ms par semaine) :
 - ▶ lance le défilement vers les semaines suivantes, ◀ vers les précédentes. Le bouton du sens en cours affiche ⏸ : un nouveau clic met en pause, et un clic sur l'autre flèche inverse le sens.
 - Déplacer le curseur à la main met le film en pause.
 - Le lien « Revoir le film » relance le film guidé depuis le début.

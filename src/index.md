@@ -177,7 +177,8 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
 
 <div class="dataviz">
   <div class="zone zone-carte">
-    <div class="card carte-cadre">
+    <h2>La Moselle et ses affluents en région Grand Est</h2>
+    <div class="carte-cadre">
       <div class="carte-conteneur">${blocCarte}</div>
       ${legende()}
     </div>

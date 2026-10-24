@@ -1,14 +1,18 @@
 // Carte de la région : fond (région, départements), cours d'eau et sites de
 // mesure du bassin de la Moselle. Rendu en SVG avec d3, zoom à la molette ou
 // au pincement, déplacement en faisant glisser.
+//
+// Au départ, la carte est cadrée sur le bassin de la Moselle ; on peut
+// dézoomer jusqu'à voir toute la région (bouton ou molette).
 
 import * as d3 from "npm:d3";
+import {BLEU_MOSELLE} from "./couleurs.js";
 
 // Couleurs (mêmes conventions que les essais dans le notebook).
 export const COULEURS = {
   avecMesure: "#2b7bb9", // cours d'eau avec au moins un site de mesure
   sansMesure: "#a9b8c3", // cours d'eau sans site de mesure
-  moselle: "#d6452b", // la Moselle et la Moselle canalisée
+  moselle: BLEU_MOSELLE, // la Moselle et la Moselle canalisée
   fondRegion: "#f3efe6",
   contourRegion: "#555",
   contourDepartements: "#b8b3a6"
@@ -26,15 +30,24 @@ const COUCHES = [
 
 const RAYON_SITE = 3.2; // en pixels, quel que soit le zoom
 
+const MARGE = 10; // pixels autour du bassin (ou de la région) cadré
+
 export function carte({region, departements, traces, sites, width, height}) {
   // Projection conique conforme de Lambert (parallèles 44° et 49°, méridien
-  // 3° E), ajustée à la région avec une marge de 10 pixels.
+  // 3° E), ajustée au bassin de la Moselle (la Moselle et ses affluents).
+  const bassin = {
+    type: "FeatureCollection",
+    features: traces.features.filter((f) => f.properties.categorie !== "hors_bassin")
+  };
   const projection = d3
     .geoConicConformal()
     .parallels([44, 49])
     .rotate([-3, 0])
-    .fitExtent([[10, 10], [width - 10, height - 10]], region);
+    .fitExtent([[MARGE, MARGE], [width - MARGE, height - MARGE]], bassin);
   const chemin = d3.geoPath(projection);
+  // Zoom minimal : celui où toute la région tient dans la carte.
+  const [[x0, y0], [x1, y1]] = chemin.bounds(region);
+  const zoomRegion = Math.min(1, (width - 2 * MARGE) / (x1 - x0), (height - 2 * MARGE) / (y1 - y0));
 
   const svg = d3
     .create("svg")
@@ -128,23 +141,24 @@ export function carte({region, departements, traces, sites, width, height}) {
   svg.on("pointerdown.bulle", (event) => event.pointerType === "touch" && cacher());
   svg.on("pointerleave.bulle", (event) => event.pointerType !== "touch" && cacher());
 
-  // Zoom : de 1 à 12 fois, sans sortir du cadre de la région. Sur écran
-  // tactile, il faut deux doigts : un seul doigt fait défiler la page.
-  svg.call(
-    d3
-      .zoom()
-      .filter((event) => (event.touches ? event.touches.length > 1 : !event.ctrlKey || event.type === "wheel") && !event.button)
-      .scaleExtent([1, 12])
-      .translateExtent([[0, 0], [width, height]])
-      .on("start", () => svg.style("cursor", "grabbing"))
-      .on("end", () => svg.style("cursor", "grab"))
-      .on("zoom", ({transform}) => {
-        g.attr("transform", transform);
-        echelle = transform.k;
-        points.attr("r", RAYON_SITE / echelle);
-        bulle.style("display", "none");
-      })
-  );
+  // Zoom : du cadrage de toute la région (zoomRegion) à 12 fois le cadrage
+  // du bassin, sans sortir de la région. Sur écran tactile, il faut deux
+  // doigts : un seul doigt fait défiler la page.
+  const zoom = d3
+    .zoom()
+    .filter((event) => (event.touches ? event.touches.length > 1 : !event.ctrlKey || event.type === "wheel") && !event.button)
+    .scaleExtent([zoomRegion, 12])
+    .translateExtent([[x0 - MARGE, y0 - MARGE], [x1 + MARGE, y1 + MARGE]])
+    .on("start", () => svg.style("cursor", "grabbing"))
+    .on("end", () => svg.style("cursor", "grab"))
+    .on("zoom", ({transform}) => {
+      g.attr("transform", transform);
+      echelle = transform.k;
+      points.attr("r", RAYON_SITE / echelle);
+      bulle.style("display", "none");
+      majBouton();
+    });
+  svg.call(zoom);
   // d3 bloque tous les gestes tactiles du navigateur ; on rend le défilement.
   svg.style("touch-action", "pan-x pan-y");
 
@@ -156,6 +170,23 @@ export function carte({region, departements, traces, sites, width, height}) {
     .style("height", `${height}px`);
   conteneur.append(() => svg.node());
   conteneur.append(() => bulle.node());
+
+  // Bouton : voir toute la région, ou revenir au bassin.
+  const bouton = conteneur.append("button").attr("type", "button").attr("class", "bouton-carte");
+  const vueRegion = () => echelle < (1 + zoomRegion) / 2;
+  function majBouton() {
+    bouton.text(vueRegion() ? "Revenir au bassin" : "Voir toute la région");
+  }
+  bouton.on("click", () => {
+    const cible = vueRegion()
+      ? d3.zoomIdentity
+      : d3.zoomIdentity
+          .translate(width / 2, height / 2)
+          .scale(zoomRegion)
+          .translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+    svg.transition().duration(600).call(zoom.transform, cible);
+  });
+  majBouton();
 
   // Mise en évidence commandée de l'extérieur (survol d'une ligne du
   // graphique des débits) : code du site, ou null pour tout effacer.
