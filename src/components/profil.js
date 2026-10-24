@@ -39,50 +39,76 @@ export function preparerProfil({profilSites, profilSemaines, mesures}) {
 }
 
 // Durée d'affichage de chaque semaine pendant le film : 1 393 semaines en
-// 2 min 47 s, ce qui laisse de la marge pour des arrêts plus longs.
-export const DUREE_SEMAINE_MS = 120;
+// 1 min 24 s, sans compter les arrêts.
+export const DUREE_SEMAINE_MS = 60;
 
-// Curseur de semaine et film. Sa valeur est l'indice de la semaine dans la
-// liste.
-//   ▶ lance le défilement vers les semaines suivantes, ◀ vers les
-//     précédentes ; un nouveau clic sur la même flèche met en pause, un clic
-//     sur l'autre flèche inverse le sens.
-//   Le film s'arrête à la première ou à la dernière semaine ; relancé depuis
-//   ce bout, il repart de l'autre bout.
+// Barre de semaine : curseur et film. Sa valeur est l'indice de la semaine
+// dans la liste. Deux modes :
+//
+//   Mode guidé (film commenté) : le curseur et les flèches sont bloqués ;
+//   seul un bouton lecture / pause est proposé. Le film avance vers les
+//   semaines suivantes et s'arrête de lui-même aux semaines d'arrêt et à la
+//   dernière semaine : la barre émet alors un événement « arret » (detail =
+//   indice de la semaine).
+//
+//   Mode libre : ▶ fait défiler vers les semaines suivantes, ◀ vers les
+//   précédentes ; un nouveau clic sur la même flèche met en pause, un clic
+//   sur l'autre flèche inverse le sens. Le film s'arrête à la première ou à
+//   la dernière semaine ; relancé depuis ce bout, il repart de l'autre bout.
 //   Déplacer le curseur à la main met le film en pause.
-export function choixSemaine(semaines, {valeur = semaines.length - 1, invalidation} = {}) {
+//
+// La page pilote la barre avec form.lancer(sens), form.pause(),
+// form.allerA(indice), form.guider(vrai ou faux) et form.arrets (liste
+// d'indices).
+export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
   const form = document.createElement("form");
   form.className = "choix-semaine";
   form.innerHTML = `<label>Semaine du</label>
     <button type="button" data-sens="-1"></button>
+    <button type="button" data-role="lecture"></button>
     <input type="range" min="0" max="${semaines.length - 1}" step="1" value="${valeur}" aria-label="Semaine">
     <button type="button" data-sens="1"></button>
     <output></output>`;
-  const boutons = [...form.querySelectorAll("button")];
+  const fleches = [...form.querySelectorAll("button[data-sens]")];
+  const lecture = form.querySelector("button[data-role=lecture]");
   const curseur = form.querySelector("input");
   const sortie = form.querySelector("output");
   const dernier = semaines.length - 1;
   let sens = 0; // 0 = en pause, 1 = vers les semaines suivantes, -1 = vers les précédentes
   let film = 0; // numéro du film en cours ; change à chaque pause, pour ignorer les étapes déjà prévues
   let prochaine = 0; // heure prévue de la prochaine semaine (ms)
+  let guide = false;
+  form.arrets = [];
 
   const afficher = () => {
     form.value = +curseur.value;
     sortie.value = new Date(semaines[form.value].date).toLocaleDateString("fr-FR", {day: "numeric", month: "short", year: "numeric", timeZone: "UTC"});
   };
-  // Le bouton du sens en cours affiche « pause ».
+  const prevenir = () => form.dispatchEvent(new Event("input", {bubbles: true}));
+  // Boutons : en mode libre, le bouton du sens en cours affiche « pause » ;
+  // en mode guidé, un seul bouton lecture / pause.
   const majBoutons = () => {
-    for (const b of boutons) {
+    for (const b of fleches) {
       const actif = +b.dataset.sens === sens;
+      b.hidden = guide;
       b.textContent = actif ? "⏸" : +b.dataset.sens > 0 ? "▶" : "◀";
       b.title = actif ? "Pause" : +b.dataset.sens > 0 ? "Défiler vers les semaines suivantes" : "Défiler vers les semaines précédentes";
       b.setAttribute("aria-pressed", actif);
     }
+    lecture.hidden = !guide;
+    lecture.textContent = sens ? "⏸" : "▶";
+    lecture.title = sens ? "Pause" : "Lecture";
+    lecture.setAttribute("aria-pressed", sens !== 0);
+    curseur.disabled = guide;
   };
   const pause = () => {
     film++;
     sens = 0;
     majBoutons();
+  };
+  const arreter = (i) => {
+    pause();
+    form.dispatchEvent(new CustomEvent("arret", {detail: i}));
   };
   // Passe à la semaine suivante dans le sens du film et prévient la page.
   const avancer = () => {
@@ -90,8 +116,9 @@ export function choixSemaine(semaines, {valeur = semaines.length - 1, invalidati
     if (i < 0 || i > dernier) return pause();
     curseur.value = i;
     afficher();
-    form.dispatchEvent(new Event("input", {bubbles: true}));
-    if (i === 0 || i === dernier) pause();
+    prevenir();
+    if (guide && sens > 0 && (form.arrets.includes(i) || i === dernier)) arreter(i);
+    else if (i === 0 || i === dernier) pause();
   };
   // Une étape toutes les DUREE_SEMAINE_MS, calée sur une heure prévue pour
   // ne pas accumuler de retard. Chaque étape attend aussi que le navigateur
@@ -109,25 +136,40 @@ export function choixSemaine(semaines, {valeur = semaines.length - 1, invalidati
   const lancer = (nouveauSens) => {
     pause();
     sens = nouveauSens;
-    // Depuis le bout du film, on repart de l'autre bout.
-    if (sens > 0 && +curseur.value === dernier) curseur.value = 0;
-    if (sens < 0 && +curseur.value === 0) curseur.value = dernier;
+    // En mode libre, depuis le bout du film, on repart de l'autre bout.
+    if (!guide && sens > 0 && +curseur.value === dernier) curseur.value = 0;
+    if (!guide && sens < 0 && +curseur.value === 0) curseur.value = dernier;
     majBoutons();
     afficher();
-    form.dispatchEvent(new Event("input", {bubbles: true}));
+    prevenir();
     prochaine = performance.now();
     planifier(film);
   };
 
-  for (const b of boutons) {
+  for (const b of fleches) {
     b.onclick = () => (+b.dataset.sens === sens ? pause() : lancer(+b.dataset.sens));
   }
-  // Curseur déplacé à la main : pause, puis mise à jour.
+  lecture.onclick = () => (sens ? pause() : lancer(1));
+  // Curseur déplacé à la main (mode libre) : pause, puis mise à jour.
   curseur.addEventListener("input", () => {
     pause();
     afficher();
   });
   form.onsubmit = (e) => e.preventDefault();
+
+  form.lancer = lancer;
+  form.pause = pause;
+  form.allerA = (i) => {
+    pause();
+    curseur.value = i;
+    afficher();
+    prevenir();
+  };
+  form.guider = (actif) => {
+    guide = actif;
+    majBoutons();
+  };
+
   invalidation?.then(pause);
   majBoutons();
   afficher();
@@ -135,23 +177,25 @@ export function choixSemaine(semaines, {valeur = semaines.length - 1, invalidati
 }
 
 // Les quatre courbes : débit médian, semaines extrêmes, semaine choisie.
-function courbesDuProfil(profil, semaine) {
+// Pendant le film, les courbes des semaines extrêmes n'apparaissent qu'une
+// fois leur semaine atteinte (option « montrer »).
+function courbesDuProfil(profil, semaine, montrer = {haut: true, bas: true}) {
   return [
     {cle: "mediane", nom: "Débit médian du site*", couleur: COULEURS_PROFIL.mediane, epaisseur: 1.5, tirets: "4,3"},
     {cle: "bas", nom: `Plus faible (${dateFr(profil.bas.date)})`, semaine: profil.bas.semaine, couleur: COULEURS_PROFIL.bas, epaisseur: 1.8},
     {cle: "haut", nom: `Plus élevé (${dateFr(profil.haut.date)})`, semaine: profil.haut.semaine, couleur: COULEURS_PROFIL.haut, epaisseur: 1.8},
     {cle: "choisie", nom: `Semaine du ${dateFr(semaine.date)}`, semaine: semaine.semaine, couleur: COULEURS_PROFIL.choisie, epaisseur: 3}
-  ];
+  ].filter((c) => montrer[c.cle] !== false);
 }
 
 // Légende, affichée à part pour que le graphique garde la hauteur prévue.
-export function legendeProfil(profil, semaine) {
-  const courbes = courbesDuProfil(profil, semaine);
+export function legendeProfil(profil, semaine, montrer) {
+  const courbes = courbesDuProfil(profil, semaine, montrer);
   return Plot.legend({color: {domain: courbes.map((c) => c.nom), range: courbes.map((c) => c.couleur)}, swatchSize: 12});
 }
 
-export function graphiqueProfil(profil, {semaine, echelleLog, width, height}) {
-  const courbes = courbesDuProfil(profil, semaine);
+export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, height}) {
+  const courbes = courbesDuProfil(profil, semaine, montrer);
   // Une courbe de semaine (choisie, maximum, minimum) montre tous les débits
   // disponibles cette semaine-là ; un site sans débit n'a pas de point. Seule
   // la courbe du débit médian, qui est un calcul, se limite aux sites retenus.

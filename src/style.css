@@ -7,57 +7,16 @@
    de lecture habituelle. */
 :root {
   --observablehq-max-width: 100vw;
-  /* Barre de navigation plus basse que celle de Framework (2,2rem). */
-  --observablehq-header-height: 1.5rem;
 }
 
-/* Marges de la page réduites (Framework : 2rem autour, 1rem entre les blocs). */
+/* Marges de la page réduites (Framework : 2rem autour, 1rem entre les blocs).
+   Il n'y a pas de barre de navigation. */
 #observablehq-center {
-  margin: 0.5rem 1rem;
+  margin: 0.6rem 1rem;
 }
 
-#observablehq-header {
-  left: 1rem;
-  right: 1rem;
-  margin: 0 -1rem;
-  padding: 0.4rem 1rem 0.3rem 1rem;
-}
-
-#observablehq-header ~ #observablehq-main {
-  /* Hauteur de la barre (avec ses marges intérieures), plus un petit écart. */
-  margin-top: calc(var(--observablehq-header-height) + 0.7rem + 0.75rem);
-  margin-bottom: 0;
-}
-
-/* ---------- Barre de navigation horizontale ---------- */
-
-.onglets {
-  flex: 1;
-  display: flex;
-  align-items: baseline;
-  gap: 1.5rem;
-  font: 14px var(--sans-serif);
-}
-
-.onglets-titre {
-  font-weight: 700;
-  margin-right: auto;
-}
-
-.onglets a {
-  color: var(--theme-foreground-muted);
-  text-decoration: none;
-  padding-bottom: 0.2rem;
-  border-bottom: 2px solid transparent;
-}
-
-.onglets a:hover {
-  color: var(--theme-foreground);
-}
-
-.onglets a[aria-current="page"] {
-  color: var(--theme-foreground);
-  border-bottom-color: var(--theme-foreground-focus);
+#observablehq-main {
+  margin: 0 auto;
 }
 
 /* ---------- Page Dataviz : écran partagé ---------- */
@@ -65,21 +24,21 @@
 
 /*
   Grille de 12 colonnes et deux lignes de même hauteur :
-    à gauche, la carte, sur 4 colonnes et toute la hauteur ;
-    en haut, le graphique des débits sur 4 colonnes (les 4 dernières
+    à gauche, la carte, sur 6 colonnes et toute la hauteur ;
+    en haut, le graphique des débits sur 4 colonnes (les 2 dernières
     colonnes restent libres pour l'instant, « . ») ;
-    en bas, le texte sur 8 colonnes.
+    en bas, le texte sur 6 colonnes.
 */
 .dataviz {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: 1fr 1fr;
   grid-template-areas:
-    "carte carte carte carte graphique graphique graphique graphique . . . ."
-    "carte carte carte carte texte texte texte texte texte texte texte texte";
+    "carte carte carte carte carte carte graphique graphique graphique graphique . ."
+    "carte carte carte carte carte carte texte texte texte texte texte texte";
   gap: 0.6rem;
-  /* Hauteur de la fenêtre, moins la barre de navigation et les marges de la page. */
-  height: calc(100vh - var(--observablehq-header-height) - 2.75rem);
+  /* Hauteur de la fenêtre, moins les marges de la page. */
+  height: calc(100vh - 1.2rem);
   min-height: 32rem;
 }
 
@@ -265,14 +224,6 @@
   .dataviz > .zone-graphique {
     min-height: 70vh;
   }
-
-  .onglets {
-    gap: 1rem;
-  }
-
-  .onglets-titre {
-    display: none;
-  }
 }
 
 /* Emplacements provisoires, en attendant la carte et le graphique. */
@@ -303,3 +254,87 @@
   white-space: nowrap;
   pointer-events: none;
 }
+
+/* ---------- Textes du film guidé ---------- */
+
+/* Un seul texte est affiché : celui de l'étape en cours, indiquée par
+   l'attribut data-etape de la page (voir index.md). Avant que le code ne
+   s'exécute, c'est le texte d'introduction. */
+.texte-etape {
+  display: none;
+}
+
+:root:not([data-etape]) .texte-etape[data-etape="intro"],
+:root[data-etape="intro"] .texte-etape[data-etape="intro"],
+:root[data-etape="max"] .texte-etape[data-etape="max"],
+:root[data-etape="min"] .texte-etape[data-etape="min"],
+:root[data-etape="fin"] .texte-etape[data-etape="fin"] {
+  display: block;
+}
+
+.actions-texte {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
+}
+
+.bouton-film {
+  font: inherit;
+  padding: 0.3em 0.9em;
+  border-radius: 0.4em;
+  border: none;
+  background: var(--theme-foreground-focus);
+  color: var(--theme-background);
+  cursor: pointer;
+}
+
+/* Boutons d'action présentés comme des liens (« Passer le film »…). */
+button.lien {
+  font: inherit;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--theme-foreground-focus);
+  cursor: pointer;
+}
+
+button.lien:hover {
+  text-decoration: underline;
+}
+
+.lien-discret {
+  font-size: 0.85em;
+  color: var(--theme-foreground-muted);
+}
+
+/* Barre de semaine : boutons masqués selon le mode (guidé ou libre). */
+.choix-semaine button[hidden] {
+  display: none;
+}
+
+/* ---------- Annexe technique ---------- */
+
+/* Panneau qui affiche l'Annexe par-dessus la Dataviz, sans recharger la page. */
+.panneau-annexe {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: var(--theme-background);
+}
+
+.panneau-annexe[hidden] {
+  display: none;
+}
+
+.panneau-annexe iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Liens « Retour à la dataviz » de l'Annexe. */
+.retour-dataviz {
+  font: 14px var(--sans-serif);
+}
+

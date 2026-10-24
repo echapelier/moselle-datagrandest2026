@@ -2,6 +2,8 @@
 title: Annexe technique
 ---
 
+<a class="retour-dataviz" href="./">← Retour à la dataviz</a>
+
 # Annexe technique
 
 
@@ -241,7 +243,7 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 
 | Courbe | Couleur |
 | --- | --- |
-| semaine choisie avec la barre placée sous le cadre de la carte (par défaut, la plus récente) | `#0b4f71`, trait épais |
+| semaine choisie avec la barre placée sous le cadre de la carte (au chargement, la plus ancienne) | `#0b4f71`, trait épais |
 | semaine du débit le plus élevé (1ᵉʳ janvier 2018) | `#c77700` |
 | semaine du débit le plus faible (10 août 2026) | `#7b6bb0` |
 | débit médian de chaque site retenu, toutes semaines confondues (« Débit médian du site* » dans la légende ; l'astérisque renvoie aux sites retenus, voir l'étape 6) | gris, en tirets |
@@ -250,7 +252,16 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 - **Lignes verticales** : une par site de mesure, à sa distance depuis l'amont. Elles sont pleines pour les 8 sites retenus pour les calculs et en pointillés pour les 4 autres, dont la série est incomplète. Au passage de la souris, la ligne se renforce et le site correspondant est mis en évidence **sur la carte**, comme si la souris passait sur son cercle : le cercle grossit et le nom du site s'affiche. Quand la souris quitte le graphique, la mise en évidence disparaît.
 - L'indice des semaines sert à choisir les semaines extrêmes ; il n'est pas affiché.
 
-**Le film.** La barre de semaine, sous le cadre de la carte, permet de faire défiler les semaines automatiquement :
+**Le film.** Au chargement, la page affiche la semaine la plus ancienne (3 janvier 2000), sans les courbes des semaines extrêmes. Le film est d'abord **guidé** :
+- le bouton « Lancer le film » fait défiler les semaines, à raison de **60 ms par semaine** (1 393 semaines en 1 min 24 s, sans compter les arrêts) ;
+- le film s'arrête à la semaine du maximum : la courbe du maximum apparaît et un texte commente cette semaine, avec un bouton pour reprendre le film ;
+- il s'arrête de même à la semaine du minimum, puis à la dernière semaine, où s'affiche le texte final ;
+- pendant cette phase, le curseur de semaine est bloqué ; seul un bouton lecture / pause est disponible. Un lien « Passer le film » mène directement à la fin.
+
+Une fois le film terminé, la barre de semaine devient **libre** :
 - ▶ lance le défilement vers les semaines suivantes, ◀ vers les précédentes. Le bouton du sens en cours affiche ⏸ : un nouveau clic met en pause, et un clic sur l'autre flèche inverse le sens.
 - Déplacer le curseur à la main met le film en pause.
+- Le lien « Revoir le film » relance le film guidé depuis le début.
 - Les débits affichés viennent directement de `mesures.csv`, et l'indice de `profil_semaines.csv`.
+
+<a class="retour-dataviz" href="./">← Retour à la dataviz</a>
