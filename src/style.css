@@ -329,6 +329,15 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.5rem 1.5rem;
+  /* Toujours visibles en bas du cadre texte, même quand le texte défile
+     au-dessus : la bande reprend le fond du cadre et le prolonge jusqu'au
+     bord (marge intérieure du cadre : 0,6rem). */
+  position: sticky;
+  bottom: -0.6rem;
+  margin: 0 0 -0.6rem 0;
+  padding: 0.6rem 0;
+  background: var(--theme-background-alt);
+  border-top: solid 1px var(--theme-foreground-faintest);
 }
 
 .bouton-film {
