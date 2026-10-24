@@ -1,0 +1,12 @@
+Sites : 12 (sites du profil des débits)
+Semaines : 1393 (2000W01 à 2026W37), aucune valeur vide
+Années par semaine de l'année : 26 à 30 (semaine 52 : 30, dont les semaines 53)
+Moyennes hebdomadaires des 12 sites :
+  temp   -9.2 à 28.9
+  pluie  0.0 à 102.0
+  neige  0.0 à 30.6
+Références par semaine de l'année :
+  temp   1.4 à 19.9
+  pluie  10.0 à 24.9
+  neige  0.0 à 4.2
+Contrôle : références égales aux moyennes directes de toutes les mesures (sites × années).

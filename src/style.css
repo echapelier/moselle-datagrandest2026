@@ -25,8 +25,8 @@
 /*
   Grille de 12 colonnes et deux lignes de même hauteur :
     à gauche, la carte, sur 4 colonnes et toute la hauteur ;
-    en haut, le graphique des débits sur 4 colonnes (les 4 dernières
-    colonnes restent libres pour d'autres graphiques, « . ») ;
+    en haut, le graphique des débits sur 4 colonnes, puis les deux
+    graphiques météo, l'un au-dessus de l'autre, sur les 4 dernières ;
     en bas, le texte sur 8 colonnes.
 */
 .dataviz {
@@ -34,7 +34,7 @@
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: 1fr 1fr;
   grid-template-areas:
-    "carte carte carte carte graphique graphique graphique graphique . . . ."
+    "carte carte carte carte graphique graphique graphique graphique meteo meteo meteo meteo"
     "carte carte carte carte texte texte texte texte texte texte texte texte";
   gap: 0.6rem;
   /* Hauteur de la fenêtre, moins les marges de la page. */
@@ -210,16 +210,47 @@
   font-size: 1.1rem;
 }
 
-/* Petits écrans : les zones s'empilent (carte, graphique, texte). */
+/* Graphiques météo : deux cadres empilés, de même hauteur. */
+.zone-meteo {
+  grid-area: meteo;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.cadre-meteo {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.cadre-meteo h2 {
+  margin: 0;
+}
+
+/* Trait en tirets de la légende (moyenne 2000-2026). */
+.legende i.tirets {
+  background: repeating-linear-gradient(to right, var(--theme-foreground-muted) 0 4px, transparent 4px 7px);
+}
+
+/* Petits écrans : les zones s'empilent (carte, texte, débits, météo). */
 @media (max-width: 900px) {
   .dataviz {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto auto auto;
     grid-template-areas:
       "carte"
+      "texte"
       "graphique"
-      "texte";
+      "meteo";
     height: auto;
+  }
+
+  .dataviz > .zone-meteo .cadre-meteo {
+    min-height: 40vh;
   }
 
   /* La carte prend à peu près les proportions du bassin, plus haut que large. */

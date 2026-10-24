@@ -13,11 +13,13 @@ const sites = FileAttachment("data/sites.csv").csv();
 const mesures = FileAttachment("data/mesures.csv").csv();
 const profilSites = FileAttachment("data/profil_sites.csv").csv();
 const profilSemaines = FileAttachment("data/profil_semaines.csv").csv();
+const meteoSemaines = FileAttachment("data/meteo_semaines.csv").csv();
 ```
 
 ```js
 import {carte, legende} from "./components/carte.js";
 import {preparerProfil, choixSemaine, graphiqueProfil, legendeProfil} from "./components/profil.js";
+import {preparerMeteo, graphiqueTemperature, graphiquePrecipitations, legendeMeteo, COULEURS_METEO} from "./components/meteo.js";
 ```
 
 ```js
@@ -151,12 +153,36 @@ const blocLegendeProfil = document.createElement("div");
 const surlignerSurCarte = (code) => blocCarte.querySelector(".carte")?.surligner(code ?? null);
 // Quand la souris quitte le graphique, plus rien n'est mis en évidence.
 blocGraphique.addEventListener("pointerleave", () => surlignerSurCarte(null));
-// Taille disponible pour le graphique, suivie quand la fenêtre change.
-const tailleGraphique = Generators.observe((notifier) => {
-  const observateur = new ResizeObserver(([e]) => notifier({width: e.contentRect.width, height: e.contentRect.height}));
-  observateur.observe(blocGraphique);
-  return () => observateur.disconnect();
-});
+// Taille disponible pour un graphique, suivie quand la fenêtre change.
+const suivreTaille = (element) =>
+  Generators.observe((notifier) => {
+    const observateur = new ResizeObserver(([e]) => notifier({width: e.contentRect.width, height: e.contentRect.height}));
+    observateur.observe(element);
+    return () => observateur.disconnect();
+  });
+const tailleGraphique = suivreTaille(blocGraphique);
+```
+
+```js
+// Graphiques météo : mêmes principes (emplacements fixes, contenu mis à jour
+// à chaque semaine).
+const meteo = preparerMeteo(meteoSemaines);
+const blocTemperature = document.createElement("div");
+blocTemperature.className = "graphique-conteneur";
+const blocPrecipitations = document.createElement("div");
+blocPrecipitations.className = "graphique-conteneur";
+const tailleTemperature = suivreTaille(blocTemperature);
+const taillePrecipitations = suivreTaille(blocPrecipitations);
+```
+
+```js
+// Fenêtre de 5 semaines qui se termine par la semaine affichée.
+if (tailleTemperature.width > 0 && tailleTemperature.height > 0) {
+  blocTemperature.replaceChildren(graphiqueTemperature(meteo, iSemaine, tailleTemperature));
+}
+if (taillePrecipitations.width > 0 && taillePrecipitations.height > 0) {
+  blocPrecipitations.replaceChildren(graphiquePrecipitations(meteo, iSemaine, taillePrecipitations));
+}
 ```
 
 ```js
@@ -189,6 +215,18 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
     <div class="commandes">${entreeEchelle}</div>
     ${blocGraphique}
     ${blocLegendeProfil}
+  </div>
+  <div class="zone zone-meteo">
+    <div class="card cadre-meteo">
+      <h2>Température moyenne des 12 sites</h2>
+      ${blocTemperature}
+      ${legendeMeteo([{libelle: "semaine (°C)", couleur: COULEURS_METEO.temp}])}
+    </div>
+    <div class="card cadre-meteo">
+      <h2>Pluie et neige, moyennes des 12 sites</h2>
+      ${blocPrecipitations}
+      ${legendeMeteo([{libelle: "pluie (mm)", couleur: COULEURS_METEO.pluie}, {libelle: "neige, équivalent eau (mm)", couleur: COULEURS_METEO.neige}])}
+    </div>
   </div>
   <div class="card zone zone-texte">
     <!--

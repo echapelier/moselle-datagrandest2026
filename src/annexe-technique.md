@@ -229,6 +229,27 @@ Le débit médian d'un site est la médiane de ses débits valides, zéros compr
 - `profil_sites.csv` : site, libellé, distance, débit médian, nombre de débits valides, nombre de débits nuls, plancher pour le logarithme, première et dernière semaines valides, part de semaines valides, site retenu ou non pour les calculs, écart au tracé ;
 - `profil_semaines.csv` : semaine, date, nombre de sites mesurés, indice, semaine classée ou non, nombre de débits nuls remplacés par le plancher.
 
+## Étape 7 : température, pluie et neige
+
+Script : `preparation/07_meteo_moselle.py`. Journal : `preparation/journaux/07_meteo_moselle.txt`.
+
+Les deux graphiques météo portent sur les **12 sites du profil des débits** (étape 6). Les trois mesures utilisées sont :
+- `temp` : température moyenne hebdomadaire (°C) ;
+- `pluie` : hauteur de pluie, cumul hebdomadaire (mm) ;
+- `neige` : équivalent en eau des précipitations solides (neige, grêle), cumul hebdomadaire (mm).
+
+La pluie et la neige ont donc la même unité, mais elles ne sont jamais additionnées.
+
+**Valeurs vides.** Le script s'arrête si l'une de ces trois mesures manque pour l'un des 12 sites : la moyenne ne porterait alors pas sur les mêmes sites chaque semaine. Il n'y en a aucune : les 1 393 semaines ont les 12 sites.
+
+**Moyenne hebdomadaire.** Pour chaque semaine, on calcule la moyenne des 12 sites pour chaque mesure.
+
+**Référence pour repérer les écarts.** Pour chaque semaine de l'année (numéro de semaine ISO), on calcule la moyenne des valeurs hebdomadaires de cette semaine sur toutes les années du jeu de données (2000 à 2026), soit 26 ou 27 années selon la semaine. La semaine 53, qui n'existe que certaines années (2004, 2009, 2015 et 2020), est regroupée avec la semaine 52, qui compte ainsi 30 valeurs.
+
+**Contrôle.** Chaque référence, calculée comme la moyenne des moyennes hebdomadaires, est égale à la moyenne directe de toutes les mesures (sites × années) de la même semaine de l'année. C'est possible parce que chaque semaine compte les 12 sites.
+
+**Fichier produit** : `src/data/meteo_semaines.csv`, avec une ligne par semaine : semaine, date, semaine de l'année, moyennes des 12 sites (temp, pluie, neige) et références (temp_ref, pluie_ref, neige_ref).
+
 ## La carte
 
 Code : `src/components/carte.js`.
@@ -269,3 +290,14 @@ Une fois le film terminé, la barre de semaine devient **libre** (60 ms par sema
 - Les débits affichés viennent directement de `mesures.csv`, et l'indice de `profil_semaines.csv`.
 
 <a class="retour-dataviz" href="./">← Retour à la dataviz</a>
+
+## Les graphiques météo
+
+Code : `src/components/meteo.js`.
+
+Deux graphiques, l'un au-dessus de l'autre : la température, puis la pluie et la neige. Ils montrent une **fenêtre de 5 semaines** qui se termine par la semaine affichée dans le graphique des débits.
+
+- **Fenêtre glissante** : l'axe horizontal a 5 positions fixes, de « −4 sem. » à « sem. affichée ». Au fil des semaines, les points glissent vers la gauche et disparaissent au bout de 5 semaines. Au début de la série, il n'y a pas de semaines précédentes : on ne voit qu'un point, à droite, puis deux, et ainsi de suite.
+- **Ligne pleine** : moyenne des 12 sites pour chaque semaine. **Ligne en tirets** : la référence 2000-2026 des mêmes semaines de l'année (étape 7). L'écart entre les deux lignes montre si la semaine est plus chaude, plus froide, plus arrosée ou plus sèche que d'habitude.
+- Les **axes sont fixes**, calculés sur toute la période, pour que l'échelle ne bouge pas pendant le film.
+
