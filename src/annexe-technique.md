@@ -143,7 +143,7 @@ Jointures : `mesures.site` → `sites.site`, puis `sites.code_cours_eau` → `co
 - Chaque site a exactement une ligne par semaine : 1 393 semaines, de 2000W01 à 2026W37, soit 64 × 1 393 = 89 152 lignes.
 - **Jointure complète** : en recollant les trois fichiers écrits, on retrouve exactement les 89 152 lignes de l'étape 1 pour ces sites.
 
-**À savoir pour les calculs.** Dans `mesures.csv`, 17 645 valeurs de `debit` sont vides (sites qui n’ont pas de mesures sur toute la période) et 74 valeurs valent 0. La valeur -1 (erreur) n’apparaît pas pour ces sites. Les autres paramètres observés (temp, pluie, neige, humidite) n’ont aucune valeur vide.
+**À savoir pour les calculs.** Dans `mesures.csv`, 17 645 valeurs de `debit` sont vides (sites qui n’ont pas de mesures sur toute la période) et 74 valeurs valent 0. Ces débits nuls sont de vraies mesures (cours d’eau à sec, ou « assec ») : ils sont gardés dans toutes les analyses (voir l’étape 6 pour les calculs en logarithme). Ils concernent 4 sites, tous sur des affluents : aucun site de la Moselle n’a de débit nul. La valeur -1 (erreur) n’apparaît pas pour ces sites. Les autres paramètres observés (temp, pluie, neige, humidite) n’ont aucune valeur vide.
 
 ## Étape 5 : fond de carte
 
@@ -194,7 +194,7 @@ Script : `preparation/06_profil_moselle.py`. Journal : `preparation/journaux/06_
 - **Sens d'écoulement.** Le fichier ne dit pas de quel côté est l'amont. On le déduit des débits, puisque le débit médian augmente vers l'aval. La corrélation de rang (Spearman) entre la distance depuis la première extrémité et le débit médian vaut **-0,993**. L'amont est donc l'autre extrémité (6,892 ; 47,890), et l'aval est en (6,367 ; 49,467).
 - Le site « La Moselle à Metz [Pont des Morts] » n'a **aucun débit valide** sur toute la période : il est écarté. Le profil compte **12 sites**, de 12,1 à 283,0 km.
 
-**Sites retenus pour les calculs.** Un débit est **valide** s'il est strictement positif : les débits vides et les 0 sont écartés. Pour que les semaines extrêmes et le débit médian reposent sur des séries comparables, seuls les sites qui ont une série presque complète servent aux calculs. Un site est retenu s'il remplit les trois critères suivants :
+**Sites retenus pour les calculs.** Un débit est **valide** s'il est renseigné et positif ou nul. Un débit nul est une vraie mesure (cours d'eau à sec, « assec ») et il est gardé dans toutes les analyses ; seuls les débits vides et le code d'erreur -1 sont écartés. Pour que les semaines extrêmes et le débit médian reposent sur des séries comparables, seuls les sites qui ont une série presque complète servent aux calculs. Un site est retenu s'il remplit les trois critères suivants :
 1. son premier débit valide date au plus tard de la semaine 2001W01, c'est-à-dire de la première année du jeu de données ;
 2. il a un débit valide la dernière semaine du jeu de données (2026W37, 7 septembre 2026), donc pas d'interruption avant la fin ;
 3. au moins **97 %** des 1 393 semaines ont un débit valide.
@@ -217,15 +217,17 @@ Script : `preparation/06_profil_moselle.py`. Journal : `preparation/journaux/06_
 **8 sites sont retenus.** Aucun site n'a une part de semaines valides comprise entre 95,3 % et 98,1 %. Le seuil exact, autour de 97 %, ne change donc pas le résultat.
 
 **Comparaison entre semaines.** Comparer les semaines et identifier les extrêmes à l’échelle d’un cours d’eau suppose de disposer d’une méthode d’agrégation des mesures au niveau des sites correspondant à ce cours d’eau. Pour chaque semaine, on calcule la moyenne géométrique, sur les sites retenus mesurés cette semaine-là, de (débit / débit médian du site). 1 = débit habituel aux sites, 2 = deux fois plus, 0,5 = deux fois moins.
-Le débit médian d'un site est la médiane de ses débits valides.
+Le débit médian d'un site est la médiane de ses débits valides, zéros compris.
+
+**Débits nuls et logarithme.** La moyenne géométrique se calcule avec le logarithme, qui n'existe pas pour 0. Pour ce calcul uniquement, un débit nul (ou un débit médian nul) est remplacé par un **plancher propre au site** : la moitié de son plus petit débit strictement positif. Chaque remplacement est signalé : le nombre de débits nuls et le plancher de chaque site figurent dans `profil_sites.csv`, et le nombre de remplacements de chaque semaine dans `profil_semaines.csv`. Pour la Moselle, il n'y a aucun débit nul : aucun remplacement n'est fait, et les résultats sont les mêmes qu'en écartant les zéros. La règle a été testée en mettant temporairement deux débits d'Épinal à 0 : le site reste valide à 100 %, les deux semaines sont signalées, et le contrôle numpy retrouve le même indice.
 
 - **Semaine du maximum : 1ᵉʳ janvier 2018** (indice 11,8). **Semaine du minimum : 10 août 2026** (indice 0,083).
 
-**Contrôle.** Le script `06b_verifier_indice.py` refait le calcul autrement, avec numpy, sous forme de tableau semaines × sites retenus. Il retrouve le même nombre de sites pour chaque semaine, le même indice à 5·10⁻⁷ près (arrondi du fichier à 6 décimales) et les mêmes semaines extrêmes.
+**Contrôle.** Le script `06b_verifier_indice.py` refait le calcul autrement, avec numpy, sous forme de tableau semaines × sites retenus. Il recalcule lui-même le plancher de chaque site, et retrouve le même nombre de sites et de remplacements pour chaque semaine, le même indice à 5·10⁻⁷ près (arrondi du fichier à 6 décimales) et les mêmes semaines extrêmes.
 
 **Fichiers produits** (dans `src/data/`) :
-- `profil_sites.csv` : site, libellé, distance, débit médian, nombre de débits valides, première et dernière semaines valides, part de semaines valides, site retenu ou non pour les calculs, écart au tracé ;
-- `profil_semaines.csv` : semaine, date, nombre de sites mesurés, indice, semaine classée ou non.
+- `profil_sites.csv` : site, libellé, distance, débit médian, nombre de débits valides, nombre de débits nuls, plancher pour le logarithme, première et dernière semaines valides, part de semaines valides, site retenu ou non pour les calculs, écart au tracé ;
+- `profil_semaines.csv` : semaine, date, nombre de sites mesurés, indice, semaine classée ou non, nombre de débits nuls remplacés par le plancher.
 
 ## La carte
 
@@ -250,7 +252,7 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 | semaine du débit le plus faible (10 août 2026) | `#7b6bb0` |
 | débit médian de chaque site retenu, toutes semaines confondues (« Débit médian du site* » dans la légende ; l'astérisque renvoie aux sites retenus, voir l'étape 6) | gris, en tirets |
 
-- **Échelle** logarithmique par défaut, avec des graduations 1-3-10, ou linéaire. Les bornes de l'axe sont fixes, quelle que soit la semaine.
+- **Échelle** logarithmique par défaut, avec des graduations 1-3-10, ou linéaire. Les bornes de l'axe sont fixes, quelle que soit la semaine. Un débit nul ne peut pas être placé sur une échelle logarithmique : il y est dessiné au plancher du site (voir l'étape 6), avec un **point creux** pour le signaler. En échelle linéaire, il est placé à 0. Aucun débit nul n'apparaît sur la Moselle.
 - **Lignes verticales** : une par site de mesure, à sa distance depuis l'amont. Elles sont pleines pour les 8 sites retenus pour les calculs et en pointillés pour les 4 autres, dont la série est incomplète. Au passage de la souris, la ligne se renforce et le site correspondant est mis en évidence **sur la carte**, comme si la souris passait sur son cercle : le cercle grossit et le nom du site s'affiche. Quand la souris quitte le graphique, la mise en évidence disparaît.
 - L'indice des semaines sert à choisir les semaines extrêmes ; il n'est pas affiché.
 

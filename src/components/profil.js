@@ -22,11 +22,22 @@ const nombreFr = (x) => x.toLocaleString("fr-FR", {maximumSignificantDigits: 3})
 export function preparerProfil({profilSites, profilSemaines, mesures}) {
   // « retenu » : site qui sert au calcul de l'indice, des semaines extrêmes
   // et de la courbe du débit médian (série presque complète, voir l'Annexe).
-  const sites = profilSites.map((s) => ({...s, km: +s.distance_km, mediane: +s.debit_median, retenu: s.retenu_calcul === "1"}));
+  // « plancher » : valeur qui remplace un débit nul sur l'échelle
+  // logarithmique (moitié du plus petit débit strictement positif du site).
+  const sites = profilSites.map((s) => ({
+    ...s,
+    km: +s.distance_km,
+    mediane: +s.debit_median,
+    plancher: s.plancher_log === "" ? null : +s.plancher_log,
+    retenu: s.retenu_calcul === "1"
+  }));
   const ensemble = new Set(sites.map((s) => s.site));
+  // Débits valides : renseignés et positifs ou nuls (un débit nul est une
+  // mesure : cours d'eau à sec). Seuls les vides et le code d'erreur -1 sont
+  // écartés.
   const debits = new Map(sites.map((s) => [s.site, new Map()]));
   for (const m of mesures) {
-    if (ensemble.has(m.site) && m.debit !== "" && +m.debit > 0) debits.get(m.site).set(m.semaine, +m.debit);
+    if (ensemble.has(m.site) && m.debit !== "" && +m.debit >= 0) debits.get(m.site).set(m.semaine, +m.debit);
   }
   const semaines = profilSemaines.map((w) => ({
     ...w,
@@ -214,22 +225,26 @@ export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, he
   // Une courbe de semaine (choisie, maximum, minimum) montre tous les débits
   // disponibles cette semaine-là ; un site sans débit n'a pas de point. Seule
   // la courbe du débit médian, qui est un calcul, se limite aux sites retenus.
+  // Un débit nul ne peut pas figurer sur une échelle logarithmique : il y
+  // est placé au plancher du site et signalé par un point creux.
   const points = courbes.flatMap((c) =>
     profil.sites
       .filter((s) => c.cle !== "mediane" || s.retenu)
-      .map((s) => ({
-        courbe: c.nom,
-        site: s.libelle_site,
-        km: s.km,
-        debit: c.cle === "mediane" ? s.mediane : profil.debits.get(s.site).get(c.semaine)
-      }))
-      .filter((p) => p.debit !== undefined)
+      .map((s) => {
+        const debit = c.cle === "mediane" ? s.mediane : profil.debits.get(s.site).get(c.semaine);
+        const nul = debit === 0;
+        return {courbe: c.nom, site: s.libelle_site, km: s.km, nul, y: nul && echelleLog ? s.plancher : debit};
+      })
+      .filter((p) => p.y !== undefined && p.y !== null)
   );
 
   // Bornes fixes (toutes semaines confondues) pour que l'axe ne bouge pas
-  // d'une semaine à l'autre ; en log, puissances de 10 et graduations 1-3-10.
+  // d'une semaine à l'autre ; en log, puissances de 10 et graduations 1-3-10
+  // (la borne basse tient compte des planchers).
   const tous = [...profil.debits.values()].flatMap((m) => [...m.values()]);
-  const [mini, maxi] = d3.extent(tous);
+  const positifs = [...tous.filter((q) => q > 0), ...profil.sites.map((s) => s.plancher).filter((v) => v)];
+  const mini = d3.min(positifs);
+  const maxi = d3.max(tous);
   const bas = 10 ** Math.floor(Math.log10(mini));
   const haut = 10 ** Math.ceil(Math.log10(maxi));
   const gradLog = d3.range(Math.log10(bas), Math.log10(haut) + 1).flatMap((e) => [10 ** e, 3 * 10 ** e]).filter((t) => t <= haut);
@@ -263,8 +278,10 @@ export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, he
       ...courbes.flatMap((c) => {
         const donnees = points.filter((p) => p.courbe === c.nom);
         return [
-          Plot.line(donnees, {x: "km", y: "debit", stroke: "courbe", strokeWidth: c.epaisseur, strokeDasharray: c.tirets}),
-          Plot.dot(donnees, {x: "km", y: "debit", fill: "courbe", r: c.cle === "choisie" ? 4 : 2.5})
+          Plot.line(donnees, {x: "km", y: "y", stroke: "courbe", strokeWidth: c.epaisseur, strokeDasharray: c.tirets}),
+          Plot.dot(donnees.filter((p) => !p.nul), {x: "km", y: "y", fill: "courbe", r: c.cle === "choisie" ? 4 : 2.5}),
+          // Débit nul : point creux.
+          Plot.dot(donnees.filter((p) => p.nul), {x: "km", y: "y", stroke: "courbe", fill: "white", strokeWidth: 1.5, r: c.cle === "choisie" ? 4 : 2.5})
         ];
       })
     ]

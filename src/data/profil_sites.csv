@@ -1,13 +1,13 @@
-site,libelle_site,distance_km,debit_median,nb_debits_valides,premiere_semaine,derniere_semaine,part_valides,retenu_calcul,ecart_au_trace_m
-A4020610,La Moselle à Fresse-sur-Moselle,12.12,1810,1393,2000W01,2026W37,1.0000,1,294
-A4050620,La Moselle à Rupt-sur-Moselle,24.06,3730,1366,2000W01,2026W37,0.9806,1,48
-A4200630,La Moselle à Remiremont et à Saint-Nabord,50.66,15000,1386,2000W01,2026W37,0.9950,1,231
-A4430640,La Moselle à Épinal,73.95,25300,1393,2000W01,2026W37,1.0000,1,417
-A4550002,La Moselle à Châtel-sur-Moselle,94.48,25550,622,2014W42,2026W37,0.4465,0,229
-A5110610,La Moselle à Saint-Mard et à Tonnoy et à Velle-sur-Moselle,133.77,30700,1328,2001W01,2026W27,0.9533,0,111
-A5500610,La Moselle à Pont-Saint-Vincent,151.07,36350,1390,2000W01,2026W37,0.9978,1,313
-A5730610,La Moselle à Toul,173.27,40500,1388,2000W01,2026W37,0.9964,1,81
-A7010610,La Moselle à Custines,203.44,65700,1393,2000W01,2026W37,1.0000,1,0
-A7400001,La Moselle à Corny-sur-Moselle,240.63,59900,645,2014W17,2026W37,0.4630,0,27
-A7930610,La Moselle à Hagondange et à Hauconcourt,269.22,74200,720,2012W48,2026W37,0.5169,0,232
-A8500610,La Moselle à Uckange,283.02,81400,1393,2000W01,2026W37,1.0000,1,88
+site,libelle_site,distance_km,debit_median,nb_debits_valides,nb_debits_nuls,plancher_log,premiere_semaine,derniere_semaine,part_valides,retenu_calcul,ecart_au_trace_m
+A4020610,La Moselle à Fresse-sur-Moselle,12.12,1810,1393,0,32.55,2000W01,2026W37,1.0000,1,294
+A4050620,La Moselle à Rupt-sur-Moselle,24.06,3730,1366,0,69.5,2000W01,2026W37,0.9806,1,48
+A4200630,La Moselle à Remiremont et à Saint-Nabord,50.66,15000,1386,0,297,2000W01,2026W37,0.9950,1,231
+A4430640,La Moselle à Épinal,73.95,25300,1393,0,1000,2000W01,2026W37,1.0000,1,417
+A4550002,La Moselle à Châtel-sur-Moselle,94.48,25550,622,0,1460,2014W42,2026W37,0.4465,0,229
+A5110610,La Moselle à Saint-Mard et à Tonnoy et à Velle-sur-Moselle,133.77,30700,1328,0,1385,2001W01,2026W27,0.9533,0,111
+A5500610,La Moselle à Pont-Saint-Vincent,151.07,36350,1390,0,1240,2000W01,2026W37,0.9978,1,313
+A5730610,La Moselle à Toul,173.27,40500,1388,0,1635,2000W01,2026W37,0.9964,1,81
+A7010610,La Moselle à Custines,203.44,65700,1393,0,4530,2000W01,2026W37,1.0000,1,0
+A7400001,La Moselle à Corny-sur-Moselle,240.63,59900,645,0,5550,2014W17,2026W37,0.4630,0,27
+A7930610,La Moselle à Hagondange et à Hauconcourt,269.22,74200,720,0,5150,2012W48,2026W37,0.5169,0,232
+A8500610,La Moselle à Uckange,283.02,81400,1393,0,5450,2000W01,2026W37,1.0000,1,88

@@ -4,22 +4,23 @@ Extrémité amont : 6.892, 47.890 ; extrémité aval : 6.367, 49.467 (longitude,
 
 Site écarté (aucun débit valide) : A7430610 La Moselle à Metz [Pont des Morts]
 Sites, d'amont en aval (distance depuis l'extrémité amont, débit médian, écart au tracé,
-première et dernière semaine valides, part de semaines valides, retenu pour les calculs)
-  A4020610 La Moselle à Fresse-sur-Moselle                              12.1 km    1810 L/s  294 m  2000W01 2026W37 100.0 %  oui
-  A4050620 La Moselle à Rupt-sur-Moselle                                24.1 km    3730 L/s   48 m  2000W01 2026W37  98.1 %  oui
-  A4200630 La Moselle à Remiremont et à Saint-Nabord                    50.7 km   15000 L/s  231 m  2000W01 2026W37  99.5 %  oui
-  A4430640 La Moselle à Épinal                                          73.9 km   25300 L/s  417 m  2000W01 2026W37 100.0 %  oui
-  A4550002 La Moselle à Châtel-sur-Moselle                              94.5 km   25550 L/s  229 m  2014W42 2026W37  44.7 %  non
-  A5110610 La Moselle à Saint-Mard et à Tonnoy et à Velle-sur-Moselle  133.8 km   30700 L/s  111 m  2001W01 2026W27  95.3 %  non
-  A5500610 La Moselle à Pont-Saint-Vincent                             151.1 km   36350 L/s  313 m  2000W01 2026W37  99.8 %  oui
-  A5730610 La Moselle à Toul                                           173.3 km   40500 L/s   81 m  2000W01 2026W37  99.6 %  oui
-  A7010610 La Moselle à Custines                                       203.4 km   65700 L/s    0 m  2000W01 2026W37 100.0 %  oui
-  A7400001 La Moselle à Corny-sur-Moselle                              240.6 km   59900 L/s   27 m  2014W17 2026W37  46.3 %  non
-  A7930610 La Moselle à Hagondange et à Hauconcourt                    269.2 km   74200 L/s  232 m  2012W48 2026W37  51.7 %  non
-  A8500610 La Moselle à Uckange                                        283.0 km   81400 L/s   88 m  2000W01 2026W37 100.0 %  oui
+première et dernière semaine valides, part de semaines valides, débits nuls, retenu pour les calculs)
+  A4020610 La Moselle à Fresse-sur-Moselle                              12.1 km    1810 L/s  294 m  2000W01 2026W37 100.0 %    0 nuls  oui
+  A4050620 La Moselle à Rupt-sur-Moselle                                24.1 km    3730 L/s   48 m  2000W01 2026W37  98.1 %    0 nuls  oui
+  A4200630 La Moselle à Remiremont et à Saint-Nabord                    50.7 km   15000 L/s  231 m  2000W01 2026W37  99.5 %    0 nuls  oui
+  A4430640 La Moselle à Épinal                                          73.9 km   25300 L/s  417 m  2000W01 2026W37 100.0 %    0 nuls  oui
+  A4550002 La Moselle à Châtel-sur-Moselle                              94.5 km   25550 L/s  229 m  2014W42 2026W37  44.7 %    0 nuls  non
+  A5110610 La Moselle à Saint-Mard et à Tonnoy et à Velle-sur-Moselle  133.8 km   30700 L/s  111 m  2001W01 2026W27  95.3 %    0 nuls  non
+  A5500610 La Moselle à Pont-Saint-Vincent                             151.1 km   36350 L/s  313 m  2000W01 2026W37  99.8 %    0 nuls  oui
+  A5730610 La Moselle à Toul                                           173.3 km   40500 L/s   81 m  2000W01 2026W37  99.6 %    0 nuls  oui
+  A7010610 La Moselle à Custines                                       203.4 km   65700 L/s    0 m  2000W01 2026W37 100.0 %    0 nuls  oui
+  A7400001 La Moselle à Corny-sur-Moselle                              240.6 km   59900 L/s   27 m  2014W17 2026W37  46.3 %    0 nuls  non
+  A7930610 La Moselle à Hagondange et à Hauconcourt                    269.2 km   74200 L/s  232 m  2012W48 2026W37  51.7 %    0 nuls  non
+  A8500610 La Moselle à Uckange                                        283.0 km   81400 L/s   88 m  2000W01 2026W37 100.0 %    0 nuls  oui
 
 Critères : 1re semaine valide <= 2001W01, débit valide en 2026W37, >= 97 % de semaines valides → 8 sites retenus sur 12
 Semaines : 1393 ; semaines où les 8 sites retenus ont un débit valide : 1354
 Semaines classées (au moins 8 sites retenus sur 8) : 1354
+Débits nuls remplacés par le plancher du site dans le calcul de l'indice : 0
 Semaine du maximum : 2018W01 (2018-01-01), indice 11.813
 Semaine du minimum : 2026W33 (2026-08-10), indice 0.083
