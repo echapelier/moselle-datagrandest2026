@@ -87,7 +87,7 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine));
     ${blocLegendeProfil}
   </div>
   <div class="card zone zone-texte">
-    <h2>Lecture des graphiques</h2>
-    <p><em>Texte à venir.</em></p>
+    <h2>Moselle : que nous disent vingt-six ans de données hydro et météo ?</h2>
+    <p>Bien que la Moselle ne soit techniquement qu’une rivière puisqu’elle se jette dans un autre cours d’eau – le Rhin - et non une mer ou un océan, elle n’en constitue pas moins un cours d’eau central pour la région Grand Est, à la fois par sa localisation, sa longueur (près de 300 km dans la région) et la taille de son bassin. Prenant sa source dans le massif des Vosges, elle traverse trois départements (Vosges, Meurthe-et-Moselle et Moselle) et les chefs-lieux d’Épinal et de Metz avant de poursuivre son chemin vers le Luxembourg puis l’Allemagne, où elle rejoint le Rhin à Coblence.</p>
   </div>
 </div>
