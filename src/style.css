@@ -234,9 +234,14 @@
   overflow-y: auto;
 }
 
+.zone-texte h1 {
+  font-size: 1.2rem;
+}
+
 .zone-texte p,
 .zone-texte li {
   max-width: none;
+  font-size: 1.1rem;
 }
 
 /* Petits écrans : les zones s'empilent (carte, graphique, texte). */
