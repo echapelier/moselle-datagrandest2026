@@ -12,6 +12,9 @@ Les sites de la Moselle et de la Moselle canalisée sont projetés sur ce
 chemin (le script vérifie qu'ils en sont à moins du seuil de l'étape 3) :
 la distance d'un site est la longueur du chemin entre l'extrémité amont et
 son point projeté. Un site sans aucun débit valide est écarté.
+Les débits valides de ces sites sont écrits dans profil_debits.csv (site,
+semaine, débit) : c'est le seul fichier de mesures que lit la page, qui évite
+d'envoyer au navigateur les autres colonnes de mesures.csv.
 Les deux extrémités du chemin (amont et aval) sont écrites dans
 moselle_extremites.csv : la carte y place la source de la Moselle et sa
 sortie du territoire français.
@@ -58,7 +61,7 @@ les semaines classées.
 Entrées : donnees-originales/cours-eau-region_1791104972648.geojson
           src/data/sites.csv, src/data/mesures.csv (étape 4)
 Sorties : src/data/profil_sites.csv, src/data/profil_semaines.csv,
-          src/data/moselle_extremites.csv
+          src/data/profil_debits.csv, src/data/moselle_extremites.csv
           preparation/journaux/06_profil_moselle.txt
 
 Lancement, depuis la racine du projet :
@@ -86,6 +89,7 @@ ENTREE_MESURES = RACINE / "src" / "data" / "mesures.csv"
 ENTREE_RATTACHEMENT = RACINE / "preparation" / "journaux" / "03_rapprocher_noms.txt"
 SORTIE_SITES = RACINE / "src" / "data" / "profil_sites.csv"
 SORTIE_SEMAINES = RACINE / "src" / "data" / "profil_semaines.csv"
+SORTIE_DEBITS = RACINE / "src" / "data" / "profil_debits.csv"
 SORTIE_EXTREMITES = RACINE / "src" / "data" / "moselle_extremites.csv"
 SORTIE_JOURNAL = RACINE / "preparation" / "journaux" / "06_profil_moselle.txt"
 
@@ -265,6 +269,13 @@ def main() -> None:
             e.writerow([w["semaine"], w["date"], w["nb_sites"],
                         f"{w['indice']:.6f}" if w["indice"] is not None else "", w["classee"],
                         w["nb_planchers"]])
+
+    with SORTIE_DEBITS.open("w", encoding="utf-8", newline="") as f:
+        e = csv.writer(f, lineterminator="\n")
+        e.writerow(["site", "semaine", "debit"])
+        for s in sites:
+            for semaine in sorted(debits[s["site"]]):
+                e.writerow([s["site"], semaine, repr(debits[s["site"]][semaine])])
 
     vers_lonlat = Transformer.from_crs("EPSG:2154", "OGC:CRS84", always_xy=True)
     lonlat = lambda p: "{:.3f}, {:.3f}".format(*vers_lonlat.transform(*p))

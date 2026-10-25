@@ -10,7 +10,7 @@ const region = FileAttachment("data/region.geojson").json();
 const departements = FileAttachment("data/departements.geojson").json();
 const traces = FileAttachment("data/traces_cours_eau.geojson").json();
 const sites = FileAttachment("data/sites.csv").csv();
-const mesures = FileAttachment("data/mesures.csv").csv();
+const profilDebits = FileAttachment("data/profil_debits.csv").csv();
 const profilSites = FileAttachment("data/profil_sites.csv").csv();
 const profilSemaines = FileAttachment("data/profil_semaines.csv").csv();
 const meteoSemaines = FileAttachment("data/meteo_semaines.csv").csv();
@@ -24,7 +24,7 @@ import {preparerMeteo, graphiqueTemperature, graphiquePrecipitations, legendeMet
 ```
 
 ```js
-const profil = preparerProfil({profilSites, profilSemaines, mesures});
+const profil = preparerProfil({profilSites, profilSemaines, profilDebits});
 // Le film part de la première semaine de juillet 2017 (lundi 3 juillet) et
 // s'arrête aux semaines du maximum et du minimum.
 const iDepart = profil.semaines.findIndex((w) => w.semaine === "2017W27");

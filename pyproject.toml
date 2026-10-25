@@ -5,6 +5,7 @@ requires-python = ">=3.14"
 dependencies = [
     "matplotlib>=3.11.2",
     "networkx>=3.7",
+    "numpy>=2.0",
     "pyproj>=3.8.0",
     "shapely>=2.2.0",
 ]

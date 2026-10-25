@@ -18,7 +18,7 @@ const nombreFr = (x) => x.toLocaleString("fr-FR", {maximumSignificantDigits: 3})
 
 // Prépare les données une fois pour toutes : sites dans l'ordre amont → aval,
 // débits valides (≥ 0) par site et par semaine, semaines extrêmes.
-export function preparerProfil({profilSites, profilSemaines, mesures}) {
+export function preparerProfil({profilSites, profilSemaines, profilDebits}) {
   // « retenu » : site qui sert au calcul de l'indice, des semaines extrêmes
   // et de la courbe du débit médian (série presque complète, voir annexe technique).
   // « plancher » : valeur qui remplace un débit nul sur l'échelle
@@ -30,14 +30,10 @@ export function preparerProfil({profilSites, profilSemaines, mesures}) {
     plancher: s.plancher_log === "" ? null : +s.plancher_log,
     retenu: s.retenu_calcul === "1"
   }));
-  const ensemble = new Set(sites.map((s) => s.site));
-  // Débits valides : renseignés et positifs ou nuls (un débit nul est une
-  // mesure : cours d'eau à sec). Seuls les vides et le code d'erreur -1 sont
-  // écartés.
+  // Débits valides (fichier profil_debits.csv, étape 6) : renseignés et
+  // positifs ou nuls (un débit nul est une mesure : cours d'eau à sec).
   const debits = new Map(sites.map((s) => [s.site, new Map()]));
-  for (const m of mesures) {
-    if (ensemble.has(m.site) && m.debit !== "" && +m.debit >= 0) debits.get(m.site).set(m.semaine, +m.debit);
-  }
+  for (const d of profilDebits) debits.get(d.site).set(d.semaine, +d.debit);
   const semaines = profilSemaines.map((w) => ({
     ...w,
     nb_sites: +w.nb_sites,

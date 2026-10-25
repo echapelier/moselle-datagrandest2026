@@ -227,6 +227,7 @@ Le débit médian d’un site est la médiane de ses débits valides, zéros com
 **Fichiers produits** (dans `src/data/`) :
 - `profil_sites.csv` : site, libellé, distance, débit médian, nombre de débits valides, nombre de débits nuls, plancher pour le logarithme, première et dernière semaines valides, part de semaines valides, site retenu ou non pour les calculs, écart au tracé ;
 - `profil_semaines.csv` : semaine, date, nombre de sites mesurés, indice, semaine classée ou non, nombre de débits nuls remplacés par le plancher ;
+- `profil_debits.csv` : site, semaine et débit, pour les 12 sites du profil et leurs seuls débits valides (14 417 lignes, 0,36 Mo). C’est le seul fichier de mesures que lit la page : elle n’envoie ainsi pas au navigateur les autres colonnes de `mesures.csv` (températures, pluie, neige, humidité), déjà résumées par l’étape 7 ;
 - `moselle_extremites.csv` : longitude et latitude des deux extrémités du chemin principal de la Moselle (amont et aval), où la carte place la source et la sortie du territoire français.
 
 **Graphique des débits**

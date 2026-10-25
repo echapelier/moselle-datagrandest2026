@@ -55,7 +55,7 @@ uv run preparation/06b_verifier_indice.py
 uv run preparation/07_meteo_moselle.py
 ```
 
-Les scripts 04 à 07 écrivent les données de l'application dans `src/data/` (`sites.csv`, `cours_eau.csv`, `mesures.csv`, `traces_cours_eau.geojson`, `region.geojson`, `departements.geojson`, `profil_sites.csv`, `profil_semaines.csv`, `moselle_extremites.csv`, `meteo_semaines.csv`), qui sont versionnées. Le script 05 utilise mapshaper, installé par `npm install`.
+Les scripts 04 à 07 écrivent les données de l'application dans `src/data/` (`sites.csv`, `cours_eau.csv`, `mesures.csv`, `traces_cours_eau.geojson`, `region.geojson`, `departements.geojson`, `profil_sites.csv`, `profil_semaines.csv`, `profil_debits.csv`, `moselle_extremites.csv`, `meteo_semaines.csv`), qui sont versionnées. Le script 05 utilise mapshaper, installé par `npm install`.
 
 Chaque script affiche ses contrôles ; certains écrivent aussi un journal dans `preparation/journaux/`.
 
