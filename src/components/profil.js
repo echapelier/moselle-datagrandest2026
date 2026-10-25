@@ -234,7 +234,7 @@ function courbesDuProfil(profil, semaine, montrer = {haut: true, bas: true}) {
     {cle: "mediane", nom: "Débit médian du site*", couleur: COULEURS_PROFIL.mediane, epaisseur: 1.5, tirets: "4,3"},
     {cle: "bas", nom: `Plus faible (${dateFr(profil.bas.date)})`, semaine: profil.bas.semaine, couleur: COULEURS_PROFIL.bas, epaisseur: 1.8},
     {cle: "haut", nom: `Plus élevé (${dateFr(profil.haut.date)})`, semaine: profil.haut.semaine, couleur: COULEURS_PROFIL.haut, epaisseur: 1.8},
-    {cle: "choisie", nom: "Semaine affichée", semaine: semaine.semaine, couleur: COULEURS_PROFIL.choisie, epaisseur: 3}
+    {cle: "choisie", nom: "Semaine sélectionnée", semaine: semaine.semaine, couleur: COULEURS_PROFIL.choisie, epaisseur: 3}
   ].filter((c) => montrer[c.cle] !== false);
 }
 
