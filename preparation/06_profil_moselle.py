@@ -178,7 +178,7 @@ def main() -> None:
         if s["ecart_m"] > seuil_m:
             arreter(f"le site {s['site']} est à {s['ecart_m']:.0f} m du tracé (seuil {seuil_m} m)")
 
-    # Débits valides (> 0) par site et par semaine.
+    # Débits valides (≥ 0) par site et par semaine.
     debits = defaultdict(dict)
     dates = {}
     with ENTREE_MESURES.open(encoding="utf-8", newline="") as f:

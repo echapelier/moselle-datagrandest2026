@@ -28,11 +28,15 @@ const COUCHES = [
 ];
 
 // Repères de la Moselle : extrémité du tracé (fichier moselle_extremites.csv,
-// étape 6), texte et côté du texte par rapport au triangle.
+// étape 6), texte et côté du rectangle par rapport au triangle.
 const REPERES = [
-  {extremite: "amont", texte: ["Source"], sous: true},
-  {extremite: "aval", texte: ["Tripoint", "Allemagne-France-Luxembourg"], sous: false}
+  {extremite: "amont", texte: ["Source"], cote: "droite"},
+  {extremite: "aval", texte: ["Tripoint", "Allemagne-France-", "Luxembourg"], cote: "gauche"}
 ];
+const TAILLE_TEXTE = 11; // px
+const INTERLIGNE = 13; // px
+const REMPLISSAGE = {x: 5, y: 3}; // marge du texte dans son rectangle (px)
+const ECART_TRIANGLE = 8; // px entre le centre du triangle et le rectangle
 
 const RAYON_SITE = 6; // en pixels, quel que soit le zoom
 
@@ -113,15 +117,21 @@ export function carte({region, departements, traces, sites, extremites, width, h
   traitFixe(points);
 
   // Repères aux deux extrémités du tracé de la Moselle : sa source (amont) et
-  // l'endroit où elle sort du territoire français (aval). Triangle et texte
-  // gardent la même taille à l'écran quel que soit le zoom.
+  // l'endroit où elle sort du territoire français (aval). Chacun est un
+  // triangle et un texte dans un rectangle (même fond que l'info-bulle des
+  // sites). Ils gardent la même taille à l'écran quel que soit le zoom.
+  const police = getComputedStyle(document.documentElement).getPropertyValue("--sans-serif");
+  const mesure = document.createElement("canvas").getContext("2d");
+  mesure.font = `${TAILLE_TEXTE}px ${police}`;
   const reperes = g
     .append("g")
     .style("pointer-events", "none")
     .selectAll("g")
     .data(REPERES.map((r) => {
       const e = extremites.find((x) => x.extremite === r.extremite);
-      return {...r, xy: projection([+e.lon, +e.lat])};
+      const largeur = Math.max(...r.texte.map((ligne) => mesure.measureText(ligne).width)) + 2 * REMPLISSAGE.x;
+      const hauteur = r.texte.length * INTERLIGNE + 2 * REMPLISSAGE.y;
+      return {...r, xy: projection([+e.lon, +e.lat]), largeur, hauteur};
     }))
     .join("g");
   reperes
@@ -130,22 +140,28 @@ export function carte({region, departements, traces, sites, extremites, width, h
     .attr("fill", COULEURS.moselle)
     .attr("stroke", "white")
     .attr("stroke-width", 1);
-  reperes
+  // Le rectangle est centré verticalement sur le triangle, à sa droite ou à
+  // sa gauche.
+  const etiquettes = reperes
+    .append("g")
+    .attr("transform", (r) => `translate(${r.cote === "droite" ? ECART_TRIANGLE : -ECART_TRIANGLE - r.largeur},${-r.hauteur / 2})`);
+  etiquettes
+    .append("rect")
+    .attr("width", (r) => r.largeur)
+    .attr("height", (r) => r.hauteur)
+    .attr("rx", 4)
+    .style("fill", "var(--theme-background)")
+    .style("stroke", "var(--theme-foreground-faint)");
+  etiquettes
     .append("text")
-    .attr("text-anchor", (r) => (r.xy[0] < width * 0.3 ? "start" : r.xy[0] > width * 0.7 ? "end" : "middle"))
-    .style("font", "11px var(--sans-serif)")
+    .style("font", `${TAILLE_TEXTE}px var(--sans-serif)`)
     .style("fill", "var(--theme-foreground)")
-    // Contour de la couleur du fond de page, pour lire le texte sur les tracés.
-    .style("paint-order", "stroke")
-    .style("stroke", "var(--theme-background)")
-    .style("stroke-width", "3px")
-    .style("stroke-linejoin", "round")
+    .style("dominant-baseline", "central")
     .selectAll("tspan")
-    .data((r) => r.texte.map((ligne, i) => ({ligne, i, r})))
+    .data((r) => r.texte.map((ligne, i) => ({ligne, i})))
     .join("tspan")
-    .attr("x", ({r}) => (r.xy[0] < width * 0.3 ? 6 : r.xy[0] > width * 0.7 ? -6 : 0))
-    // Sous le triangle, ou au-dessus (les lignes se lisent de haut en bas).
-    .attr("y", ({i, r}) => (r.sous ? 18 + i * 13 : -9 - (r.texte.length - 1 - i) * 13))
+    .attr("x", REMPLISSAGE.x)
+    .attr("y", ({i}) => REMPLISSAGE.y + (i + 0.5) * INTERLIGNE)
     .text(({ligne}) => ligne);
   const placerReperes = (k) => reperes.attr("transform", (r) => `translate(${r.xy}) scale(${1 / k})`);
   placerReperes(1);

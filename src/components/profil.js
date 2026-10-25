@@ -17,7 +17,7 @@ const dateFr = (date) =>
 const nombreFr = (x) => x.toLocaleString("fr-FR", {maximumSignificantDigits: 3});
 
 // Prépare les données une fois pour toutes : sites dans l'ordre amont → aval,
-// débits valides (> 0) par site et par semaine, semaines extrêmes.
+// débits valides (≥ 0) par site et par semaine, semaines extrêmes.
 export function preparerProfil({profilSites, profilSemaines, mesures}) {
   // « retenu » : site qui sert au calcul de l'indice, des semaines extrêmes
   // et de la courbe du débit médian (série presque complète, voir annexe technique).
@@ -244,8 +244,11 @@ export function legendeProfil(profil, semaine, montrer) {
   return Plot.legend({color: {domain: courbes.map((c) => c.nom), range: courbes.map((c) => c.couleur)}, swatchSize: 12});
 }
 
-// Site dont le nom est écrit au-dessus de sa ligne verticale.
+// Site dont le nom est écrit au-dessus de sa ligne verticale, et hauteur de la
+// flèche (px) qui relie le texte au haut de la ligne.
 const SITE_LEGENDE = "La Moselle à Uckange";
+const ECART_FLECHE = 18;
+const MARGE_HAUT = 50; // px au-dessus du cadre : texte sur deux lignes et flèche
 
 export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, height}) {
   const courbes = courbesDuProfil(profil, semaine, montrer);
@@ -278,10 +281,10 @@ export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, he
 
   const kmMax = d3.max(profil.sites, (s) => s.km) * 1.03;
 
-  return Plot.plot({
+  const graphique = Plot.plot({
     width,
     height,
-    marginTop: 34, // place pour le texte au-dessus de la ligne d'Uckange
+    marginTop: MARGE_HAUT,
     marginLeft: 64,
     marginRight: 16,
     x: {label: width < 500 ? "Distance depuis l'amont (km) →" : "distance depuis la source (km) →", grid: true, domain: [0, kmMax]},
@@ -312,7 +315,7 @@ export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, he
         textAnchor: "end",
         lineAnchor: "bottom",
         lineWidth: 13,
-        dy: -6,
+        dy: -ECART_FLECHE,
         fontSize: 11,
         fill: "#555"
       }),
@@ -327,4 +330,22 @@ export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, he
       })
     ]
   });
+
+  // Flèche du texte vers le haut de la ligne verticale du site (dessinée
+  // dans la marge, en pixels : Plot ne place pas de marque hors du cadre).
+  const site = profil.sites.find((s) => s.libelle_site === SITE_LEGENDE);
+  if (site) {
+    const x = graphique.scale("x").apply(site.km);
+    d3.select(graphique)
+      .append("g")
+      .attr("fill", "none")
+      .attr("stroke", "#555")
+      .attr("stroke-width", 1)
+      .attr("pointer-events", "none")
+      .call((g) => {
+        g.append("line").attr("x1", x).attr("x2", x).attr("y1", MARGE_HAUT - ECART_FLECHE + 2).attr("y2", MARGE_HAUT - 1);
+        g.append("polyline").attr("points", `${x - 3.5},${MARGE_HAUT - 6} ${x},${MARGE_HAUT - 1} ${x + 3.5},${MARGE_HAUT - 6}`);
+      });
+  }
+  return graphique;
 }

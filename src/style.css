@@ -80,7 +80,7 @@ Palette personnalisée
 /* Titre de la carte : même style que les titres des cadres (graphique). */
 .zone-carte h2 {
   position: absolute;
-  top: 2.2rem;          /* sous le bouton (environ 1.7rem de haut + marge) */
+  top: 0.25rem;
   right: 0.25rem;
   max-width: 14rem;     /* le titre passe sur plusieurs lignes */
   text-align: right;
@@ -338,10 +338,12 @@ Palette personnalisée
 
 /* ---------- Info-bulle et bouton de la carte ---------- */
 
-/* « Voir toute la région » / « Revenir au bassin », en haut à droite. */
+/* « Voir toute la région » / « Revenir au bassin », à droite, sous le titre
+   de la carte. --hauteur-titre est la hauteur du titre, mesurée par la page
+   (voir index.md). */
 .bouton-carte {
   position: absolute;
-  top: 0.25rem;
+  top: calc(0.25rem + var(--hauteur-titre, 3rem) + 0.4rem);
   right: 0.25rem;
   font: 12px var(--sans-serif);
   padding: 0.2rem 0.5rem;

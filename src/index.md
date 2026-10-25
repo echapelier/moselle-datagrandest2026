@@ -142,6 +142,17 @@ const blocCarte = resize((width, height) => carte({region, departements, traces,
 ```
 
 ```js
+// Le bouton de la carte se place sous son titre, quelle que soit la hauteur
+// de celui-ci : on la mesure et on la donne au CSS (--hauteur-titre).
+{
+  const titre = document.querySelector(".zone-carte h2");
+  const observateur = new ResizeObserver(() => titre.parentElement.style.setProperty("--hauteur-titre", `${titre.offsetHeight}px`));
+  observateur.observe(titre);
+  invalidation.then(() => observateur.disconnect());
+}
+```
+
+```js
 // Emplacements du graphique et de sa légende. Ils restent en
 // place ; seul leur contenu change à chaque semaine (voir plus bas), pour
 // que le film reste fluide.
