@@ -26,11 +26,18 @@ const COUCHES = [
   {categorie: "moselle", couleur: COULEURS.moselle, epaisseur: 2.6, opacite: 1}
 ];
 
+// Repères de la Moselle : extrémité du tracé (fichier moselle_extremites.csv,
+// étape 6), texte et côté du texte par rapport au triangle.
+const REPERES = [
+  {extremite: "amont", texte: ["Source"], sous: true},
+  {extremite: "aval", texte: ["Tripoint", "Allemagne-France-Luxembourg"], sous: false}
+];
+
 const RAYON_SITE = 3.2; // en pixels, quel que soit le zoom
 
 const MARGE = 10; // pixels autour du bassin (ou de la région) cadré
 
-export function carte({region, departements, traces, sites, width, height}) {
+export function carte({region, departements, traces, sites, extremites, width, height}) {
   // Projection conique conforme de Lambert (parallèles 44° et 49°, méridien
   // 3° E), ajustée au bassin de la Moselle (la Moselle et ses affluents).
   const bassin = {
@@ -104,6 +111,44 @@ export function carte({region, departements, traces, sites, width, height}) {
     .attr("stroke-width", 1.2);
   traitFixe(points);
 
+  // Repères aux deux extrémités du tracé de la Moselle : sa source (amont) et
+  // l'endroit où elle sort du territoire français (aval). Triangle et texte
+  // gardent la même taille à l'écran quel que soit le zoom.
+  const reperes = g
+    .append("g")
+    .style("pointer-events", "none")
+    .selectAll("g")
+    .data(REPERES.map((r) => {
+      const e = extremites.find((x) => x.extremite === r.extremite);
+      return {...r, xy: projection([+e.lon, +e.lat])};
+    }))
+    .join("g");
+  reperes
+    .append("path")
+    .attr("d", d3.symbol(d3.symbolTriangle, 70)())
+    .attr("fill", COULEURS.moselle)
+    .attr("stroke", "white")
+    .attr("stroke-width", 1);
+  reperes
+    .append("text")
+    .attr("text-anchor", (r) => (r.xy[0] < width * 0.3 ? "start" : r.xy[0] > width * 0.7 ? "end" : "middle"))
+    .style("font", "11px var(--sans-serif)")
+    .style("fill", "var(--theme-foreground)")
+    // Contour de la couleur du fond de page, pour lire le texte sur les tracés.
+    .style("paint-order", "stroke")
+    .style("stroke", "var(--theme-background)")
+    .style("stroke-width", "3px")
+    .style("stroke-linejoin", "round")
+    .selectAll("tspan")
+    .data((r) => r.texte.map((ligne, i) => ({ligne, i, r})))
+    .join("tspan")
+    .attr("x", ({r}) => (r.xy[0] < width * 0.3 ? 6 : r.xy[0] > width * 0.7 ? -6 : 0))
+    // Sous le triangle, ou au-dessus (les lignes se lisent de haut en bas).
+    .attr("y", ({i, r}) => (r.sous ? 18 + i * 13 : -9 - (r.texte.length - 1 - i) * 13))
+    .text(({ligne}) => ligne);
+  const placerReperes = (k) => reperes.attr("transform", (r) => `translate(${r.xy}) scale(${1 / k})`);
+  placerReperes(1);
+
   // Info-bulle : nom du site au survol (ou au toucher sur écran tactile).
   const bulle = d3.create("div").attr("class", "bulle-carte").style("display", "none");
   let echelle = 1; // facteur de zoom courant
@@ -151,6 +196,7 @@ export function carte({region, departements, traces, sites, width, height}) {
       g.attr("transform", transform);
       echelle = transform.k;
       points.attr("r", RAYON_SITE / echelle);
+      placerReperes(echelle);
       bulle.style("display", "none");
       majBouton();
     });

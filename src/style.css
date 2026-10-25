@@ -202,6 +202,7 @@ Palette personnalisée
 /* « Semaine affichée : date », puis les commandes. Si la place manque, les
    commandes passent sous le texte. */
 .semaine-titre {
+  flex: none;
   white-space: nowrap;
 }
 
@@ -235,7 +236,11 @@ Palette personnalisée
   white-space: nowrap;
 }
 
+/* Largeur fixe, quelle que soit la date : le curseur ne bouge pas quand le
+   texte change. */
 .choix-semaine output {
+  display: inline-block;
+  width: 7.5em;
   font-variant-numeric: tabular-nums;
 }
 

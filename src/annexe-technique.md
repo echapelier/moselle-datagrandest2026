@@ -225,7 +225,8 @@ Le débit médian d'un site est la médiane de ses débits valides, zéros compr
 
 **Fichiers produits** (dans `src/data/`) :
 - `profil_sites.csv` : site, libellé, distance, débit médian, nombre de débits valides, nombre de débits nuls, plancher pour le logarithme, première et dernière semaines valides, part de semaines valides, site retenu ou non pour les calculs, écart au tracé ;
-- `profil_semaines.csv` : semaine, date, nombre de sites mesurés, indice, semaine classée ou non, nombre de débits nuls remplacés par le plancher.
+- `profil_semaines.csv` : semaine, date, nombre de sites mesurés, indice, semaine classée ou non, nombre de débits nuls remplacés par le plancher ;
+- `moselle_extremites.csv` : longitude et latitude des deux extrémités du chemin principal de la Moselle (amont et aval), où la carte place la source et la sortie du territoire français.
 
 ## Étape 7 : température, pluie et neige
 
@@ -261,6 +262,7 @@ La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers d
 - **Cadrage** : au départ, la carte est ajustée au bassin de la Moselle (la Moselle et les tracés du bassin, étape 2). On peut dézoomer jusqu'à voir toute la région, à la molette ou avec le bouton « Voir toute la région ».
 - **Couleur de la Moselle** : le même bleu sombre que la courbe de la semaine choisie sur le graphique des débits.
 - **Légende** : Moselle, affluents, autres cours d'eau, site de mesure.
+- **Repères** : un triangle et un texte marquent les deux extrémités du tracé de la Moselle dans la région (`moselle_extremites.csv`, étape 6) : « Source » à l'extrémité amont et « Tripoint Allemagne-France-Luxembourg » à l'extrémité aval. Triangles et textes gardent la même taille quand on zoome.
 
 ## Le profil des débits
 
@@ -277,6 +279,7 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 
 - **Échelle** linéaire par défaut, ou logarithmique (case « Échelle log. »), avec des graduations 1-3-10. Les bornes de l'axe sont fixes, quelle que soit la semaine. Un débit nul ne peut pas être placé sur une échelle logarithmique : il y est dessiné au plancher du site (voir l'étape 6), avec un **point creux** pour le signaler. En échelle linéaire, il est placé à 0. Aucun débit nul n'apparaît sur la Moselle.
 - **Lignes verticales** : une par site de mesure, à sa distance depuis l'amont. Elles sont pleines pour les 8 sites retenus pour les calculs et en pointillés pour les 4 autres, dont la série est incomplète. Au passage de la souris, la ligne se renforce et le site correspondant est mis en évidence **sur la carte**, comme si la souris passait sur son cercle : le cercle grossit et le nom du site s'affiche. Quand la souris quitte le graphique, la mise en évidence disparaît.
+- Un texte permanent, « Station hydrométrique La Moselle à Uckange », est écrit au-dessus de la ligne de ce site, pour expliciter ce que représentent les lignes verticales.
 - L'indice des semaines sert à choisir les semaines extrêmes ; il n'est pas affiché.
 
 **Le film.** Au chargement, la page affiche la semaine du 3 juillet 2017 (2017W27), sans les courbes des semaines extrêmes. Le film est d'abord **guidé**, en trois étapes, chacune avec son texte :
@@ -289,7 +292,7 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 Une fois le film terminé, la barre de semaine devient **libre** :
 - ◀ passe à la semaine précédente et ▶ à la suivante. En maintenant le bouton enfoncé, le pas se répète (après 0,4 s, puis toutes les 80 ms). Le bouton se désactive à la première et à la dernière semaine (7 septembre 2026). Les semaines qui suivent le minimum et les semaines d'avant juillet 2017 ne font pas partie du film mais restent accessibles ici.
 - Le curseur se déplace à la main.
-- Le lien « Revoir le film » relance le film guidé depuis le 3 juillet 2017.
+- Le lien « Revoir le film » ramène au texte d'introduction et à la semaine du 3 juillet 2017, sans lancer le film : il faut cliquer sur « Lancer le film ».
 - Les débits affichés viennent directement de `mesures.csv`, et l'indice de `profil_semaines.csv`.
 
 <a class="retour-dataviz" href="./">← Retour à la dataviz</a>

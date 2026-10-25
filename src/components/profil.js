@@ -245,6 +245,9 @@ export function legendeProfil(profil, semaine, montrer) {
   return Plot.legend({color: {domain: courbes.map((c) => c.nom), range: courbes.map((c) => c.couleur)}, swatchSize: 12});
 }
 
+// Site dont le nom est écrit au-dessus de sa ligne verticale.
+const SITE_LEGENDE = "La Moselle à Uckange";
+
 export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, height}) {
   const courbes = courbesDuProfil(profil, semaine, montrer);
   // Une courbe de semaine (choisie, maximum, minimum) montre tous les débits
@@ -279,6 +282,7 @@ export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, he
   return Plot.plot({
     width,
     height,
+    marginTop: 34, // place pour le texte au-dessus de la ligne d'Uckange
     marginLeft: 64,
     marginRight: 16,
     x: {label: width < 500 ? "Distance depuis l'amont (km) →" : "Distance depuis l'extrémité amont du tracé, dans la région (km) →", grid: true, domain: [0, kmMax]},
@@ -300,6 +304,19 @@ export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, he
       Plot.ruleX(profil.sites.filter((s) => s.retenu), {x: "km", stroke: "#b5b5b5", strokeWidth: 1}),
       Plot.ruleX(profil.sites.filter((s) => !s.retenu), {x: "km", stroke: "#b5b5b5", strokeWidth: 1, strokeDasharray: "3,3"}),
       Plot.ruleX(profil.sites, Plot.pointerX({x: "km", stroke: "#555", strokeWidth: 1.5, maxRadius: 10})),
+      // Texte permanent au-dessus de la ligne d'Uckange, pour expliquer ce que
+      // représentent les lignes verticales (une station hydrométrique chacune).
+      Plot.text(profil.sites.filter((s) => s.libelle_site === SITE_LEGENDE), {
+        x: "km",
+        text: (s) => `Station hydrométrique ${s.libelle_site}`,
+        frameAnchor: "top",
+        textAnchor: "end",
+        lineAnchor: "bottom",
+        lineWidth: 13,
+        dy: -6,
+        fontSize: 11,
+        fill: "#555"
+      }),
       ...courbes.flatMap((c) => {
         const donnees = points.filter((p) => p.courbe === c.nom);
         return [

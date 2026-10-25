@@ -14,6 +14,7 @@ const mesures = FileAttachment("data/mesures.csv").csv();
 const profilSites = FileAttachment("data/profil_sites.csv").csv();
 const profilSemaines = FileAttachment("data/profil_semaines.csv").csv();
 const meteoSemaines = FileAttachment("data/meteo_semaines.csv").csv();
+const extremites = FileAttachment("data/moselle_extremites.csv").csv();
 ```
 
 ```js
@@ -87,10 +88,10 @@ const actions = {
     entreeSemaine.allerA(iMin);
     allerEtape("min");
   },
+  // Retour à l'introduction, à la semaine de départ, sans lancer le film.
   revoir: () => {
     allerEtape("intro");
     entreeSemaine.allerA(iDepart);
-    entreeSemaine.lancer();
   },
   annexe: (lien) => ouvrirAnnexe(lien.href)
 };
@@ -137,7 +138,7 @@ cadreAnnexe.addEventListener("load", () => {
 ```js
 // La carte ne dépend pas de la semaine : elle n'est dessinée qu'une fois
 // (et à nouveau si la fenêtre change de taille).
-const blocCarte = resize((width, height) => carte({region, departements, traces, sites, width, height}));
+const blocCarte = resize((width, height) => carte({region, departements, traces, sites, extremites, width, height}));
 ```
 
 ```js
