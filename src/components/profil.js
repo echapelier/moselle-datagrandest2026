@@ -20,7 +20,7 @@ const nombreFr = (x) => x.toLocaleString("fr-FR", {maximumSignificantDigits: 3})
 // débits valides (> 0) par site et par semaine, semaines extrêmes.
 export function preparerProfil({profilSites, profilSemaines, mesures}) {
   // « retenu » : site qui sert au calcul de l'indice, des semaines extrêmes
-  // et de la courbe du débit médian (série presque complète, voir l'Annexe).
+  // et de la courbe du débit médian (série presque complète, voir annexe technique).
   // « plancher » : valeur qui remplace un débit nul sur l'échelle
   // logarithmique (moitié du plus petit débit strictement positif du site).
   const sites = profilSites.map((s) => ({
@@ -231,10 +231,10 @@ export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
 // fois leur semaine atteinte (option « montrer »).
 function courbesDuProfil(profil, semaine, montrer = {haut: true, bas: true}) {
   return [
-    {cle: "mediane", nom: "Débit médian du site*", couleur: COULEURS_PROFIL.mediane, epaisseur: 1.5, tirets: "4,3"},
-    {cle: "bas", nom: `Plus faible (${dateFr(profil.bas.date)})`, semaine: profil.bas.semaine, couleur: COULEURS_PROFIL.bas, epaisseur: 1.8},
-    {cle: "haut", nom: `Plus élevé (${dateFr(profil.haut.date)})`, semaine: profil.haut.semaine, couleur: COULEURS_PROFIL.haut, epaisseur: 1.8},
-    {cle: "choisie", nom: "Semaine sélectionnée", semaine: semaine.semaine, couleur: COULEURS_PROFIL.choisie, epaisseur: 3}
+    {cle: "mediane", nom: "débit médian du site*", couleur: COULEURS_PROFIL.mediane, epaisseur: 1.5, tirets: "4,3"},
+    {cle: "bas", nom: `bas histo. (${dateFr(profil.bas.date)})`, semaine: profil.bas.semaine, couleur: COULEURS_PROFIL.bas, epaisseur: 1.8},
+    {cle: "haut", nom: `haut histo. (${dateFr(profil.haut.date)})`, semaine: profil.haut.semaine, couleur: COULEURS_PROFIL.haut, epaisseur: 1.8},
+    {cle: "choisie", nom: "semaine sélectionnée", semaine: semaine.semaine, couleur: COULEURS_PROFIL.choisie, epaisseur: 3}
   ].filter((c) => montrer[c.cle] !== false);
 }
 
@@ -284,7 +284,7 @@ export function graphiqueProfil(profil, {semaine, echelleLog, montrer, width, he
     marginTop: 34, // place pour le texte au-dessus de la ligne d'Uckange
     marginLeft: 64,
     marginRight: 16,
-    x: {label: width < 500 ? "Distance depuis l'amont (km) →" : "Distance depuis l'extrémité amont du tracé, dans la région (km) →", grid: true, domain: [0, kmMax]},
+    x: {label: width < 500 ? "Distance depuis l'amont (km) →" : "distance depuis la source (km) →", grid: true, domain: [0, kmMax]},
     y: {
       type: echelleLog ? "log" : "linear",
       domain: echelleLog ? [bas, haut] : [0, maxi * 1.05],

@@ -256,11 +256,12 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
       <h2>L’été 2026</h2>
       <p>On se souviendra peut-être de l’été 2026 comme particulièrement éprouvant en raison de la répétition d’épisodes prolongés de températures élevées. Le caractère mémorable, voire exceptionnel de cet été se lit aussi dans le débit de la Moselle qui a atteint lors de la semaine du 10-16 août son niveau le plus bas enregistré sur la période 2000-2026 (jusqu’en septembre).</p>
       <p>Dans les données, à la différence d’une tempête, une sécheresse se voit moins comme une semaine aux paramètres « anormaux » que par une suite de semaines aux températures supérieures et aux précipations inférieures aux moyennes, finissant par conduire à un point bas en termes de débit.</p>
-      <p>Vous pouvez maintenant vous-même choisir la semaine que vous souhaitez visualiser parmi toutes celles disponibles (depuis 2000).</p>
-      <p>Cette data visualisation comporte de nombreuses simplications, par exemple dans le calcul des moyennes qui ne tiennent compte ni de l’emplacement des stations de mesure (les événements en amont produisent un effet plus grand que ceux en aval), ni des phénomènes qui affectent indirectement la Moselle en touchant ses affluents. Les calculs effectués pour créer cette visualisation et leurs limitations sont décrits dans une annexe technique qui ne fait pas partie de la contribution, mais permettra aux spécialistes d’avoir une vue complète sur les transformations conduisant des données originales aux données affichées.</p>
+      <p>Vous pouvez maintenant vous-même choisir la semaine que vous souhaitez visualiser parmi toutes celles disponibles (de 2000 à septembre 2026).</p>
+      <p>Cette data visualisation comporte de nombreuses simplifications, par exemple dans le calcul des moyennes qui ne tiennent compte ni de l’emplacement des stations de mesure (les événements en amont produisent un effet plus grand que ceux en aval), ni des phénomènes qui affectent indirectement la Moselle en touchant ses affluents.</p>
+      <p>Les calculs effectués pour créer cette visualisation et leurs limitations sont décrits dans une annexe technique qui ne fait pas partie de la contribution, mais permettra aux spécialistes d’avoir une vue complète sur les transformations conduisant des données originales aux données affichées.</p>
       <p class="actions-texte">
         <button type="button" class="lien" data-action="revoir">Revoir le film</button>
-        <a href="./annexe-technique" data-action="annexe">Annexe technique</a>
+        <a href="./annexe-technique" data-action="annexe">Consulter l’annexe technique</a>
       </p>
     </div>
   </div>
