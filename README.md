@@ -1,6 +1,6 @@
 # Débits de la Moselle
 
-Application [Observable Framework](https://observablehq.com/framework/) sur les débits de la Moselle et de son bassin dans le Grand Est. Le site produit est entièrement statique (dossier `dist/`).
+Ce projet est une contribution au [concours de datavisualisation 2026](https://www.datagrandest.fr/site/concours-de-datavisualisation-2026-informations-et-inscriptions/) organisé par DataGrandEst. Il prend la forme d'une application [Observable Framework](https://observablehq.com/framework/) à propos des débits de la Moselle dans la région Grand Est. Le site produit est entièrement statique (dossier `dist/`). Il est déployé à l'adresse [https://romain.su/datagrandest2026](https://romain.su/datagrandest2026).
 
 ## Organisation
 

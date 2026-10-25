@@ -15,10 +15,6 @@ __pycache__/
 # Système
 .DS_Store
 
-# Notes de travail locales (non publiées)
-CLAUDE.md
-cellules_observable/
-
 # Fichiers intermédiaires de la préparation (volumineux, recréés par les scripts)
 donnees-intermediaires/
 
