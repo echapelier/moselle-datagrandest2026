@@ -2,10 +2,11 @@
 title: Annexe technique
 ---
 
-<a class="retour-dataviz" href="./">← Retour à la dataviz</a>
+<a class="retour-dataviz" href="./">← Retour à la visualisation</a>
 
 # Annexe technique
 
+Cette annexe technique mentionne les outils utilisés pour créer la data visualisation, et décrit les transformations de données effectuées.
 
 ## Outils
 
@@ -13,7 +14,7 @@ Cette application de data visualisation a été développée avec [Observable Fr
 
 ## Données
 
-Conformément au [règlement du concours](https://www.datagrandest.fr/site/concours-de-datavisualisation-2026-informations-et-inscriptions/), seules les données mises à disposition dans le cadre du concours ont été utilisées pour créer cette application. Toutefois, compte tenu de leurs multiples dimensions (temps, site, cours d’eau…), elles ont fait l’objet de transformations significatives afin de pouvoir par exemple produire des valeurs à l’échelle des cours d’eau à partir de valeurs mesurées au niveau des sites.
+Conformément au [règlement du concours](https://www.datagrandest.fr/site/concours-de-datavisualisation-2026-informations-et-inscriptions/), seules les données mises à disposition dans le cadre du concours ont été utilisées pour créer cette application. Toutefois, compte tenu de leurs multiples dimensions (temps, site, cours d’eau…), elles ont fait l’objet de transformations significatives afin de pouvoir par exemple produire des valeurs à l’échelle des cours d’eau à partir de valeurs mesurées au niveau des stations.
 
 En conséquence, les valeurs affichées sur les graphiques ne sont pas directement celles contenues dans les jeux de données mis à disposition. Afin de démontrer que le règlement du concours a été respecté, et dans un souci de transparence et de reproductibilité des transformations qui conduisent des données originales aux données affichées, cette annexe présente toutes les étapes de ces transformations. Le code qui permet de reproduire ces transformations a été publié dans un dépôt GitHub privé accessible sur demande. Il sera rendu public après la clôture du concours.
 
@@ -45,7 +46,7 @@ Avant toute transformation, le script `preparation/00_verifier_empreintes.py` ca
 
 Le script `preparation/01_nettoyer_donnees.py` effectue deux opérations :
 
-1. **Abandon de la colonne `crue`**. Tous les sites de mesure couverts par `donnees.csv` sont utilisés pour la prévision des crues, et la colonne correspondante prend toujours la valeur `1`, donc elle n’apporte pas dinformation utile pour notre analyse. Nous la supprimons.
+1. **Abandon de la colonne `crue`**. Tous les sites de mesure couverts par `donnees.csv` sont utilisés pour la prévision des crues, et la colonne correspondante prend toujours la valeur `1`, donc elle n’apporte pas d’information utile pour notre analyse. Nous la supprimons.
 2. **Rajout du zéro initial pour les codes liés aux Ardennes** : les codes `dept` et `commune` liés aux Ardennes ont un chiffre en moins (`8` au lieu de `08` et par exemple `8090` au lieu de `08090`) car le zéro initial a probablement disparu quand ces codes ont été considérés comme des nombres. Nous le rajoutons.
 
 Les valeurs de débit vides ou égales à -1 (erreur) ne sont pas modifiées à cette étape, et seront traitées au moment des calculs.
@@ -56,19 +57,15 @@ Un site de l’Aube est rattaché au libellé de département `AUBE,COTE-D'OR` (
 
 Script : `preparation/02_bassin_moselle.py`. Journal : `preparation/journaux/02_bassin_moselle.txt`.
 
-Le fichier des cours d’eau `cours-eau-region_1791104972648.geojson` contient 8 929 tracés, chacun avec un nom (`TopoOH`) et un identifiant unique (`CdOH`). Il ne dit ni quel cours d’eau se jette dans quel autre, ni dans quel sens l’eau s'écoule. Pour identifier les affluents de la Moselle, nous nous appuyons donc sur la géométrie : **un affluent se termine sur le tracé du cours d’eau qui le reçoit**.
+Le fichier des cours d’eau `cours-eau-region_1791104972648.geojson` contient 8 929 tracés, chacun avec un nom (`TopoOH`) et un identifiant unique (`CdOH`). Il ne dit ni quel cours d’eau se jette dans quel autre, ni dans quel sens l’eau s’écoule. Pour identifier les affluents et sous-affluents de la Moselle, nous nous appuyons donc sur la géométrie : **un affluent se termine sur le tracé du cours d’eau qui le reçoit**.
 
 1. Les tracés sont reprojetés en Lambert-93 (EPSG:2154 – système de coordonnées de référence officiel en France métropolitaine) pour mesurer les distances en mètres.
 2. Pour chaque tracé, on calcule ses extrémités, une fois ses morceaux raccordés.
 3. On note « A se termine sur B » quand une extrémité de A est à moins de 1 m du tracé de B. Le tracé est topologiquement propre : les extrémités tombent exactement sur l’autre tracé.
-4. On part de la Moselle et de la Moselle canalisée, puis on **remonte** : on ajoute tout tracé qui se termine sur un tracé déjà retenu, et ainsi de suite. On ne fait que remonter : un tracé sur lequel se termine un cours d’eau du bassin n'est pas ajouté.
-5. **Exclusions.** La Sarre et son bassin ne sont pas inclus car la Sarre se jette dans la Moselle en Allemagne, en aval du site de mesure le plus en aval sur la partie française de la Moselle. Les tracés dont le nom contient « canal » ou « rigole », appelés ici « ouvrages », ne sont pas traversés à ce stade parce qu’ils peuvent relier des bassins entre eux. En revanche, bien que les tracés font apparaître la Seille comme se terminant sur le « Bras Mort Aval de la Moselle », nous l’incluons avec son bassin car la Seille communique avec la Moselle.
+4. On part de la Moselle et de la Moselle canalisée, puis on remonte : on ajoute tout tracé qui se termine sur un tracé déjà retenu, et ainsi de suite. On ne fait que remonter : un tracé sur lequel se termine un cours d’eau du bassin n’est pas ajouté.
+5. **Exclusions.** La Sarre et son bassin ne sont pas inclus car la Sarre se jette dans la Moselle en Allemagne, en aval du site de mesure le plus en aval sur la partie française de la Moselle. Les tracés dont le nom contient « canal » ou « rigole », appelés ici « ouvrages », ne sont pas pris en compte à ce stade parce qu’ils peuvent relier des bassins entre eux. En revanche, bien que les tracés fassent apparaître la Seille comme se terminant sur le « Bras Mort Aval de la Moselle », nous l’incluons avec son bassin car la Seille communique avec la Moselle.
 
-6. **Ouvrages traversés.** Certains ruisseaux n’atteignent le bassin que par un ouvrage. Pour chaque ouvrage qui touche le bassin, on regarde les cours d’eau qu’il apporterait :
-   - si **aucun** de ces cours d’eau ne se termine aussi sur un cours d’eau extérieur au bassin, l’ouvrage est traversé et ils sont ajoutés ;
-   - sinon, l’ouvrage est refusé.
-
-   On répète jusqu'à ce que plus rien ne change, car un ouvrage traversé peut en faire toucher un autre. Les ouvrages eux-mêmes ne font pas partie du résultat.
+6. **Ouvrages traversés.** Certains ruisseaux n’atteignent le bassin que par un ouvrage. Pour chaque ouvrage qui touche le bassin, on regarde les cours d’eau qu’il apporterait. Les cours d’eau associés à un ouvrage ne sont inclus que si aucun de ces cours d’eau ne se termine aussi sur un cours d’eau extérieur au bassin. Les ouvrages eux-mêmes ne font pas partie du résultat.
 
 Sans traverser d’ouvrage, la remontée retient 1 533 tracés. Sur les 24 ouvrages examinés, 23 sont traversés et 6 d’entre eux apportent des cours d’eau :
 
@@ -81,7 +78,7 @@ Sans traverser d’ouvrage, la remontée retient 1 533 tracés. Sur les 24 ouvra
 | Rigole d’Alimentation du Bassin de Virement | 1 | 6,182 ; 48,578 |
 | Rigole d’Alimentation du Reservoir de Bouzey | 1 | 6,357 ; 48,167 |
 
-Un seul ouvrage est refusé : le « Canal de l’Est » (contact en 6,304 ; 48,172). Il apporterait 11 ruisseaux, mais l’un d'eux, le « Ruisseau des Sept Pêcheurs », se termine aussi sur « le Coney », qui n’est pas dans le bassin. Le détail de chaque ouvrage est dans le journal.
+Un seul ouvrage est refusé : le « Canal de l’Est » (contact en 6,304 ; 48,172). Il apporterait 11 ruisseaux, mais l’un d’eux, le « Ruisseau des Sept Pêcheurs », se termine aussi sur « le Coney », qui n’est pas dans le bassin. Le détail de chaque ouvrage est dans le journal.
 
 **Résultat : 1 562 tracés**, soit 1 444 noms distincts, Moselle et Moselle canalisée comprises.
 
@@ -89,51 +86,47 @@ Un seul ouvrage est refusé : le « Canal de l’Est » (contact en 6,304 ; 48,1
 
 ![Carte de contrôle du bassin de la Moselle](./annexe/02_bassin_moselle.png)
 
-**Limites.**
-- Le tracé est coupé aux limites du Grand Est. Un affluent qui rejoint la Moselle hors de la région n’est pas détecté.
-- Le rattachement suppose que la confluence est dessinée dans le tracé. Un ruisseau qui ne touche aucun autre tracé reste isolé.
-
 ## Étape 3 : rapprochement des noms entre le CSV et le GeoJSON
 
 Script : `preparation/03_rapprocher_noms.py`. Journal : `preparation/journaux/03_rapprocher_noms.txt`.
 
-Les fichiers `donnees.csv` et `cours-eau-region_1791104972648.geojson` ne désignent pas les cours d’eau de la même façon. `donnees.csv` utilise un code (`code_cours_eau`) et un libellé (`libelle_cours_eau`), le GeoJSON un nom (`TopoOH`). On rattache donc **chaque site de mesure** à un tracé en combinant le nom et la position. On sait ensuite, grâce à l’étape 2, si le site est dans le bassin de la Moselle.
+Les fichiers `donnees.csv` et `cours-eau-region_1791104972648.geojson` ne désignent pas les cours d’eau de la même façon. `donnees.csv` utilise un code (`code_cours_eau`) et un libellé (`libelle_cours_eau`), le GeoJSON un nom (`TopoOH`). On rattache donc chaque site de mesure à un tracé en combinant le nom et la position. On sait ensuite, grâce à l’étape 2, si le site est dans le bassin de la Moselle.
 
-**Précision des positions.** Les coordonnées des sites sont arrondies à 2 décimales en latitude et à 3 en longitude. La vraie position peut donc être éloignée de la position arrondie d’un demi-pas d’arrondi dans chaque direction, soit 556 m vers le nord ou le sud et 36 m vers l’est ou l’ouest. Le **seuil** de distance accepté entre un site et son tracé en découle : **558 m**.
+**Précision des positions.** Les coordonnées des sites sont arrondies à 2 décimales en latitude et à 3 en longitude. La vraie position peut donc être éloignée de la position arrondie d’un demi-pas d’arrondi dans chaque direction, soit 556 m vers le nord ou le sud et 36 m vers l’est ou l’ouest. La limite de distance acceptée entre un site et son tracé en découle : **558 m**.
 
 **Normalisation des noms.** On retire les accents, on met en minuscules, on remplace l’apostrophe typographique par l’apostrophe droite et on réduit les espaces multiples. Exemple : « La Moselle Canalisee » (CSV) et « la Moselle Canalisée » (GeoJSON) deviennent identiques.
 
 **Règles, appliquées site par site :**
 
-1. **Même nom** : parmi les tracés dont le nom normalisé est identique au libellé du cours d’eau, on prend le plus proche du site, s’il est sous le seuil de distance. 262 sites sont rattachés ainsi.
-2. **Mot commun** : sinon, on prend le tracé le plus proche, sous le seuil de distance, dont le nom partage un mot distinctif avec le libellé du cours d’eau ou avec le nom écrit dans le libellé du site (la partie avant « à »). Les mots comme « ruisseau », « le », « la » ou « de » sont ignorés. 3 sites sont rattachés ainsi :
+1. **Même nom** : parmi les tracés dont le nom normalisé est identique au libellé du cours d’eau, on prend le plus proche du site, s’il est sous la limite de distance. 262 sites sont rattachés ainsi.
+2. **Mot commun** : sinon, on prend le tracé le plus proche, sous la limite de distance, dont le nom partage un mot distinctif avec le libellé du cours d’eau ou avec le nom écrit dans le libellé du site (la partie avant « à »). Les mots comme « ruisseau », « le », « la » ou « de » sont ignorés. 3 sites sont rattachés ainsi :
 
-| Site | Libellé du cours d'eau | Tracé rattaché | Distance |
+| Site | Libellé du cours d’eau | Tracé rattaché | Distance |
 | --- | --- | --- | --- |
 | La Béhine à Lapoutroie | La Bechine | la Béhine | 100 m |
 | L'Eberbach à Leutenheim | Ruisseau l'Eberbach | Eberbach | 34 m |
 | Le Veymerange à Thionville | Ruisseau le Veymerange | Ruisseau de Veymerange | 346 m |
 
-3. Sinon, le site reste non rattaché. C'est le cas d'un seul site, « [Source de Flanrupt] à Bourbonne-les-Bains », qui n’a ni code de cours d’eau (`0`) ni libellé.
+3. Sinon, le site reste non rattaché. C’est le cas d’un seul site, « [Source de Flanrupt] à Bourbonne-les-Bains », qui n’a ni code de cours d’eau (`0`) ni libellé.
 
-**Homonymes.** Plusieurs tracés peuvent porter le même nom. C'est la position qui départage. Par exemple, le site « L'Horn à Bousseviller » est rattaché au tracé « la Horn » situé à 271 m, qui n’est pas dans le bassin de la Moselle, et non à son homonyme qui s’y trouve. Un seul site a deux tracés de même nom sous le seuil (« La Marne à Joinville », à 4 m et à 68 m). Le plus proche est retenu, et ce site n’est pas dans le bassin de la Moselle.
+**Homonymes.** Plusieurs tracés peuvent porter le même nom. C’est la position qui départage. Par exemple, le site « L'Horn à Bousseviller » est rattaché au tracé « la Horn » situé à 271 m, qui n’est pas dans le bassin de la Moselle, et non à son homonyme qui s’y trouve. Un seul site a deux tracés de même nom sous la limite (« La Marne à Joinville », à 4 m et à 68 m). Le plus proche est retenu, et ce site n’est pas dans le bassin de la Moselle.
 
 **Contrôles.**
 - Les coordonnées et libellés de chaque site sont identiques sur toutes ses lignes.
-- Tous les sites d'un même code de cours d'eau sont soit tous dans le bassin, soit tous dehors.
+- Tous les sites d’un même code de cours d’eau sont soit tous dans le bassin, soit tous dehors.
 
-**Résultat : 64 sites dans le bassin de la Moselle, sur 31 cours d'eau**, dont 11 sites sur la Moselle et 2 sur la Moselle canalisée. La liste complète est dans le journal.
+**Résultat : 64 sites dans le bassin de la Moselle, sur 31 cours d’eau**, dont 11 sites sur la Moselle et 2 sur la Moselle canalisée. La liste complète est dans le journal.
 
 ## Étape 4 : filtrage des mesures
 
 Script : `preparation/04_filtrer_mesures.py`.
 
-On ne garde que les lignes de `donnees.csv` (nettoyé à l'étape 1) dont le site est dans le bassin de la Moselle (étape 3). Ces lignes sont réparties en trois fichiers, pour ne pas répéter à chaque semaine les informations qui ne changent pas. Ce sont les données de l’application, dans `src/data/` :
+On ne garde que les lignes de `donnees.csv` (nettoyé à l’étape 1) dont le site est dans le bassin de la Moselle (étape 3). Ces lignes sont réparties en trois fichiers, pour ne pas répéter à chaque semaine les informations qui ne changent pas. Ce sont les données de l’application, dans `src/data/` :
 
 | Fichier | Une ligne par | Colonnes | Lignes |
 | --- | --- | --- | --- |
-| `sites.csv` | site | site, libelle_site, code_cours_eau, libelle_commune, commune, dept, libelle_dept, lat, lon, etiage, et le tracé rattaché à l'étape 3 (CdOH, TopoOH, distance_m) | 64 |
-| `cours_eau.csv` | cours d'eau | code_cours_eau, uri_cours_eau, libelle_cours_eau | 31 |
+| `sites.csv` | site | site, libelle_site, code_cours_eau, libelle_commune, commune, dept, libelle_dept, lat, lon, etiage, et le tracé rattaché à l’étape 3 (CdOH, TopoOH, distance_m) | 64 |
+| `cours_eau.csv` | cours d’eau | code_cours_eau, uri_cours_eau, libelle_cours_eau | 31 |
 | `mesures.csv` | site et semaine | semaine, site, temp, pluie, neige, debit, humidite, date | 89 152 |
 
 Jointures : `mesures.site` → `sites.site`, puis `sites.code_cours_eau` → `cours_eau.code_cours_eau`. Les fichiers sont lus et écrits en texte : les valeurs restent exactement celles de l’étape 1, zéros initiaux compris.
@@ -141,31 +134,31 @@ Jointures : `mesures.site` → `sites.site`, puis `sites.code_cours_eau` → `co
 **Contrôles.**
 - Les colonnes de `sites.csv` sont constantes pour chaque site, et celles de `cours_eau.csv` pour chaque cours d’eau.
 - Chaque site a exactement une ligne par semaine : 1 393 semaines, de 2000W01 à 2026W37, soit 64 × 1 393 = 89 152 lignes.
-- **Jointure complète** : en recollant les trois fichiers écrits, on retrouve exactement les 89 152 lignes de l'étape 1 pour ces sites.
+- **Jointure complète** : en recollant les trois fichiers écrits, on retrouve exactement les 89 152 lignes de l’étape 1 pour ces sites.
 
 **À savoir pour les calculs.** Dans `mesures.csv`, 17 645 valeurs de `debit` sont vides (sites qui n’ont pas de mesures sur toute la période) et 74 valeurs valent 0. Ces débits nuls sont de vraies mesures (cours d’eau à sec, ou « assec ») : ils sont gardés dans toutes les analyses (voir l’étape 6 pour les calculs en logarithme). Ils concernent 4 sites, tous sur des affluents : aucun site de la Moselle n’a de débit nul. La valeur -1 (erreur) n’apparaît pas pour ces sites. Les autres paramètres observés (temp, pluie, neige, humidite) n’ont aucune valeur vide.
 
-## Étape 5 : fond de carte
+## Étape 5 : carte
 
 Script : `preparation/05_fonds_de_carte.py`. Journal : `preparation/journaux/05_fonds_de_carte.txt`.
 
-**Cours d'eau.** Tous les tracés de la région sont gardés pour la carte, avec leur catégorie :
+**Cours d’eau.** Tous les tracés de la région sont gardés pour la carte, avec leur catégorie :
 
 | Catégorie | Contenu |
 | --- | --- |
 | `moselle` | la Moselle et la Moselle canalisée |
-| `bassin` | les autres tracés du bassin de la Moselle (étape 2), c'est-à-dire ses affluents |
+| `bassin` | les autres tracés du bassin de la Moselle (étape 2), c’est-à-dire ses affluents |
 | `hors_bassin` | tous les autres tracés de la région |
 
-Pour réduire les temps de chargement, les dessins des tracés sont simplifiés avec l’outil [**mapshaper**](https://github.com/mbloch/mapshaper). La version utilisée (0.7.95) et les paramètres de la simplification sont indiqués dans `package.json` :
+Pour réduire les temps de chargement, les dessins des tracés sont simplifiés avec l’outil [mapshaper](https://github.com/mbloch/mapshaper). La version utilisée (0.7.95) et les paramètres de la simplification sont indiqués dans `package.json` :
 
 - `-simplify 10% keep-shapes` : on garde 10 % des sommets qui peuvent être supprimés, sans faire disparaître de tracé ;
 - `precision=0.0001` : les coordonnées sont arrondies à 0,0001°, soit environ 10 m ;
-- `-filter remove-empty`, dans un second passage : on retire les objets devenus vides avec l’arrondi. C'est le cas d’un seul tracé, « Ruisseau de Rebais », qui n’a que 2 sommets distants de 0,00001°.
+- `-filter remove-empty`, dans un second passage : on retire les objets devenus vides avec l’arrondi. C’est le cas d’un seul tracé, « Ruisseau de Rebais », qui n’a que 2 sommets distants de 0,00001°.
 
-**Regroupement des tracés.** La carte dessine tous les tracés d'une même catégorie de la même façon. Après la simplification, on les regroupe donc en un seul objet (`MultiLineString`) par catégorie, sans identifiant ni nom. Le regroupement ne change aucune coordonnée : le script vérifie que les lignes et le nombre de sommets sont identiques avant et après.
+**Regroupement des tracés.** La carte dessine tous les tracés d’une même catégorie de la même façon. Après la simplification, on les regroupe donc en un seul objet (`MultiLineString`) par catégorie, sans identifiant ni nom. Le regroupement ne change aucune coordonnée : le script vérifie que les lignes et le nombre de sommets sont identiques avant et après.
 
-**Région et départements.** Ils ne sont pas simplifiés : leurs coordonnées sont seulement arrondies de la même façon. Avec l’option `gj2008`, mapshaper garde le sens des contours des fichiers d'origine (contour extérieur dans le sens des aiguilles d’une montre), qui est celui qu’attend la bibliothèque d3. Sans cette option, mapshaper suit la norme GeoJSON RFC 7946 (sens inverse), et d3 dessinerait le reste du globe au lieu de la région.
+**Région et départements.** Ils ne sont pas simplifiés : leurs coordonnées sont seulement arrondies de la même façon. Avec l’option `gj2008`, mapshaper garde le sens des contours des fichiers d’origine (contour extérieur dans le sens des aiguilles d’une montre), qui est celui qu’attend la bibliothèque d3. Sans cette option, mapshaper suit la norme GeoJSON RFC 7946 (sens inverse), et d3 dessinerait le reste du globe au lieu de la région.
 
 **Résultat** (dans `src/data/`) :
 
@@ -179,6 +172,13 @@ Pour réduire les temps de chargement, les dessins des tracés sont simplifiés 
 
 ![Carte de contrôle du fond de carte](./annexe/05_fond_de_carte.png)
 
+À partir de ces fichiers et de `sites.csv`, la carte  est dessinée en SVG avec la bibliothèque d3 (code : `src/components/carte.js`).
+
+- **Cours d’eau** : trois couches, une par catégorie. La Moselle est en bleu sombre (`#0b4f71`, trait épais), les affluents en bleu (`#2b7bb9`, trait de 1,2 pixel) et les autres cours d’eau, avec ou sans site de mesure, dans le même bleu estompé (35 % d’opacité).
+- **Sites de mesure** : seuls les sites de la Moselle et de la Moselle canalisée sont dessinés. Les sites des affluents ne sont pas affichés. Au survol, le nom du site apparaît.
+
+- **Projection** : conique conforme de Lambert, avec les parallèles 44° et 49° et le méridien 3° E.
+
 ## Étape 6 : profil le long de la Moselle
 
 Script : `preparation/06_profil_moselle.py`. Journal : `preparation/journaux/06_profil_moselle.txt`. Contrôle : `preparation/06b_verifier_indice.py`.
@@ -187,14 +187,14 @@ Script : `preparation/06_profil_moselle.py`. Journal : `preparation/journaux/06_
 
 **Distance de chaque site le long de la Moselle.**
 - Le tracé « la Moselle » est formé de 4 morceaux, avec une petite fourche. On en fait un graphe : les sommets sont les bouts des morceaux, les arêtes les morceaux, pondérées par leur longueur. On garde le plus long des plus courts chemins entre deux bouts libres, soit **314,3 km** dans la région.
-- Les sites de la Moselle et de la Moselle canalisée sont projetés sur ce chemin. Ils en sont tous à moins de 420 m, sous le seuil de l'étape 3. Les deux sites de la Moselle canalisée en sont à 0 et 27 m : on mesure donc tout le long du même tracé.
-- La distance d'un site est la longueur du chemin entre l'extrémité amont et son point projeté. Elle est mesurée depuis l'extrémité amont **du tracé dans la région**.
-- **Sens d'écoulement.** Le fichier ne dit pas de quel côté est l'amont. On le déduit des débits, puisque le débit médian augmente vers l'aval. La corrélation de rang (Spearman) entre la distance depuis la première extrémité et le débit médian vaut **-0,993**. L'amont est donc l'autre extrémité (6,892 ; 47,890), et l'aval est en (6,367 ; 49,467).
-- Le site « La Moselle à Metz [Pont des Morts] » n'a **aucun débit valide** sur toute la période : il est écarté. Le profil compte **12 sites**, de 12,1 à 283,0 km.
+- Les sites de la Moselle et de la Moselle canalisée sont projetés sur ce chemin. Ils en sont tous à moins de 420 m, sous le seuil de l’étape 3. Les deux sites de la Moselle canalisée en sont à 0 et 27 m : on mesure donc tout le long du même tracé.
+- La distance d’un site est la longueur du chemin entre l’extrémité amont et son point projeté. Elle est mesurée depuis l’extrémité amont **du tracé dans la région**.
+- **Sens d’écoulement.** Le fichier ne dit pas de quel côté est l’amont. On le déduit des débits, puisque le débit médian augmente vers l’aval. La corrélation de rang (Spearman) entre la distance depuis la première extrémité et le débit médian vaut **-0,993**. L’amont est donc l’autre extrémité (6,892 ; 47,890), et l’aval est en (6,367 ; 49,467).
+- Le site « La Moselle à Metz [Pont des Morts] » n’a **aucun débit valide** sur toute la période : il est écarté. Le profil compte **12 sites**, de 12,1 à 283,0 km.
 
-**Sites retenus pour les calculs.** Un débit est **valide** s'il est renseigné et positif ou nul. Un débit nul est une vraie mesure (cours d'eau à sec, « assec ») et il est gardé dans toutes les analyses ; seuls les débits vides et le code d'erreur -1 sont écartés. Pour que les semaines extrêmes et le débit médian reposent sur des séries comparables, seuls les sites qui ont une série presque complète servent aux calculs. Un site est retenu s'il remplit les trois critères suivants :
-1. son premier débit valide date au plus tard de la semaine 2001W01, c'est-à-dire de la première année du jeu de données ;
-2. il a un débit valide la dernière semaine du jeu de données (2026W37, 7 septembre 2026), donc pas d'interruption avant la fin ;
+**Sites retenus pour les calculs.** Un débit est **valide** s’il est renseigné et positif ou nul. Un débit nul est une vraie mesure (cours d’eau à sec, « assec ») et il est gardé dans toutes les analyses ; seuls les débits vides et le code d’erreur -1 sont écartés. Pour que les semaines extrêmes et le débit médian reposent sur des séries comparables, seuls les sites qui ont une série presque complète servent aux calculs. Un site est retenu s’il remplit les trois critères suivants :
+1. son premier débit valide date au plus tard de la semaine 2001W01, c’est-à-dire de la première année du jeu de données ;
+2. il a un débit valide la dernière semaine du jeu de données (2026W37, 7 septembre 2026), donc pas d’interruption avant la fin ;
 3. au moins **97 %** des 1 393 semaines ont un débit valide.
 
 | Site | 1ʳᵉ semaine valide | Dernière | Semaines valides | Retenu |
@@ -212,14 +212,15 @@ Script : `preparation/06_profil_moselle.py`. Journal : `preparation/journaux/06_
 | Hagondange et Hauconcourt | 2012W48 | 2026W37 | 51,7 % | non |
 | Uckange | 2000W01 | 2026W37 | 100 % | oui |
 
-**8 sites sont retenus.** Aucun site n'a une part de semaines valides comprise entre 95,3 % et 98,1 %. Le seuil exact, autour de 97 %, ne change donc pas le résultat.
+**8 sites sont retenus.** Aucun site n’a une part de semaines valides comprise entre 95,3 % et 98,1 %. Le seuil exact, autour de 97 %, ne change donc pas le résultat.
 
 **Comparaison entre semaines.** Comparer les semaines et identifier les extrêmes à l’échelle d’un cours d’eau suppose de disposer d’une méthode d’agrégation des mesures au niveau des sites correspondant à ce cours d’eau. Pour chaque semaine, on calcule la moyenne géométrique, sur les sites retenus mesurés cette semaine-là, de (débit / débit médian du site). 1 = débit habituel aux sites, 2 = deux fois plus, 0,5 = deux fois moins.
-Le débit médian d'un site est la médiane de ses débits valides, zéros compris.
+Le débit médian d’un site est la médiane de ses débits valides, zéros compris.
 
-**Débits nuls et logarithme.** La moyenne géométrique se calcule avec le logarithme, qui n'existe pas pour 0. Pour ce calcul uniquement, un débit nul (ou un débit médian nul) est remplacé par un **plancher propre au site** : la moitié de son plus petit débit strictement positif. Chaque remplacement est signalé : le nombre de débits nuls et le plancher de chaque site figurent dans `profil_sites.csv`, et le nombre de remplacements de chaque semaine dans `profil_semaines.csv`. Pour la Moselle, il n'y a aucun débit nul : aucun remplacement n'est fait, et les résultats sont les mêmes qu'en écartant les zéros. La règle a été testée en mettant temporairement deux débits d'Épinal à 0 : le site reste valide à 100 %, les deux semaines sont signalées, et le contrôle numpy retrouve le même indice.
+**Débits nuls et logarithme.** La moyenne géométrique se calcule avec le logarithme, qui n’existe pas pour 0. Pour ce calcul uniquement, un débit nul (ou un débit médian nul) est remplacé par un **plancher propre au site** : la moitié de son plus petit débit strictement positif. Chaque remplacement est signalé : le nombre de débits nuls et le plancher de chaque site figurent dans `profil_sites.csv`, et le nombre de remplacements de chaque semaine dans `profil_semaines.csv`. Pour la Moselle, il n’y a aucun débit nul : aucun remplacement n’est fait, et les résultats sont les mêmes qu’en écartant les zéros. La règle a été testée en mettant temporairement deux débits d’Épinal à 0 : le site reste valide à 100 %, les deux semaines sont signalées, et le contrôle numpy retrouve le même indice.
 
-- **Semaine du maximum : 1ᵉʳ janvier 2018** (indice 11,8). **Semaine du minimum : 10 août 2026** (indice 0,083).
+- **Semaine du maximum : 1ᵉʳ janvier 2018** (indice 11,8).
+- **Semaine du minimum : 10 août 2026** (indice 0,083).
 
 **Contrôle.** Le script `06b_verifier_indice.py` refait le calcul autrement, avec numpy, sous forme de tableau semaines × sites retenus. Il recalcule lui-même le plancher de chaque site, et retrouve le même nombre de sites et de remplacements pour chaque semaine, le même indice à 5·10⁻⁷ près (arrondi du fichier à 6 décimales) et les mêmes semaines extrêmes.
 
@@ -227,6 +228,18 @@ Le débit médian d'un site est la médiane de ses débits valides, zéros compr
 - `profil_sites.csv` : site, libellé, distance, débit médian, nombre de débits valides, nombre de débits nuls, plancher pour le logarithme, première et dernière semaines valides, part de semaines valides, site retenu ou non pour les calculs, écart au tracé ;
 - `profil_semaines.csv` : semaine, date, nombre de sites mesurés, indice, semaine classée ou non, nombre de débits nuls remplacés par le plancher ;
 - `moselle_extremites.csv` : longitude et latitude des deux extrémités du chemin principal de la Moselle (amont et aval), où la carte place la source et la sortie du territoire français.
+
+**Graphique des débits**
+
+Le graphique (code : `src/components/profil.js`) montre le débit à chaque site de la Moselle, d’amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n’a pas de point. Les **calculs**, eux, ne tiennent compte que des 8 sites avec série complète : l’indice, le classement, le choix des semaines extrêmes et la courbe du débit médian.
+
+| Courbe | Couleur |
+| --- | --- |
+| « Semaine affichée » : semaine choisie avec la barre placée sous le graphique (au chargement, le 3 juillet 2017) | `#0b4f71`, trait épais |
+| débit médian de chaque site retenu, toutes semaines confondues (« Débit médian du site* » dans la légende ; l’astérisque renvoie aux sites retenus) | gris, en tirets |
+
+- **Échelle** linéaire par défaut, ou logarithmique (case « Échelle log. »), avec des graduations 1-3-10. Les bornes de l’axe sont fixes, quelle que soit la semaine. Un débit nul ne peut pas être placé sur une échelle logarithmique : il y est dessiné au plancher du site, avec un **point creux** pour le signaler. En échelle linéaire, il est placé à 0. Aucun débit nul n’apparaît sur la Moselle.
+- **Lignes verticales** : une par site de mesure, à sa distance depuis l’amont. Elles sont pleines pour les 8 sites retenus pour les calculs et en pointillés pour les 4 autres, dont la série est incomplète. Au passage de la souris, la ligne se renforce et le site correspondant est mis en évidence sur la carte.
 
 ## Étape 7 : température, pluie et neige
 
@@ -237,73 +250,15 @@ Les deux graphiques météo portent sur les **12 sites du profil des débits** (
 - `pluie` : hauteur de pluie, cumul hebdomadaire (mm) ;
 - `neige` : équivalent en eau des précipitations solides (neige, grêle), cumul hebdomadaire (mm).
 
-La pluie et la neige ont donc la même unité, mais elles ne sont jamais additionnées.
+Les mesures de pluie et la neige ont donc la même unité mais elles restent traitées distinctement.
 
-**Valeurs vides.** Le script s'arrête si l'une de ces trois mesures manque pour l'un des 12 sites : la moyenne ne porterait alors pas sur les mêmes sites chaque semaine. Il n'y en a aucune : les 1 393 semaines ont les 12 sites.
+**Moyenne hebdomadaire.** Pour chaque semaine, on calcule la moyenne des mesures de chacun des 12 sites.
 
-**Moyenne hebdomadaire.** Pour chaque semaine, on calcule la moyenne des 12 sites pour chaque mesure.
+**Moyennes interannuelles hebdomadaires.** Pour chaque semaine de l’année (numéro de semaine ISO), on calcule la moyenne des moyennes hebdomadaires de cette semaine sur toutes les années du jeu de données (2000 à 2026), soit 26 ou 27 années selon la semaine. La semaine 53, qui n’existe que certaines années (2004, 2009, 2015 et 2020), est regroupée avec la semaine 52, qui compte ainsi 30 valeurs. La définition de ces moyennes interannuelles se rapproche de celle des normales climatiques, mais ces dernières se calculent sur 30 ans alors que nous ne disposons de données que sur 26 ans.
 
-**Référence pour repérer les écarts.** Pour chaque semaine de l'année (numéro de semaine ISO), on calcule la moyenne des valeurs hebdomadaires de cette semaine sur toutes les années du jeu de données (2000 à 2026), soit 26 ou 27 années selon la semaine. La semaine 53, qui n'existe que certaines années (2004, 2009, 2015 et 2020), est regroupée avec la semaine 52, qui compte ainsi 30 valeurs.
+**Fichier produit** : `src/data/meteo_semaines.csv`, avec une ligne par semaine : semaine, date, semaine de l’année, moyennes des 12 sites (temp, pluie, neige) et références (temp_ref, pluie_ref, neige_ref).
 
-**Contrôle.** Chaque référence, calculée comme la moyenne des moyennes hebdomadaires, est égale à la moyenne directe de toutes les mesures (sites × années) de la même semaine de l'année. C'est possible parce que chaque semaine compte les 12 sites.
+**Graphiques** : `src/components/meteo.js`.
+Les deux graphiques affichent les moyennes hebdomadaires, en haut de température, en bas de pluie et neige, pour la semaine sélectionnée et les 4 semaines précédentes. Ils montrent aussi en pointillés les moyennes interannuelles hebdomadaires sur la période 2000-2026.
 
-**Fichier produit** : `src/data/meteo_semaines.csv`, avec une ligne par semaine : semaine, date, semaine de l'année, moyennes des 12 sites (temp, pluie, neige) et références (temp_ref, pluie_ref, neige_ref).
-
-## La carte
-
-Code : `src/components/carte.js`.
-
-La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers de l'étape 5 et de `sites.csv`.
-
-- **Cours d'eau** : trois couches, une par catégorie de l'étape 5. La Moselle est en bleu sombre (`#0b4f71`, trait épais), les affluents en bleu (`#2b7bb9`, trait de 1,2 pixel) et les autres cours d'eau, avec ou sans site de mesure, dans le même bleu estompé (35 % d'opacité).
-- **Sites de mesure** : seuls les sites de la Moselle et de la Moselle canalisée sont dessinés. Les sites des affluents ne sont pas affichés. Au survol, le nom du site apparaît.
-
-- **Projection** : conique conforme de Lambert, avec les parallèles 44° et 49° et le méridien 3° E.
-- **Cadrage** : au départ, la carte est ajustée au bassin de la Moselle (la Moselle et les tracés du bassin, étape 2). On peut dézoomer jusqu'à voir toute la région, à la molette ou avec le bouton « Voir toute la région ».
-- **Couleur de la Moselle** : le même bleu sombre que la courbe de la semaine choisie sur le graphique des débits.
-- **Légende** : Moselle, affluents, autres cours d'eau, site de mesure.
-- **Repères** : un triangle et un texte marquent les deux extrémités du tracé de la Moselle dans la région (`moselle_extremites.csv`, étape 6) : « Source » à l'extrémité amont et « Tripoint Allemagne-France-Luxembourg » à l'extrémité aval. Triangles et textes gardent la même taille quand on zoome.
-
-## Le profil des débits
-
-Code : `src/components/profil.js`.
-
-Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n'a pas de point. Une courbe de semaine (semaine affichée, semaine du maximum, semaine du minimum) montre **tous les débits disponibles** cette semaine-là. Les **calculs**, eux, ne tiennent compte que des 8 sites retenus : l'indice, le classement, le choix des semaines extrêmes et la courbe du débit médian.
-
-| Courbe | Couleur |
-| --- | --- |
-| « Semaine affichée » : semaine choisie avec la barre placée sous le graphique (au chargement, le 3 juillet 2017) | `#0b4f71`, trait épais |
-| semaine du débit le plus élevé (1ᵉʳ janvier 2018) | `#c77700` |
-| semaine du débit le plus faible (10 août 2026) | `#7b6bb0` |
-| débit médian de chaque site retenu, toutes semaines confondues (« Débit médian du site* » dans la légende ; l'astérisque renvoie aux sites retenus, voir l'étape 6) | gris, en tirets |
-
-- **Échelle** linéaire par défaut, ou logarithmique (case « Échelle log. »), avec des graduations 1-3-10. Les bornes de l'axe sont fixes, quelle que soit la semaine. Un débit nul ne peut pas être placé sur une échelle logarithmique : il y est dessiné au plancher du site (voir l'étape 6), avec un **point creux** pour le signaler. En échelle linéaire, il est placé à 0. Aucun débit nul n'apparaît sur la Moselle.
-- **Lignes verticales** : une par site de mesure, à sa distance depuis l'amont. Elles sont pleines pour les 8 sites retenus pour les calculs et en pointillés pour les 4 autres, dont la série est incomplète. Au passage de la souris, la ligne se renforce et le site correspondant est mis en évidence **sur la carte**, comme si la souris passait sur son cercle : le cercle grossit et le nom du site s'affiche. Quand la souris quitte le graphique, la mise en évidence disparaît.
-- Un texte permanent, « Station hydrométrique La Moselle à Uckange », est écrit au-dessus de la ligne de ce site, pour expliciter ce que représentent les lignes verticales.
-- L'indice des semaines sert à choisir les semaines extrêmes ; il n'est pas affiché.
-
-**Le film.** Au chargement, la page affiche la semaine du 3 juillet 2017 (2017W27), sans les courbes des semaines extrêmes. Le film est d'abord **guidé**, en trois étapes, chacune avec son texte :
-- le bouton « Lancer le film » fait défiler les semaines, de juillet 2017 à la semaine du maximum (1ᵉʳ janvier 2018, tempête Eleanor) à **vitesse constante** : 180 ms par semaine (réglage `premierePhase` de `VITESSE` dans `profil.js`), soit environ 5 s pour les 27 semaines ;
-- le film s'arrête à la semaine du maximum : la courbe du maximum apparaît et un texte commente cette semaine, avec un bouton pour reprendre le film ;
-- il reprend ensuite **à vitesse variable** jusqu'à la semaine du minimum (10 août 2026) : 40 ms par semaine en croisière, puis un ralentissement progressif sur les 20 semaines qui précèdent l'arrêt, jusqu'à 150 ms par semaine, soit environ 19 s ;
-- il s'arrête à la semaine du minimum : la courbe du minimum apparaît et le texte de l'été 2026 s'affiche. Le film est terminé ;
-- pendant le film, le curseur de semaine est bloqué ; seul un bouton lecture / pause est disponible. Un lien « Passer directement au mode libre » mène directement à la semaine du minimum.
-
-Une fois le film terminé, la barre de semaine devient **libre** :
-- ◀ passe à la semaine précédente et ▶ à la suivante. En maintenant le bouton enfoncé, le pas se répète (après 0,4 s, puis toutes les 80 ms). Le bouton se désactive à la première et à la dernière semaine (7 septembre 2026). Les semaines qui suivent le minimum et les semaines d'avant juillet 2017 ne font pas partie du film mais restent accessibles ici.
-- Le curseur se déplace à la main.
-- Le lien « Revoir le film » ramène au texte d'introduction et à la semaine du 3 juillet 2017, sans lancer le film : il faut cliquer sur « Lancer le film ».
-- Les débits affichés viennent directement de `mesures.csv`, et l'indice de `profil_semaines.csv`.
-
-<a class="retour-dataviz" href="./">← Retour à la dataviz</a>
-
-## Les graphiques météo
-
-Code : `src/components/meteo.js`.
-
-Deux graphiques, l'un au-dessus de l'autre : la température, puis la pluie et la neige. Ils montrent une **fenêtre de 5 semaines** qui se termine par la semaine affichée dans le graphique des débits.
-
-- **Fenêtre glissante** : l'axe horizontal a 5 positions fixes, de « −4 sem. » à « sem. affichée ». Au fil des semaines, les points glissent vers la gauche et disparaissent au bout de 5 semaines. Au début de la série, il n'y a pas de semaines précédentes : on ne voit qu'un point, à droite, puis deux, et ainsi de suite.
-- **Ligne pleine** : moyenne des 12 sites pour chaque semaine. **Ligne en tirets** : la référence 2000-2026 des mêmes semaines de l'année (étape 7). La légende des tirets, « moyenne 2000-2026 », est commune aux deux graphiques : elle est placée entre eux. Le graphique de température n'a pas de légende de couleur : son titre et son axe (« °C ») suffisent. L'écart entre les deux lignes montre si la semaine est plus chaude, plus froide, plus arrosée ou plus sèche que d'habitude.
-- Les **axes sont fixes**, calculés sur toute la période, pour que l'échelle ne bouge pas pendant le film.
-
+<a class="retour-dataviz" href="./">← Retour à la visualisation</a>

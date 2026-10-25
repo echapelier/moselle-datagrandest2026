@@ -16,14 +16,18 @@ La préparation des données est séparée de la construction du site : les scri
 
 ## Données d'origine
 
-Les fichiers d'origine ne sont pas dans Git (trop volumineux). Pour refaire la préparation, les placer dans `donnees-originales/` :
+Les fichiers d'origine ne sont pas dans Git (trop volumineux). Ils ont téléchargeables directement à partir de [cette page web](https://www.datagrandest.fr/datahub/dataset/a9557bbf-673a-4936-a01e-6f250554b33f).
 
-| Fichier | Source | Date | Version |
-| --- | --- | --- | --- |
-| `donnees.csv` | _à compléter_ | | |
-| `cours-eau-region_1791104972648.geojson` | _à compléter_ | | |
-| `region-grand-est.geojson` | _à compléter_ | | |
-| `departements-grand-est.geojson` | _à compléter_ | | |
+Les fichiers utilisés sont les suivants :
+
+| Fichier | Rôle |
+| --- | --- |
+| `donnees.csv` | mesures hebdomadaires (débit, pluie, température…) par site |
+| `cours-eau-region_1791104972648.geojson` | tracé des cours d’eau du Grand Est |
+| `region-grand-est.geojson` | contour de la région (fond de carte) |
+| `departements-grand-est.geojson` | contours des départements (fond de carte) |
+
+ Pour refaire la préparation, les les placer dans `donnees-originales/` :
 
 ## Prérequis
 

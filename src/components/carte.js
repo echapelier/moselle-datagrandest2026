@@ -13,8 +13,8 @@ export const COULEURS = {
   cours: "#2b7bb9", // affluents de la Moselle et autres cours d'eau
   moselle: BLEU_MOSELLE, // la Moselle et la Moselle canalisée
   fondRegion: "#f3efe6",
-  contourRegion: "#555",
-  contourDepartements: "#b8b3a6"
+  contourRegion: "#3C3C3C",
+  contourDepartements: "#090909"
 };
 
 // Couches de cours d'eau, de bas en haut (une par catégorie du fichier des
@@ -60,7 +60,7 @@ export function carte({region, departements, traces, sites, extremites, width, h
     .attr("height", height)
     .attr("viewBox", [0, 0, width, height])
     .attr("role", "img")
-    .attr("aria-label", "Carte du Grand Est : la Moselle, ses affluents et les sites de mesure")
+    .attr("aria-label", "Carte du Grand Est : la Moselle, ses sites de mesure et ses affluents et sous-affluents")
     .style("display", "block")
     .style("cursor", "grab");
 
@@ -72,11 +72,11 @@ export function carte({region, departements, traces, sites, extremites, width, h
   g.append("path").datum(region).attr("d", chemin).attr("fill", COULEURS.fondRegion);
   traitFixe(
     g.append("path").datum(departements).attr("d", chemin)
-      .attr("fill", "none").attr("stroke", COULEURS.contourDepartements).attr("stroke-width", 0.8)
+      .attr("fill", "none").attr("stroke", COULEURS.contourDepartements).attr("stroke-width", 0.4)
   );
   traitFixe(
     g.append("path").datum(region).attr("d", chemin)
-      .attr("fill", "none").attr("stroke", COULEURS.contourRegion).attr("stroke-width", 1.4)
+      .attr("fill", "none").attr("stroke", COULEURS.contourRegion).attr("stroke-width", 0.9)
   );
 
   // Cours d'eau : un seul chemin SVG par couche, pour rester léger
@@ -246,8 +246,8 @@ export function legende() {
   const div = d3.create("div").attr("class", "legende");
   const elements = [
     {texte: "Moselle", trait: COULEURS.moselle},
-    {texte: "affluents", trait: COULEURS.cours},
-    {texte: "autres cours d'eau", trait: COULEURS.cours, opacite: COUCHES[0].opacite},
+    {texte: "affluents et sous-affluents", trait: COULEURS.cours},
+    {texte: "autres cours d’eau", trait: COULEURS.cours, opacite: COUCHES[0].opacite},
     {texte: "site de mesure", cercle: COULEURS.moselle}
   ];
   for (const e of elements) {

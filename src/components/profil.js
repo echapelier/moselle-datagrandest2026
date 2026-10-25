@@ -1,6 +1,5 @@
 // Profil des débits le long de la Moselle : le débit à chaque site, d'amont
-// en aval, pour une même semaine (reprise du graphique des essais dans le
-// notebook).
+// en aval, pour une même semaine.
 
 import * as Plot from "npm:@observablehq/plot";
 import * as d3 from "npm:d3";
@@ -81,7 +80,7 @@ const REPETITION = {delai: 400, pas: 80};
 export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
   const form = document.createElement("form");
   form.className = "choix-semaine";
-  form.innerHTML = `<span class="semaine-titre"><label>Semaine affichée :</label> <output></output></span>
+  form.innerHTML = `<span class="semaine-titre"><label>Semaine sélectionnée :</label> <output></output></span>
     <span class="semaine-commandes">
       <button type="button" data-pas="-1"></button>
       <button type="button" data-role="lecture"></button>

@@ -1,6 +1,6 @@
 // Graphiques météo : température, pluie et neige moyennes des 12 sites du
 // profil, sur une fenêtre glissante de 5 semaines qui se termine par la
-// semaine affichée dans le graphique des débits. Une ligne en tirets donne,
+// semaine sélectionnée dans le graphique des débits. Une ligne en tirets donne,
 // pour les mêmes semaines de l'année, la moyenne 2000-2026.
 
 import * as Plot from "npm:@observablehq/plot";
@@ -12,8 +12,8 @@ export const COULEURS_METEO = {
   neige: "#4fb3a9"
 };
 
-// Positions de la fenêtre, de la plus ancienne à la semaine affichée.
-const POSITIONS = ["−4 sem.", "−3", "−2", "−1", "sem. affichée"];
+// Positions de la fenêtre, de la plus ancienne à la semaine sélectionnée.
+const POSITIONS = ["−4 sem.", "−3", "−2", "−1", "semaine sélectionnée"];
 
 // Lit meteo_semaines.csv (même ordre de semaines que le profil) et calcule
 // les bornes fixes des axes, sur toute la période.
@@ -53,7 +53,7 @@ function options({width, height}) {
     width,
     height,
     marginLeft: 40,
-    marginRight: 30, // place pour le libellé « sem. affichée »
+    marginRight: 30, // place pour le libellé « sem. sélectionnée »
     marginBottom: 26,
     x: {type: "point", domain: POSITIONS, label: null, padding: 0.3}
   };
