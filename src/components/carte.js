@@ -11,7 +11,7 @@ import {BLEU_MOSELLE} from "./couleurs.js";
 // Couleurs (mêmes conventions que les essais dans le notebook).
 export const COULEURS = {
   avecMesure: "#2b7bb9", // cours d'eau avec au moins un site de mesure
-  sansMesure: "#a9b8c3", // cours d'eau sans site de mesure
+  sansMesure: "#8fa1ae", // cours d'eau sans site de mesure
   moselle: BLEU_MOSELLE, // la Moselle et la Moselle canalisée
   fondRegion: "#f3efe6",
   contourRegion: "#555",

@@ -203,15 +203,15 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
 
 <div class="dataviz">
   <div class="zone zone-carte">
-    <h2>La Moselle et ses affluents en région Grand Est</h2>
     <div class="carte-cadre">
+      <h2>La Moselle et ses affluents en région Grand Est</h2>
       <div class="carte-conteneur">${blocCarte}</div>
       ${legende()}
     </div>
     ${entreeSemaine}
   </div>
   <div class="card zone zone-graphique">
-    <h2>Débits le long de la Moselle, d'amont en aval</h2>
+    <h2>Débits le long de la Moselle, d’amont en aval</h2>
     <div class="commandes">${entreeEchelle}</div>
     ${blocGraphique}
     ${blocLegendeProfil}
@@ -233,24 +233,29 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
       "passer", "revoir" ou "annexe".
     -->
     <div class="texte-etape" data-etape="intro">
-      <h1>Moselle : que nous disent vingt-six ans de données hydro et météo ?</h1>
-      <p>Bien que la Moselle ne soit techniquement qu’une rivière puisqu’elle se jette dans un autre cours d’eau – le Rhin - et non dans une mer ou un océan, elle n’en constitue pas moins un cours d’eau central pour la région Grand Est, à la fois par sa localisation, sa longueur (près de 300 km dans la région) et la taille de son bassin.</p>
+      <h1>Moselle : 26 ans de données hydro et météo</h1>
+      <p>Bien que la Moselle ne soit techniquement qu’une rivière puisqu’elle se jette dans un autre cours d’eau, le Rhin, et non dans une mer ou un océan, elle n’en constitue pas moins un cours d’eau central pour la région Grand Est, à la fois par sa localisation, sa longueur (près de 300 km dans la région) et la taille de son bassin.</p>
       <p>Prenant sa source dans le massif des Vosges, elle traverse trois départements (Vosges, Meurthe-et-Moselle et Moselle) et les chefs-lieux d’Épinal et de Metz avant de poursuivre son chemin vers le Luxembourg puis l’Allemagne, où elle rejoint le Rhin à Coblence.</p>
+      <p>Cette data visualisation commence par un court « film » qui montre, semaine par semaine, les variations du débit de la Moselle au cours des dix dernières années, ainsi qu’une sélection de paramètres (température de l’air, pluie et neige calculées comme moyennes des mesures réalisées au pied de 12 sites hydrométriques situés le long de la Moselle). Le film s’arrêtera sur deux événements « remarquables ». À la fin du film, vous pourrez vous-même choisir la semaine que vous souhaitez visualiser parmi toutes celles disponibles (depuis 2000).</p>
       <p class="actions-texte">
         <button type="button" class="bouton-film" data-action="lancer">▶ Lancer le film</button>
-        <button type="button" class="lien lien-discret" data-action="passer">Passer le film</button>
+        <button type="button" class="lien lien-discret" data-action="passer">Passer directement au mode libre</button>
       </p>
     </div>
     <div class="texte-etape" data-etape="max">
-      <h2>Semaine du 1<sup>er</sup> janvier 2018 : le débit le plus élevé</h2>
-      <p><em>Texte à venir.</em></p>
+      <h2>La tempête Eleanor</h2>
+      <p>Sur la période 2000-2026 (jusqu’en septembre), le débit le plus élevé pour la Moselle a été enregistré lors de la semaine du 1er au 7 janvier 2018, avec des valeurs au niveau des stations de mesure environ 10 fois supérieures aux médianes. Cette semaine exceptionnelle ne l’était pas que pour la Moselle, puisqu’elle correspond au déferlement de la tempête Eleanor qui a non seulement frappé la région Grand Est, mais aussi d’autres parties du territoire français.</p>
+      <p>Comme on le voit sur le graphique de pluie et de neige (à droite), si la tempête proprement dite s’est manifestée notamment par une pluie intense, les semaines précédentes avaient été marquées par des niveaux de pluie et de neige très supérieurs aux moyennes interannuelles hebdomadaires calculées sur la période 2000-2026. Cela a sans doute contribué à renforcer l’effet de la tempête sur le débit de la Moselle.</p>
       <p class="actions-texte">
         <button type="button" class="bouton-film" data-action="reprendre">▶ Reprendre le film</button>
       </p>
     </div>
     <div class="texte-etape" data-etape="min">
-      <h2>Semaine du 10 août 2026 : le débit le plus faible</h2>
-      <p><em>Texte à venir.</em></p>
+      <h2>L’été 2026</h2>
+      <p>On se souviendra peut-être de l’été 2026 comme particulièrement éprouvant en raison de la répétition d’épisodes prolongés de températures élevées. Le caractère mémorable, voire exceptionnel de cet été se lit aussi dans le débit de la Moselle qui a atteint lors de la semaine du 10-16 août son niveau le plus bas enregistré sur la période 2000-2026 (jusqu’en septembre).</p>
+      <p>Dans les données, à la différence d’une tempête, une sécheresse se voit moins comme une semaine aux paramètres « anormaux » que par une suite de semaines aux températures supérieures et aux précipations inférieures aux moyennes, finissant par conduire à un point bas en termes de débit.</p>
+      <p>Vous pouvez maintenant vous-même choisir la semaine que vous souhaitez visualiser parmi toutes celles disponibles (depuis 2000).</p>
+      <p>Cette data visualisation comporte de nombreuses simplications, par exemple dans le calcul des moyennes qui ne tiennent compte ni de l’emplacement des stations de mesure (les événements en amont produisent un effet plus grand que ceux en aval), ni des phénomènes qui affectent indirectement la Moselle en touchant ses affluents. Les calculs effectués pour créer cette visualisation et leurs limitations sont décrits dans une annexe technique qui ne fait pas partie de la contribution, mais permettra aux spécialistes d’avoir une vue complète sur les transformations conduisant des données originales aux données affichées.</p>
       <p class="actions-texte">
         <button type="button" class="bouton-film" data-action="reprendre">▶ Reprendre le film</button>
       </p>
