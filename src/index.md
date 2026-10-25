@@ -216,7 +216,7 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
 <div class="dataviz">
   <div class="zone zone-carte">
     <div class="carte-cadre">
-      <h2>La Moselle et ses affluents en région Grand Est</h2>
+      <h2>La Moselle et son bassin en région Grand Est</h2>
       <div class="carte-conteneur">${blocCarte}</div>
       ${legende()}
     </div>
@@ -229,12 +229,12 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
   </div>
   <div class="zone zone-semaine">${entreeSemaine}</div>
   <div class="card zone cadre-meteo zone-temperature">
-    <h2>Température moyenne des 12 sites</h2>
+    <h2>Température moyenne sur 12 sites</h2>
     ${blocTemperature}
   </div>
   <div class="zone zone-reference">${legendeReference()}</div>
   <div class="card zone cadre-meteo zone-precipitations">
-    <h2>Pluie et neige, moyennes des 12 sites</h2>
+    <h2>Pluie et neige, moyennes sur 12 sites</h2>
     ${blocPrecipitations}
     ${legendeMeteo([{libelle: "pluie (mm)", couleur: COULEURS_METEO.pluie}, {libelle: "neige, équivalent eau (mm)", couleur: COULEURS_METEO.neige}])}
   </div>
@@ -259,8 +259,9 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
       <h2>La tempête Eleanor</h2>
       <p>Sur la période 2000-2026 (jusqu’en septembre), le débit le plus élevé pour la Moselle a été enregistré lors de la semaine du 1er au 7 janvier 2018, avec des valeurs au niveau des stations de mesure environ 10 fois supérieures aux médianes. Cette semaine exceptionnelle ne l’était pas que pour la Moselle, puisqu’elle correspond au déferlement de la tempête Eleanor qui a non seulement frappé la région Grand Est, mais aussi d’autres parties du territoire français.</p>
       <p>Comme on le voit sur le graphique de pluie et de neige (à droite), si la tempête proprement dite s’est manifestée notamment par une pluie intense, les semaines précédentes avaient été marquées par des niveaux de pluie et de neige très supérieurs aux moyennes interannuelles hebdomadaires calculées sur la période 2000-2026. Cela a sans doute contribué à renforcer l’effet de la tempête sur le débit de la Moselle.</p>
+      <p>Avant de continuer la lecture du film, vous pouvez, si vous le souhaitez, activer l’échelle logarithmique des débits (case à cocher en haut à gauche du graphique Débits) pour mieux constater les variations.</p>
       <p class="actions-texte">
-        <button type="button" class="bouton-film" data-action="reprendre">▶ Reprendre le film</button>
+        <button type="button" class="bouton-film" data-action="reprendre">▶ Continuer le film</button>
       </p>
     </div>
     <div class="texte-etape" data-etape="min">

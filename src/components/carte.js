@@ -33,9 +33,9 @@ const REPERES = [
   {extremite: "amont", texte: ["Source"], cote: "droite"},
   {extremite: "aval", texte: ["Tripoint", "Allemagne-France-", "Luxembourg"], cote: "gauche"}
 ];
-const TAILLE_TEXTE = 11; // px
+const TAILLE_TEXTE = 12; // px
 const INTERLIGNE = 13; // px
-const REMPLISSAGE = {x: 5, y: 3}; // marge du texte dans son rectangle (px)
+const REMPLISSAGE = {x: 7, y: 5}; // marge du texte dans son rectangle (px)
 const ECART_TRIANGLE = 8; // px entre le centre du triangle et le rectangle
 
 const RAYON_SITE = 6; // en pixels, quel que soit le zoom

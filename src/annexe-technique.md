@@ -55,7 +55,8 @@ Un site de l’Aube est rattaché au libellé de département `AUBE,COTE-D'OR` (
 
 ## Étape 2 : identification des cours d’eau à rattacher au bassin de la Moselle
 
-Script : `preparation/02_bassin_moselle.py`. Journal : `preparation/journaux/02_bassin_moselle.txt`.
+- Script : `preparation/02_bassin_moselle.py`
+- Journal : `preparation/journaux/02_bassin_moselle.txt`
 
 Le fichier des cours d’eau `cours-eau-region_1791104972648.geojson` contient 8 929 tracés, chacun avec un nom (`TopoOH`) et un identifiant unique (`CdOH`). Il ne dit ni quel cours d’eau se jette dans quel autre, ni dans quel sens l’eau s’écoule. Pour identifier les affluents et sous-affluents de la Moselle, nous nous appuyons donc sur la géométrie : **un affluent se termine sur le tracé du cours d’eau qui le reçoit**.
 
@@ -88,7 +89,8 @@ Un seul ouvrage est refusé : le « Canal de l’Est » (contact en 6,304 ; 48,1
 
 ## Étape 3 : rapprochement des noms entre le CSV et le GeoJSON
 
-Script : `preparation/03_rapprocher_noms.py`. Journal : `preparation/journaux/03_rapprocher_noms.txt`.
+- Script : `preparation/03_rapprocher_noms.py`
+- Journal : `preparation/journaux/03_rapprocher_noms.txt`
 
 Les fichiers `donnees.csv` et `cours-eau-region_1791104972648.geojson` ne désignent pas les cours d’eau de la même façon. `donnees.csv` utilise un code (`code_cours_eau`) et un libellé (`libelle_cours_eau`), le GeoJSON un nom (`TopoOH`). On rattache donc chaque site de mesure à un tracé en combinant le nom et la position. On sait ensuite, grâce à l’étape 2, si le site est dans le bassin de la Moselle.
 
@@ -119,9 +121,9 @@ Les fichiers `donnees.csv` et `cours-eau-region_1791104972648.geojson` ne désig
 
 ## Étape 4 : filtrage des mesures
 
-Script : `preparation/04_filtrer_mesures.py`.
+- Script : `preparation/04_filtrer_mesures.py`
 
-On ne garde que les lignes de `donnees.csv` (nettoyé à l’étape 1) dont le site est rattaché, à l’étape 3, au tracé de la Moselle ou de la Moselle canalisée. Les 51 sites des affluents ne servent ni aux calculs ni à l’affichage : ils ne sont pas gardés. Ces lignes sont réparties en trois fichiers, pour ne pas répéter à chaque semaine les informations qui ne changent pas. Ce sont les données de l’application, dans `src/data/` :
+On ne garde que les lignes de `donnees.csv` (nettoyé à l’étape 1) dont le site est rattaché, à l’étape 3, au tracé de la Moselle ou de la Moselle canalisée. Ces lignes sont réparties en trois fichiers, pour ne pas répéter chaque semaine les informations qui ne changent pas. Ce sont les données de l’application, dans `src/data/` :
 
 | Fichier | Une ligne par | Colonnes | Lignes |
 | --- | --- | --- | --- |
@@ -129,28 +131,29 @@ On ne garde que les lignes de `donnees.csv` (nettoyé à l’étape 1) dont le s
 | `cours_eau.csv` | cours d’eau | code_cours_eau, uri_cours_eau, libelle_cours_eau | 2 |
 | `mesures.csv` | site et semaine | semaine, site, temp, pluie, neige, debit, humidite, date | 18 109 |
 
-Jointures : `mesures.site` → `sites.site`, puis `sites.code_cours_eau` → `cours_eau.code_cours_eau`. Les fichiers sont lus et écrits en texte : les valeurs restent exactement celles de l’étape 1, zéros initiaux compris.
+Jointures : `mesures.site` → `sites.site`, puis `sites.code_cours_eau` → `cours_eau.code_cours_eau`.
 
 **Contrôles.**
 - Les colonnes de `sites.csv` sont constantes pour chaque site, et celles de `cours_eau.csv` pour chaque cours d’eau.
 - Chaque site a exactement une ligne par semaine : 1 393 semaines, de 2000W01 à 2026W37, soit 13 × 1 393 = 18 109 lignes.
 - **Jointure complète** : en recollant les trois fichiers écrits, on retrouve exactement les 18 109 lignes de l’étape 1 pour ces sites.
 
-**À savoir pour les calculs.** Dans `mesures.csv`, 3 692 valeurs de `debit` sont vides (sites qui n’ont pas de mesures sur toute la période). Aucune valeur n’est nulle ni négative. Les débits nuls du jeu de données sont de vraies mesures (cours d’eau à sec, ou « assec ») : ils concernaient des sites d’affluents, qui ne sont plus gardés. Les règles de l’étape 6 pour les débits nuls restent appliquées par le code, mais ne se déclenchent pas sur ces données. La valeur -1 (erreur) n’apparaît pas pour ces sites. Les autres paramètres observés (temp, pluie, neige, humidite) n’ont aucune valeur vide.
+**À savoir pour les calculs.** Dans `mesures.csv`, 3 692 valeurs de `debit` sont vides (sites sans mesure pour certaines semaines). Aucune valeur n’est nulle ou négative (erreur). Les autres paramètres observés (temp, pluie, neige, humidite) n’ont aucune valeur vide.
 
 ## Étape 5 : carte
 
-Script : `preparation/05_fonds_de_carte.py`. Journal : `preparation/journaux/05_fonds_de_carte.txt`.
+- Script : `preparation/05_fonds_de_carte.py`
+- Journal : `preparation/journaux/05_fonds_de_carte.txt`
 
 **Cours d’eau.** Tous les tracés de la région sont gardés pour la carte, avec leur catégorie :
 
 | Catégorie | Contenu |
 | --- | --- |
 | `moselle` | la Moselle et la Moselle canalisée |
-| `bassin` | les autres tracés du bassin de la Moselle (étape 2), c’est-à-dire ses affluents |
-| `hors_bassin` | tous les autres tracés de la région |
+| `bassin` | les autres cours d’eau du bassin de la Moselle (étape 2), c’est-à-dire les affluents et sous-affluents |
+| `hors_bassin` | tous les autres cours d’eau de la région |
 
-Pour réduire les temps de chargement, les dessins des tracés sont simplifiés avec l’outil [mapshaper](https://github.com/mbloch/mapshaper). La version utilisée (0.7.95) et les paramètres de la simplification sont indiqués dans `package.json` :
+Pour réduire les temps de chargement, les dessins des cours d’eau sont simplifiés avec l’outil [mapshaper](https://github.com/mbloch/mapshaper). La version utilisée (0.7.95) et les paramètres de la simplification sont indiqués dans `package.json` :
 
 - `-simplify 10% keep-shapes` : on garde 10 % des sommets qui peuvent être supprimés, sans faire disparaître de tracé ;
 - `precision=0.0001` : les coordonnées sont arrondies à 0,0001°, soit environ 10 m ;
@@ -181,7 +184,9 @@ Pour réduire les temps de chargement, les dessins des tracés sont simplifiés 
 
 ## Étape 6 : profil le long de la Moselle
 
-Script : `preparation/06_profil_moselle.py`. Journal : `preparation/journaux/06_profil_moselle.txt`. Contrôle : `preparation/06b_verifier_indice.py`.
+- Script : `preparation/06_profil_moselle.py`
+- Journal : `preparation/journaux/06_profil_moselle.txt`
+- Contrôle : `preparation/06b_verifier_indice.py`
 
 À travers cette étape, nous cherchons à situer les sites de mesure sur la Moselle et à calculer la distance qui les sépare, de façon à pouvoir afficher cette distance quand nous montrons les valeurs des mesures de débit aux différents sites.
 
@@ -192,7 +197,7 @@ Script : `preparation/06_profil_moselle.py`. Journal : `preparation/journaux/06_
 - **Sens d’écoulement.** Le fichier ne dit pas de quel côté est l’amont. On le déduit des débits, puisque le débit médian augmente vers l’aval. La corrélation de rang (Spearman) entre la distance depuis la première extrémité et le débit médian vaut **-0,993**. L’amont est donc l’autre extrémité (6,892 ; 47,890), et l’aval est en (6,367 ; 49,467).
 - Le site « La Moselle à Metz [Pont des Morts] » n’a **aucun débit valide** sur toute la période : il est écarté. Le profil compte **12 sites**, de 12,1 à 283,0 km.
 
-**Sites retenus pour les calculs.** Un débit est **valide** s’il est renseigné et positif ou nul. Un débit nul est une vraie mesure (cours d’eau à sec, « assec ») et il est gardé dans toutes les analyses ; seuls les débits vides et le code d’erreur -1 sont écartés. Pour que les semaines extrêmes et le débit médian reposent sur des séries comparables, seuls les sites qui ont une série presque complète servent aux calculs. Un site est retenu s’il remplit les trois critères suivants :
+**Sites retenus pour les calculs.** Un débit est **valide** s’il est renseigné et positif ou nul. On suppose qu’un débit nul reflète un assec. Les débits vides et le code d’erreur -1 sont en revanche écartés. Pour que les semaines extrêmes et le débit médian reposent sur des séries comparables, seuls les sites qui ont une série presque complète servent aux calculs. Un site est retenu s’il remplit les trois critères suivants :
 1. son premier débit valide date au plus tard de la semaine 2001W01, c’est-à-dire de la première année du jeu de données ;
 2. il a un débit valide la dernière semaine du jeu de données (2026W37, 7 septembre 2026), donc pas d’interruption avant la fin ;
 3. au moins **97 %** des 1 393 semaines ont un débit valide.
@@ -217,7 +222,7 @@ Script : `preparation/06_profil_moselle.py`. Journal : `preparation/journaux/06_
 **Comparaison entre semaines.** Comparer les semaines et identifier les extrêmes à l’échelle d’un cours d’eau suppose de disposer d’une méthode d’agrégation des mesures au niveau des sites correspondant à ce cours d’eau. Pour chaque semaine, on calcule la moyenne géométrique, sur les sites retenus mesurés cette semaine-là, de (débit / débit médian du site). 1 = débit habituel aux sites, 2 = deux fois plus, 0,5 = deux fois moins.
 Le débit médian d’un site est la médiane de ses débits valides, zéros compris.
 
-**Débits nuls et logarithme.** La moyenne géométrique se calcule avec le logarithme, qui n’existe pas pour 0. Pour ce calcul uniquement, un débit nul (ou un débit médian nul) est remplacé par un **plancher propre au site** : la moitié de son plus petit débit strictement positif. Chaque remplacement est signalé : le nombre de débits nuls et le plancher de chaque site figurent dans `profil_sites.csv`, et le nombre de remplacements de chaque semaine dans `profil_semaines.csv`. Pour la Moselle, il n’y a aucun débit nul : aucun remplacement n’est fait, et les résultats sont les mêmes qu’en écartant les zéros. La règle a été testée en mettant temporairement deux débits d’Épinal à 0 : le site reste valide à 100 %, les deux semaines sont signalées, et le contrôle numpy retrouve le même indice.
+**Débits nuls et logarithme.** La moyenne géométrique se calcule avec le logarithme, qui n’existe pas pour 0. Pour ce calcul uniquement, un débit nul (ou un débit médian nul) est remplacé par un **plancher propre au site** : la moitié de son plus petit débit strictement positif. Chaque remplacement est signalé : le nombre de débits nuls et le plancher de chaque site figurent dans `profil_sites.csv`, et le nombre de remplacements de chaque semaine dans `profil_semaines.csv`. Pour la Moselle, il n’y a aucun débit nul donc ce mécanisme n'est pas appliqué, mais il pourrait servir pour refaire l’exercice sur d’autres cours d’eau.
 
 - **Semaine du maximum : 1ᵉʳ janvier 2018** (indice 11,8).
 - **Semaine du minimum : 10 août 2026** (indice 0,083).
@@ -227,24 +232,20 @@ Le débit médian d’un site est la médiane de ses débits valides, zéros com
 **Fichiers produits** (dans `src/data/`) :
 - `profil_sites.csv` : site, libellé, distance, débit médian, nombre de débits valides, nombre de débits nuls, plancher pour le logarithme, première et dernière semaines valides, part de semaines valides, site retenu ou non pour les calculs, écart au tracé ;
 - `profil_semaines.csv` : semaine, date, nombre de sites mesurés, indice, semaine classée ou non, nombre de débits nuls remplacés par le plancher ;
-- `profil_debits.csv` : site, semaine et débit, pour les 12 sites du profil et leurs seuls débits valides (14 417 lignes, 0,36 Mo). C’est le seul fichier de mesures que lit la page : elle n’envoie ainsi pas au navigateur les autres colonnes de `mesures.csv` (températures, pluie, neige, humidité), déjà résumées par l’étape 7 ;
+- `profil_debits.csv` : site, semaine et débit, pour les 12 sites du profil et leurs seuls débits valides (14 417 lignes, 0,36 Mo). C’est le seul fichier de mesures que lit la page : elle n’envoie ainsi pas au navigateur les autres colonnes de `mesures.csv` (températures, pluie, neige, humidité) qui seront résumées par l’étape 7 ;
 - `moselle_extremites.csv` : longitude et latitude des deux extrémités du chemin principal de la Moselle (amont et aval), où la carte place la source et la sortie du territoire français.
 
 **Graphique des débits**
 
-Le graphique (code : `src/components/profil.js`) montre le débit à chaque site de la Moselle, d’amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n’a pas de point. Les **calculs**, eux, ne tiennent compte que des 8 sites avec série complète : l’indice, le classement, le choix des semaines extrêmes et la courbe du débit médian.
-
-| Courbe | Couleur |
-| --- | --- |
-| « Semaine affichée » : semaine choisie avec la barre placée sous le graphique (au chargement, le 3 juillet 2017) | `#0b4f71`, trait épais |
-| débit médian de chaque site retenu, toutes semaines confondues (« Débit médian du site* » dans la légende ; l’astérisque renvoie aux sites retenus) | gris, en tirets |
+Le graphique (code : `src/components/profil.js`) montre le débit à chaque site de la Moselle, d’amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n’a pas de point. Les **calculs**, eux, ne tiennent compte que des 8 sites avec série complète. Ils servent à déterminer la moyenne géométrique, qui permet à son tour de classer les semaines et d’identifier les min et max. La courbe du débit médian est aussi dessinée à parir des valeurs des 8 sites avec série complète.
 
 - **Échelle** linéaire par défaut, ou logarithmique (case « Échelle log. »), avec des graduations 1-3-10. Les bornes de l’axe sont fixes, quelle que soit la semaine. Un débit nul ne peut pas être placé sur une échelle logarithmique : il y est dessiné au plancher du site, avec un **point creux** pour le signaler. En échelle linéaire, il est placé à 0. Aucun débit nul n’apparaît sur la Moselle.
 - **Lignes verticales** : une par site de mesure, à sa distance depuis l’amont. Elles sont pleines pour les 8 sites retenus pour les calculs et en pointillés pour les 4 autres, dont la série est incomplète. Au passage de la souris, la ligne se renforce et le site correspondant est mis en évidence sur la carte.
 
 ## Étape 7 : température, pluie et neige
 
-Script : `preparation/07_meteo_moselle.py`. Journal : `preparation/journaux/07_meteo_moselle.txt`.
+- Script : `preparation/07_meteo_moselle.py`
+- Journal : `preparation/journaux/07_meteo_moselle.txt`
 
 Les deux graphiques météo portent sur les **12 sites du profil des débits** (étape 6). Les trois mesures utilisées sont :
 - `temp` : température moyenne hebdomadaire (°C) ;
