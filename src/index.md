@@ -219,7 +219,6 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
   <div class="card zone cadre-meteo zone-temperature">
     <h2>Température moyenne des 12 sites</h2>
     ${blocTemperature}
-    ${legendeMeteo([{libelle: "semaine (°C)", couleur: COULEURS_METEO.temp}])}
   </div>
   <div class="zone zone-reference">${legendeReference()}</div>
   <div class="card zone cadre-meteo zone-precipitations">

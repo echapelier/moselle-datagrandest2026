@@ -51,12 +51,12 @@ export function preparerProfil({profilSites, profilSemaines, mesures}) {
 }
 
 // Durée d'affichage de chaque semaine pendant le film guidé (ms).
-//   Du départ au premier arrêt : vitesse constante, réglée pour que ce
-//   premier trajet dure « premierePhase » au total.
+//   Du départ au premier arrêt : vitesse constante, « premierePhase » par
+//   semaine.
 //   Ensuite : vitesse de croisière, puis ralentissement progressif sur les
 //   dernières semaines avant chaque arrêt, pour voir venir la semaine
 //   remarquable.
-export const VITESSE = {premierePhase: 20000, croisiere: 40, ralenti: 150, semainesDeRalentissement: 20};
+export const VITESSE = {premierePhase: 180, croisiere: 40, ralenti: 150, semainesDeRalentissement: 20};
 
 // Boutons « semaine précédente / suivante » du mode libre : en maintenant
 // le bouton enfoncé, le pas se répète après « delai », puis tous les « pas » (ms).
@@ -81,18 +81,18 @@ const REPETITION = {delai: 400, pas: 80};
 export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
   const form = document.createElement("form");
   form.className = "choix-semaine";
-  form.innerHTML = `<label>Semaine du</label>
-    <button type="button" data-pas="-1"></button>
-    <button type="button" data-role="lecture"></button>
-    <input type="range" min="0" max="${semaines.length - 1}" step="1" value="${valeur}" aria-label="Semaine">
-    <button type="button" data-pas="1"></button>
-    <output></output>`;
+  form.innerHTML = `<span class="semaine-titre"><label>Semaine affichée :</label> <output></output></span>
+    <span class="semaine-commandes">
+      <button type="button" data-pas="-1"></button>
+      <button type="button" data-role="lecture"></button>
+      <input type="range" min="0" max="${semaines.length - 1}" step="1" value="${valeur}" aria-label="Semaine">
+      <button type="button" data-pas="1"></button>
+    </span>`;
   const fleches = [...form.querySelectorAll("button[data-pas]")];
   const lecture = form.querySelector("button[data-role=lecture]");
   const curseur = form.querySelector("input");
   const sortie = form.querySelector("output");
   const dernier = semaines.length - 1;
-  const depart = valeur; // semaine de départ du film
   let enCours = false; // film en cours
   let film = 0; // numéro du film en cours ; change à chaque pause, pour ignorer les étapes déjà prévues
   let prochaine = 0; // heure prévue de la prochaine semaine (ms)
@@ -145,7 +145,7 @@ export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
   // Durée d'affichage de la semaine d'indice i, qui va être montrée.
   const duree = (i) => {
     const premier = Math.min(dernier, ...form.arrets);
-    if (i <= premier) return VITESSE.premierePhase / Math.max(1, premier - depart);
+    if (i <= premier) return VITESSE.premierePhase;
     // Nombre de semaines jusqu'au prochain arrêt (0 = c'est l'arrêt).
     const arret = Math.min(dernier, ...form.arrets.filter((a) => a >= i));
     const reste = arret - i;
@@ -235,7 +235,7 @@ function courbesDuProfil(profil, semaine, montrer = {haut: true, bas: true}) {
     {cle: "mediane", nom: "Débit médian du site*", couleur: COULEURS_PROFIL.mediane, epaisseur: 1.5, tirets: "4,3"},
     {cle: "bas", nom: `Plus faible (${dateFr(profil.bas.date)})`, semaine: profil.bas.semaine, couleur: COULEURS_PROFIL.bas, epaisseur: 1.8},
     {cle: "haut", nom: `Plus élevé (${dateFr(profil.haut.date)})`, semaine: profil.haut.semaine, couleur: COULEURS_PROFIL.haut, epaisseur: 1.8},
-    {cle: "choisie", nom: `Semaine du ${dateFr(semaine.date)}`, semaine: semaine.semaine, couleur: COULEURS_PROFIL.choisie, epaisseur: 3}
+    {cle: "choisie", nom: "Semaine affichée", semaine: semaine.semaine, couleur: COULEURS_PROFIL.choisie, epaisseur: 3}
   ].filter((c) => montrer[c.cle] !== false);
 }
 

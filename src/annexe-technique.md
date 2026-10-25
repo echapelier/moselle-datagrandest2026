@@ -266,11 +266,11 @@ La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers d
 
 Code : `src/components/profil.js`.
 
-Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n'a pas de point. Une courbe de semaine (semaine choisie, semaine du maximum, semaine du minimum) montre **tous les débits disponibles** cette semaine-là. Les **calculs**, eux, ne tiennent compte que des 8 sites retenus : l'indice, le classement, le choix des semaines extrêmes et la courbe du débit médian.
+Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, avec la distance en abscisse. **Chaque courbe correspond à une même semaine.** Un site sans mesure cette semaine-là n'a pas de point. Une courbe de semaine (semaine affichée, semaine du maximum, semaine du minimum) montre **tous les débits disponibles** cette semaine-là. Les **calculs**, eux, ne tiennent compte que des 8 sites retenus : l'indice, le classement, le choix des semaines extrêmes et la courbe du débit médian.
 
 | Courbe | Couleur |
 | --- | --- |
-| semaine choisie avec la barre placée sous le graphique (au chargement, le 3 juillet 2017) | `#0b4f71`, trait épais |
+| « Semaine affichée » : semaine choisie avec la barre placée sous le graphique (au chargement, le 3 juillet 2017) | `#0b4f71`, trait épais |
 | semaine du débit le plus élevé (1ᵉʳ janvier 2018) | `#c77700` |
 | semaine du débit le plus faible (10 août 2026) | `#7b6bb0` |
 | débit médian de chaque site retenu, toutes semaines confondues (« Débit médian du site* » dans la légende ; l'astérisque renvoie aux sites retenus, voir l'étape 6) | gris, en tirets |
@@ -280,7 +280,7 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 - L'indice des semaines sert à choisir les semaines extrêmes ; il n'est pas affiché.
 
 **Le film.** Au chargement, la page affiche la semaine du 3 juillet 2017 (2017W27), sans les courbes des semaines extrêmes. Le film est d'abord **guidé**, en trois étapes, chacune avec son texte :
-- le bouton « Lancer le film » fait défiler les semaines, de juillet 2017 à la semaine du maximum (1ᵉʳ janvier 2018, tempête Eleanor) à **vitesse constante** : 27 semaines en 20 s, soit environ 740 ms par semaine ;
+- le bouton « Lancer le film » fait défiler les semaines, de juillet 2017 à la semaine du maximum (1ᵉʳ janvier 2018, tempête Eleanor) à **vitesse constante** : 180 ms par semaine (réglage `premierePhase` de `VITESSE` dans `profil.js`), soit environ 5 s pour les 27 semaines ;
 - le film s'arrête à la semaine du maximum : la courbe du maximum apparaît et un texte commente cette semaine, avec un bouton pour reprendre le film ;
 - il reprend ensuite **à vitesse variable** jusqu'à la semaine du minimum (10 août 2026) : 40 ms par semaine en croisière, puis un ralentissement progressif sur les 20 semaines qui précèdent l'arrêt, jusqu'à 150 ms par semaine, soit environ 19 s ;
 - il s'arrête à la semaine du minimum : la courbe du minimum apparaît et le texte de l'été 2026 s'affiche. Le film est terminé ;
@@ -301,6 +301,6 @@ Code : `src/components/meteo.js`.
 Deux graphiques, l'un au-dessus de l'autre : la température, puis la pluie et la neige. Ils montrent une **fenêtre de 5 semaines** qui se termine par la semaine affichée dans le graphique des débits.
 
 - **Fenêtre glissante** : l'axe horizontal a 5 positions fixes, de « −4 sem. » à « sem. affichée ». Au fil des semaines, les points glissent vers la gauche et disparaissent au bout de 5 semaines. Au début de la série, il n'y a pas de semaines précédentes : on ne voit qu'un point, à droite, puis deux, et ainsi de suite.
-- **Ligne pleine** : moyenne des 12 sites pour chaque semaine. **Ligne en tirets** : la référence 2000-2026 des mêmes semaines de l'année (étape 7). La légende des tirets, « moyenne 2000-2026 », est commune aux deux graphiques : elle est placée entre eux. L'écart entre les deux lignes montre si la semaine est plus chaude, plus froide, plus arrosée ou plus sèche que d'habitude.
+- **Ligne pleine** : moyenne des 12 sites pour chaque semaine. **Ligne en tirets** : la référence 2000-2026 des mêmes semaines de l'année (étape 7). La légende des tirets, « moyenne 2000-2026 », est commune aux deux graphiques : elle est placée entre eux. Le graphique de température n'a pas de légende de couleur : son titre et son axe (« °C ») suffisent. L'écart entre les deux lignes montre si la semaine est plus chaude, plus froide, plus arrosée ou plus sèche que d'habitude.
 - Les **axes sont fixes**, calculés sur toute la période, pour que l'échelle ne bouge pas pendant le film.
 
