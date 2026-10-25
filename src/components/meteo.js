@@ -80,7 +80,7 @@ export function graphiquePrecipitations(meteo, i, taille) {
   });
 }
 
-// Légendes : trait plein pour la semaine, tirets pour la moyenne 2000-2026.
+// Légendes : trait plein de la couleur de la variable, pour la semaine.
 export function legendeMeteo(variables) {
   const div = d3.create("div").attr("class", "legende legende-meteo");
   for (const {libelle, couleur} of variables) {
@@ -89,6 +89,12 @@ export function legendeMeteo(variables) {
       s.append("span").text(libelle);
     });
   }
+  return div.node();
+}
+
+// Légende commune aux deux graphiques : tirets pour la moyenne 2000-2026.
+export function legendeReference() {
+  const div = d3.create("div").attr("class", "legende legende-reference");
   div.append("span").call((s) => {
     s.append("i").attr("class", "tirets");
     s.append("span").text("moyenne 2000-2026");

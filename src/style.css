@@ -31,18 +31,22 @@ Palette personnalisée
 
 
 /*
-  Grille de 12 colonnes et deux lignes de même hauteur :
+  Grille de 12 colonnes et trois lignes (deux de même hauteur et, entre
+  elles, une bande de hauteur naturelle) :
     à gauche, la carte, sur 4 colonnes et toute la hauteur ;
-    au milieu, le graphique des débits en haut, le texte en bas ;
-    à droite, la température en haut, la pluie et la neige en bas.
+    au milieu, le graphique des débits en haut, la barre de semaine dans la
+      bande, le texte en bas ;
+    à droite, la température en haut, la légende de la moyenne 2000-2026
+      dans la bande, la pluie et la neige en bas.
   Le texte défile à l'intérieur de son cadre ; la page tient dans l'écran.
 */
 .dataviz {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 1fr auto 1fr;
   grid-template-areas:
     "carte carte carte carte graphique graphique graphique graphique temperature temperature temperature temperature"
+    "carte carte carte carte semaine semaine semaine semaine reference reference reference reference"
     "carte carte carte carte texte texte texte texte precipitations precipitations precipitations precipitations";
   gap: 0.6rem;
   /* Hauteur de la fenêtre, moins les marges de la page. */
@@ -61,8 +65,7 @@ Palette personnalisée
   margin: 0;
 }
 
-/* Colonne de gauche : le cadre de la carte (carte et légende), puis, en
-   dessous et hors du cadre, la barre de semaine. */
+/* Colonne de gauche : le cadre de la carte (titre, carte et légende). */
 .zone-carte {
   grid-area: carte;
   display: flex;
@@ -171,13 +174,25 @@ Palette personnalisée
   --label-width: auto;
 }
 
+/* Bande entre les deux lignes de cadres : barre de semaine au milieu,
+   légende de la moyenne 2000-2026 à droite. */
+.zone-semaine {
+  grid-area: semaine;
+  align-self: center;
+}
+
+.zone-reference {
+  grid-area: reference;
+  align-self: center;
+}
+
 .choix-semaine {
   margin: 0;
   font: 13px var(--sans-serif);
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  /* Sous le cadre de la carte : hauteur naturelle, toute la largeur. */
+  /* Hauteur naturelle, toute la largeur de la colonne. */
   flex: none;
   padding: 0 0.25rem;
   min-width: 0;
@@ -251,7 +266,8 @@ Palette personnalisée
   background: repeating-linear-gradient(to right, var(--theme-foreground-muted) 0 4px, transparent 4px 7px);
 }
 
-/* Petits écrans : les zones s'empilent (carte, texte, débits, météo). */
+/* Petits écrans : les zones s'empilent (carte, texte, barre de semaine,
+   débits, météo). */
 @media (max-width: 900px) {
   .dataviz {
     grid-template-columns: 1fr;
@@ -259,8 +275,10 @@ Palette personnalisée
     grid-template-areas:
       "carte"
       "texte"
+      "semaine"
       "graphique"
       "temperature"
+      "reference"
       "precipitations";
     height: auto;
   }
@@ -336,8 +354,7 @@ Palette personnalisée
 :root:not([data-etape]) .texte-etape[data-etape="intro"],
 :root[data-etape="intro"] .texte-etape[data-etape="intro"],
 :root[data-etape="max"] .texte-etape[data-etape="max"],
-:root[data-etape="min"] .texte-etape[data-etape="min"],
-:root[data-etape="fin"] .texte-etape[data-etape="fin"] {
+:root[data-etape="min"] .texte-etape[data-etape="min"] {
   display: block;
 }
 

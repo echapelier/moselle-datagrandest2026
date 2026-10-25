@@ -19,22 +19,23 @@ const meteoSemaines = FileAttachment("data/meteo_semaines.csv").csv();
 ```js
 import {carte, legende} from "./components/carte.js";
 import {preparerProfil, choixSemaine, graphiqueProfil, legendeProfil} from "./components/profil.js";
-import {preparerMeteo, graphiqueTemperature, graphiquePrecipitations, legendeMeteo, COULEURS_METEO} from "./components/meteo.js";
+import {preparerMeteo, graphiqueTemperature, graphiquePrecipitations, legendeMeteo, legendeReference, COULEURS_METEO} from "./components/meteo.js";
 ```
 
 ```js
 const profil = preparerProfil({profilSites, profilSemaines, mesures});
-// Semaines où le film s'arrête : maximum, minimum, et la dernière.
+// Le film part de la première semaine de juillet 2017 (lundi 3 juillet) et
+// s'arrête aux semaines du maximum et du minimum.
+const iDepart = profil.semaines.findIndex((w) => w.semaine === "2017W27");
 const iMax = profil.semaines.indexOf(profil.haut);
 const iMin = profil.semaines.indexOf(profil.bas);
-const iDerniere = profil.semaines.length - 1;
 ```
 
 ```js
-// Commandes. Au chargement : la semaine la plus ancienne.
-const entreeSemaine = choixSemaine(profil.semaines, {valeur: 0, invalidation});
+// Commandes. Au chargement : la semaine de départ du film.
+const entreeSemaine = choixSemaine(profil.semaines, {valeur: iDepart, invalidation});
 const iSemaine = Generators.input(entreeSemaine);
-const entreeEchelle = Inputs.toggle({label: "Échelle log.", value: true});
+const entreeEchelle = Inputs.toggle({label: "Échelle log.", value: false});
 const echelleLog = Generators.input(entreeEchelle);
 ```
 
@@ -42,8 +43,8 @@ const echelleLog = Generators.input(entreeEchelle);
 // Étape du film guidé, qui décide du texte affiché et des courbes visibles :
 //   « intro » : avant le film et jusqu'à la semaine du maximum ;
 //   « max »   : arrêt à la semaine du maximum, puis jusqu'au minimum ;
-//   « min »   : arrêt à la semaine du minimum, puis jusqu'à la fin ;
-//   « fin »   : film terminé (ou passé) ; la barre de semaine est libre.
+//   « min »   : arrêt à la semaine du minimum, fin du film (ou film passé) ;
+//               la barre de semaine est libre.
 const etape = Mutable("intro");
 const definirEtape = (nouvelle) => (etape.value = nouvelle);
 ```
@@ -53,8 +54,8 @@ const definirEtape = (nouvelle) => (etape.value = nouvelle);
 // style.css) et barre de semaine guidée ou libre.
 function appliquerEtape(nouvelle) {
   document.documentElement.dataset.etape = nouvelle;
-  entreeSemaine.guider(nouvelle !== "fin");
-  entreeSemaine.arrets = nouvelle === "fin" ? [] : [iMax, iMin];
+  entreeSemaine.guider(nouvelle !== "min");
+  entreeSemaine.arrets = nouvelle === "min" ? [] : [iMax, iMin];
 }
 function allerEtape(nouvelle) {
   definirEtape(nouvelle);
@@ -69,28 +70,27 @@ appliquerEtape("intro");
 ```
 
 ```js
-// Le film s'arrête de lui-même aux semaines du maximum, du minimum et à la
-// dernière semaine : on passe alors à l'étape suivante.
+// Le film s'arrête de lui-même aux semaines du maximum et du minimum : on
+// passe alors à l'étape suivante.
 entreeSemaine.addEventListener("arret", ({detail: i}) => {
   if (i === iMax) allerEtape("max");
   else if (i === iMin) allerEtape("min");
-  else if (i === iDerniere) allerEtape("fin");
 });
 ```
 
 ```js
 // Boutons et liens des textes (attribut data-action dans le HTML plus bas).
 const actions = {
-  lancer: () => entreeSemaine.lancer(1),
-  reprendre: () => entreeSemaine.lancer(1),
+  lancer: () => entreeSemaine.lancer(),
+  reprendre: () => entreeSemaine.lancer(),
   passer: () => {
-    entreeSemaine.allerA(iDerniere);
-    allerEtape("fin");
+    entreeSemaine.allerA(iMin);
+    allerEtape("min");
   },
   revoir: () => {
     allerEtape("intro");
-    entreeSemaine.allerA(0);
-    entreeSemaine.lancer(1);
+    entreeSemaine.allerA(iDepart);
+    entreeSemaine.lancer();
   },
   annexe: (lien) => ouvrirAnnexe(lien.href)
 };
@@ -190,7 +190,7 @@ if (taillePrecipitations.width > 0 && taillePrecipitations.height > 0) {
 // d'échelle et à chaque étape du film.
 const semaine = profil.semaines[iSemaine];
 // Courbes des semaines extrêmes : visibles une fois leur semaine atteinte.
-const montrer = {haut: etape !== "intro", bas: etape === "min" || etape === "fin"};
+const montrer = {haut: etape !== "intro", bas: etape === "min"};
 if (tailleGraphique.width > 0 && tailleGraphique.height > 0) {
   const graphique = graphiqueProfil(profil, {semaine, echelleLog, montrer, ...tailleGraphique});
   // Survol d'une ligne verticale du graphique : le site est mis en évidence
@@ -208,7 +208,6 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
       <div class="carte-conteneur">${blocCarte}</div>
       ${legende()}
     </div>
-    ${entreeSemaine}
   </div>
   <div class="card zone zone-graphique">
     <h2>Débits le long de la Moselle, d’amont en aval</h2>
@@ -216,11 +215,13 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
     ${blocGraphique}
     ${blocLegendeProfil}
   </div>
+  <div class="zone zone-semaine">${entreeSemaine}</div>
   <div class="card zone cadre-meteo zone-temperature">
     <h2>Température moyenne des 12 sites</h2>
     ${blocTemperature}
     ${legendeMeteo([{libelle: "semaine (°C)", couleur: COULEURS_METEO.temp}])}
   </div>
+  <div class="zone zone-reference">${legendeReference()}</div>
   <div class="card zone cadre-meteo zone-precipitations">
     <h2>Pluie et neige, moyennes des 12 sites</h2>
     ${blocPrecipitations}
@@ -228,7 +229,7 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
   </div>
   <div class="card zone zone-texte">
     <!--
-      Quatre textes, un par étape du film ; un seul est affiché à la fois.
+      Trois textes, un par étape du film ; un seul est affiché à la fois.
       Boutons et liens d'action : data-action="lancer", "reprendre",
       "passer", "revoir" ou "annexe".
     -->
@@ -256,13 +257,6 @@ blocLegendeProfil.replaceChildren(legendeProfil(profil, semaine, montrer));
       <p>Dans les données, à la différence d’une tempête, une sécheresse se voit moins comme une semaine aux paramètres « anormaux » que par une suite de semaines aux températures supérieures et aux précipations inférieures aux moyennes, finissant par conduire à un point bas en termes de débit.</p>
       <p>Vous pouvez maintenant vous-même choisir la semaine que vous souhaitez visualiser parmi toutes celles disponibles (depuis 2000).</p>
       <p>Cette data visualisation comporte de nombreuses simplications, par exemple dans le calcul des moyennes qui ne tiennent compte ni de l’emplacement des stations de mesure (les événements en amont produisent un effet plus grand que ceux en aval), ni des phénomènes qui affectent indirectement la Moselle en touchant ses affluents. Les calculs effectués pour créer cette visualisation et leurs limitations sont décrits dans une annexe technique qui ne fait pas partie de la contribution, mais permettra aux spécialistes d’avoir une vue complète sur les transformations conduisant des données originales aux données affichées.</p>
-      <p class="actions-texte">
-        <button type="button" class="bouton-film" data-action="reprendre">▶ Reprendre le film</button>
-      </p>
-    </div>
-    <div class="texte-etape" data-etape="fin">
-      <h2>Et maintenant ?</h2>
-      <p><em>Texte à venir.</em></p>
       <p class="actions-texte">
         <button type="button" class="lien" data-action="revoir">Revoir le film</button>
         <a href="./annexe-technique" data-action="annexe">Annexe technique</a>

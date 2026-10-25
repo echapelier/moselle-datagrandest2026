@@ -1,5 +1,5 @@
 // Carte de la région : fond (région, départements), cours d'eau et sites de
-// mesure du bassin de la Moselle. Rendu en SVG avec d3, zoom à la molette ou
+// mesure de la Moselle. Rendu en SVG avec d3, zoom à la molette ou
 // au pincement, déplacement en faisant glisser.
 //
 // Au départ, la carte est cadrée sur le bassin de la Moselle ; on peut
@@ -8,24 +8,22 @@
 import * as d3 from "npm:d3";
 import {BLEU_MOSELLE} from "./couleurs.js";
 
-// Couleurs (mêmes conventions que les essais dans le notebook).
+// Couleurs.
 export const COULEURS = {
-  avecMesure: "#2b7bb9", // cours d'eau avec au moins un site de mesure
-  sansMesure: "#8fa1ae", // cours d'eau sans site de mesure
+  cours: "#2b7bb9", // affluents de la Moselle et autres cours d'eau
   moselle: BLEU_MOSELLE, // la Moselle et la Moselle canalisée
   fondRegion: "#f3efe6",
   contourRegion: "#555",
   contourDepartements: "#b8b3a6"
 };
 
-// Couches de cours d'eau, de bas en haut. Les tracés hors du bassin sont
-// estompés pour mettre en avant la Moselle et ses affluents.
+// Couches de cours d'eau, de bas en haut (une par catégorie du fichier des
+// tracés). Les tracés hors du bassin sont estompés pour mettre en avant la
+// Moselle et ses affluents.
 const COUCHES = [
-  {categorie: "hors_bassin", mesure: 0, couleur: COULEURS.sansMesure, epaisseur: 0.5, opacite: 0.45},
-  {categorie: "hors_bassin", mesure: 1, couleur: COULEURS.avecMesure, epaisseur: 0.9, opacite: 0.35},
-  {categorie: "bassin", mesure: 0, couleur: COULEURS.sansMesure, epaisseur: 0.7, opacite: 1},
-  {categorie: "bassin", mesure: 1, couleur: COULEURS.avecMesure, epaisseur: 1.5, opacite: 1},
-  {categorie: "moselle", mesure: null, couleur: COULEURS.moselle, epaisseur: 2.6, opacite: 1}
+  {categorie: "hors_bassin", couleur: COULEURS.cours, epaisseur: 0.9, opacite: 0.35},
+  {categorie: "bassin", couleur: COULEURS.cours, epaisseur: 1.2, opacite: 1},
+  {categorie: "moselle", couleur: COULEURS.moselle, epaisseur: 2.6, opacite: 1}
 ];
 
 const RAYON_SITE = 3.2; // en pixels, quel que soit le zoom
@@ -77,9 +75,7 @@ export function carte({region, departements, traces, sites, width, height}) {
   // Cours d'eau : un seul chemin SVG par couche, pour rester léger
   // (plus de 8 900 tracés).
   for (const c of COUCHES) {
-    const objets = traces.features.filter(
-      (f) => f.properties.categorie === c.categorie && (c.mesure === null || f.properties.mesure === c.mesure)
-    );
+    const objets = traces.features.filter((f) => f.properties.categorie === c.categorie);
     traitFixe(
       g.append("path")
         .datum({type: "FeatureCollection", features: objets})
@@ -93,18 +89,18 @@ export function carte({region, departements, traces, sites, width, height}) {
     );
   }
 
-  // Sites de mesure du bassin. Ceux de la Moselle sont dessinés en dernier,
-  // au-dessus des autres.
+  // Sites de mesure de la Moselle et de la Moselle canalisée (les sites des
+  // affluents ne sont pas dessinés).
   const surMoselle = (s) => s.TopoOH === "la Moselle" || s.TopoOH === "la Moselle Canalisée";
   const points = g
     .append("g")
     .selectAll("circle")
-    .data(d3.sort(sites, surMoselle))
+    .data(sites.filter(surMoselle))
     .join("circle")
     .attr("transform", (s) => `translate(${projection([+s.lon, +s.lat])})`)
     .attr("r", RAYON_SITE)
-    .attr("fill", (s) => (surMoselle(s) ? COULEURS.moselle : "white"))
-    .attr("stroke", (s) => (surMoselle(s) ? "white" : COULEURS.avecMesure))
+    .attr("fill", COULEURS.moselle)
+    .attr("stroke", "white")
     .attr("stroke-width", 1.2);
   traitFixe(points);
 
@@ -204,14 +200,14 @@ export function legende() {
   const div = d3.create("div").attr("class", "legende");
   const elements = [
     {texte: "Moselle", trait: COULEURS.moselle},
-    {texte: "affluent avec mesure", trait: COULEURS.avecMesure},
-    {texte: "sans mesure", trait: COULEURS.sansMesure},
-    {texte: "site de mesure", cercle: COULEURS.avecMesure}
+    {texte: "affluents", trait: COULEURS.cours},
+    {texte: "autres cours d'eau", trait: COULEURS.cours, opacite: COUCHES[0].opacite},
+    {texte: "site de mesure", cercle: COULEURS.moselle}
   ];
   for (const e of elements) {
     const span = div.append("span");
-    if (e.trait) span.append("i").style("background", e.trait);
-    else span.append("b").style("border-color", e.cercle);
+    if (e.trait) span.append("i").style("background", e.trait).style("opacity", e.opacite ?? 1);
+    else span.append("b").style("background", e.cercle).style("border-color", "white");
     span.append("span").text(e.texte);
   }
   return div.node();

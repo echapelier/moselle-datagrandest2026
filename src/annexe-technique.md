@@ -149,13 +149,13 @@ Jointures : `mesures.site` → `sites.site`, puis `sites.code_cours_eau` → `co
 
 Script : `preparation/05_fonds_de_carte.py`. Journal : `preparation/journaux/05_fonds_de_carte.txt`.
 
-**Cours d'eau.** Tous les tracés de la région sont gardés pour la carte. On ne conserve que quatre propriétés :
+**Cours d'eau.** Tous les tracés de la région sont gardés pour la carte, avec leur catégorie :
 
-| Propriété | Contenu |
+| Catégorie | Contenu |
 | --- | --- |
-| `CdOH`, `TopoOH` | identifiant et nom du tracé |
-| `categorie` | `moselle` (la Moselle et la Moselle canalisée), `bassin` (autre tracé du bassin, étape 2) ou `hors_bassin` |
-| `mesure` | 1 si au moins un site de mesure de la région est rattaché au tracé (étape 3), sinon 0 |
+| `moselle` | la Moselle et la Moselle canalisée |
+| `bassin` | les autres tracés du bassin de la Moselle (étape 2), c'est-à-dire ses affluents |
+| `hors_bassin` | tous les autres tracés de la région |
 
 Pour réduire les temps de chargement, les dessins des tracés sont simplifiés avec l’outil [**mapshaper**](https://github.com/mbloch/mapshaper). La version utilisée (0.7.95) et les paramètres de la simplification sont indiqués dans `package.json` :
 
@@ -163,7 +163,7 @@ Pour réduire les temps de chargement, les dessins des tracés sont simplifiés 
 - `precision=0.0001` : les coordonnées sont arrondies à 0,0001°, soit environ 10 m ;
 - `-filter remove-empty`, dans un second passage : on retire les objets devenus vides avec l’arrondi. C'est le cas d’un seul tracé, « Ruisseau de Rebais », qui n’a que 2 sommets distants de 0,00001°.
 
-**Regroupement des tracés sans site de mesure.** Ces tracés ne servent que de fond. Après la simplification, on les regroupe en un seul objet (`MultiLineString`) par catégorie, sans identifiant ni nom. Les 123 tracés qui ont au moins un site de mesure restent séparés, avec leur identifiant et leur nom, pour pouvoir les désigner un par un si besoin. Le regroupement ne change aucune coordonnée : le script vérifie que les lignes et le nombre de sommets sont identiques avant et après.
+**Regroupement des tracés.** La carte dessine tous les tracés d'une même catégorie de la même façon. Après la simplification, on les regroupe donc en un seul objet (`MultiLineString`) par catégorie, sans identifiant ni nom. Le regroupement ne change aucune coordonnée : le script vérifie que les lignes et le nombre de sommets sont identiques avant et après.
 
 **Région et départements.** Ils ne sont pas simplifiés : leurs coordonnées sont seulement arrondies de la même façon. Avec l’option `gj2008`, mapshaper garde le sens des contours des fichiers d'origine (contour extérieur dans le sens des aiguilles d’une montre), qui est celui qu’attend la bibliothèque d3. Sans cette option, mapshaper suit la norme GeoJSON RFC 7946 (sens inverse), et d3 dessinerait le reste du globe au lieu de la région.
 
@@ -171,13 +171,11 @@ Pour réduire les temps de chargement, les dessins des tracés sont simplifiés 
 
 | Fichier | Contenu | Taille |
 | --- | --- | --- |
-| `traces_cours_eau.geojson` | 8 928 tracés : 2 Moselle, 1 560 bassin, 7 366 hors bassin. 2 regroupements (tracés sans mesure) et 123 tracés avec mesure | 4,2 Mo |
+| `traces_cours_eau.geojson` | 3 objets, un par catégorie, qui regroupent 8 928 tracés : 2 Moselle, 1 560 bassin, 7 366 hors bassin | 4,2 Mo |
 | `region.geojson` | contour de la région | 0,09 Mo |
 | `departements.geojson` | 10 départements | 0,31 Mo |
 
-123 tracés ont au moins un site de mesure, dont 31 dans le bassin de la Moselle.
-
-**Contrôles.** Le script vérifie la version de mapshaper. Il vérifie aussi que tous les tracés du bassin et tous les tracés rattachés à un site sont présents après simplification.
+**Contrôles.** Le script vérifie la version de mapshaper. Il vérifie aussi que tous les tracés du bassin sont présents après simplification.
 
 ![Carte de contrôle du fond de carte](./annexe/05_fond_de_carte.png)
 
@@ -256,9 +254,13 @@ Code : `src/components/carte.js`.
 
 La carte est dessinée en SVG avec la bibliothèque d3, à partir des fichiers de l'étape 5 et de `sites.csv`.
 
+- **Cours d'eau** : trois couches, une par catégorie de l'étape 5. La Moselle est en bleu sombre (`#0b4f71`, trait épais), les affluents en bleu (`#2b7bb9`, trait de 1,2 pixel) et les autres cours d'eau, avec ou sans site de mesure, dans le même bleu estompé (35 % d'opacité).
+- **Sites de mesure** : seuls les sites de la Moselle et de la Moselle canalisée sont dessinés. Les sites des affluents ne sont pas affichés. Au survol, le nom du site apparaît.
+
 - **Projection** : conique conforme de Lambert, avec les parallèles 44° et 49° et le méridien 3° E.
 - **Cadrage** : au départ, la carte est ajustée au bassin de la Moselle (la Moselle et les tracés du bassin, étape 2). On peut dézoomer jusqu'à voir toute la région, à la molette ou avec le bouton « Voir toute la région ».
-- **Couleur de la Moselle** : le même bleu sombre (`#0b4f71`) que la courbe de la semaine choisie sur le graphique des débits.
+- **Couleur de la Moselle** : le même bleu sombre que la courbe de la semaine choisie sur le graphique des débits.
+- **Légende** : Moselle, affluents, autres cours d'eau, site de mesure.
 
 ## Le profil des débits
 
@@ -268,25 +270,26 @@ Le graphique montre le débit à chaque site de la Moselle, d'amont en aval, ave
 
 | Courbe | Couleur |
 | --- | --- |
-| semaine choisie avec la barre placée sous la carte (au chargement, la plus ancienne) | `#0b4f71`, trait épais |
+| semaine choisie avec la barre placée sous le graphique (au chargement, le 3 juillet 2017) | `#0b4f71`, trait épais |
 | semaine du débit le plus élevé (1ᵉʳ janvier 2018) | `#c77700` |
 | semaine du débit le plus faible (10 août 2026) | `#7b6bb0` |
 | débit médian de chaque site retenu, toutes semaines confondues (« Débit médian du site* » dans la légende ; l'astérisque renvoie aux sites retenus, voir l'étape 6) | gris, en tirets |
 
-- **Échelle** logarithmique par défaut, avec des graduations 1-3-10, ou linéaire. Les bornes de l'axe sont fixes, quelle que soit la semaine. Un débit nul ne peut pas être placé sur une échelle logarithmique : il y est dessiné au plancher du site (voir l'étape 6), avec un **point creux** pour le signaler. En échelle linéaire, il est placé à 0. Aucun débit nul n'apparaît sur la Moselle.
+- **Échelle** linéaire par défaut, ou logarithmique (case « Échelle log. »), avec des graduations 1-3-10. Les bornes de l'axe sont fixes, quelle que soit la semaine. Un débit nul ne peut pas être placé sur une échelle logarithmique : il y est dessiné au plancher du site (voir l'étape 6), avec un **point creux** pour le signaler. En échelle linéaire, il est placé à 0. Aucun débit nul n'apparaît sur la Moselle.
 - **Lignes verticales** : une par site de mesure, à sa distance depuis l'amont. Elles sont pleines pour les 8 sites retenus pour les calculs et en pointillés pour les 4 autres, dont la série est incomplète. Au passage de la souris, la ligne se renforce et le site correspondant est mis en évidence **sur la carte**, comme si la souris passait sur son cercle : le cercle grossit et le nom du site s'affiche. Quand la souris quitte le graphique, la mise en évidence disparaît.
 - L'indice des semaines sert à choisir les semaines extrêmes ; il n'est pas affiché.
 
-**Le film.** Au chargement, la page affiche la semaine la plus ancienne (3 janvier 2000), sans les courbes des semaines extrêmes. Le film est d'abord **guidé** :
-- le bouton « Lancer le film » fait défiler les semaines **à vitesse variable** : 25 ms par semaine en croisière, puis un ralentissement progressif sur les 20 semaines qui précèdent chaque arrêt, jusqu'à 150 ms par semaine. Le film complet dure ainsi environ **37 s**, sans compter les arrêts (24 s jusqu'au maximum, 12 s jusqu'au minimum, 1 s jusqu'à la fin) ;
+**Le film.** Au chargement, la page affiche la semaine du 3 juillet 2017 (2017W27), sans les courbes des semaines extrêmes. Le film est d'abord **guidé**, en trois étapes, chacune avec son texte :
+- le bouton « Lancer le film » fait défiler les semaines, de juillet 2017 à la semaine du maximum (1ᵉʳ janvier 2018, tempête Eleanor) à **vitesse constante** : 27 semaines en 20 s, soit environ 740 ms par semaine ;
 - le film s'arrête à la semaine du maximum : la courbe du maximum apparaît et un texte commente cette semaine, avec un bouton pour reprendre le film ;
-- il s'arrête de même à la semaine du minimum, puis à la dernière semaine, où s'affiche le texte final ;
-- pendant cette phase, le curseur de semaine est bloqué ; seul un bouton lecture / pause est disponible. Un lien « Passer le film » mène directement à la fin.
+- il reprend ensuite **à vitesse variable** jusqu'à la semaine du minimum (10 août 2026) : 40 ms par semaine en croisière, puis un ralentissement progressif sur les 20 semaines qui précèdent l'arrêt, jusqu'à 150 ms par semaine, soit environ 19 s ;
+- il s'arrête à la semaine du minimum : la courbe du minimum apparaît et le texte de l'été 2026 s'affiche. Le film est terminé ;
+- pendant le film, le curseur de semaine est bloqué ; seul un bouton lecture / pause est disponible. Un lien « Passer directement au mode libre » mène directement à la semaine du minimum.
 
-Une fois le film terminé, la barre de semaine devient **libre** (60 ms par semaine) :
-- ▶ lance le défilement vers les semaines suivantes, ◀ vers les précédentes. Le bouton du sens en cours affiche ⏸ : un nouveau clic met en pause, et un clic sur l'autre flèche inverse le sens.
-- Déplacer le curseur à la main met le film en pause.
-- Le lien « Revoir le film » relance le film guidé depuis le début.
+Une fois le film terminé, la barre de semaine devient **libre** :
+- ◀ passe à la semaine précédente et ▶ à la suivante. En maintenant le bouton enfoncé, le pas se répète (après 0,4 s, puis toutes les 80 ms). Le bouton se désactive à la première et à la dernière semaine (7 septembre 2026). Les semaines qui suivent le minimum et les semaines d'avant juillet 2017 ne font pas partie du film mais restent accessibles ici.
+- Le curseur se déplace à la main.
+- Le lien « Revoir le film » relance le film guidé depuis le 3 juillet 2017.
 - Les débits affichés viennent directement de `mesures.csv`, et l'indice de `profil_semaines.csv`.
 
 <a class="retour-dataviz" href="./">← Retour à la dataviz</a>
@@ -298,6 +301,6 @@ Code : `src/components/meteo.js`.
 Deux graphiques, l'un au-dessus de l'autre : la température, puis la pluie et la neige. Ils montrent une **fenêtre de 5 semaines** qui se termine par la semaine affichée dans le graphique des débits.
 
 - **Fenêtre glissante** : l'axe horizontal a 5 positions fixes, de « −4 sem. » à « sem. affichée ». Au fil des semaines, les points glissent vers la gauche et disparaissent au bout de 5 semaines. Au début de la série, il n'y a pas de semaines précédentes : on ne voit qu'un point, à droite, puis deux, et ainsi de suite.
-- **Ligne pleine** : moyenne des 12 sites pour chaque semaine. **Ligne en tirets** : la référence 2000-2026 des mêmes semaines de l'année (étape 7). L'écart entre les deux lignes montre si la semaine est plus chaude, plus froide, plus arrosée ou plus sèche que d'habitude.
+- **Ligne pleine** : moyenne des 12 sites pour chaque semaine. **Ligne en tirets** : la référence 2000-2026 des mêmes semaines de l'année (étape 7). La légende des tirets, « moyenne 2000-2026 », est commune aux deux graphiques : elle est placée entre eux. L'écart entre les deux lignes montre si la semaine est plus chaude, plus froide, plus arrosée ou plus sèche que d'habitude.
 - Les **axes sont fixes**, calculés sur toute la période, pour que l'échelle ne bouge pas pendant le film.
 

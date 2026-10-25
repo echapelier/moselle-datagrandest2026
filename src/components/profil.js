@@ -50,12 +50,17 @@ export function preparerProfil({profilSites, profilSemaines, mesures}) {
   return {sites, nbRetenus, debits, semaines, classees, haut: classees[0], bas: classees[classees.length - 1]};
 }
 
-// Durée d'affichage de chaque semaine pendant le film (ms).
-//   Film guidé : vitesse de croisière rapide, puis ralentissement progressif
-//   sur les dernières semaines avant chaque arrêt, pour voir venir la
-//   semaine remarquable.
-//   Mode libre : vitesse constante.
-export const VITESSE = {croisiere: 25, ralenti: 150, semainesDeRalentissement: 20, libre: 60};
+// Durée d'affichage de chaque semaine pendant le film guidé (ms).
+//   Du départ au premier arrêt : vitesse constante, réglée pour que ce
+//   premier trajet dure « premierePhase » au total.
+//   Ensuite : vitesse de croisière, puis ralentissement progressif sur les
+//   dernières semaines avant chaque arrêt, pour voir venir la semaine
+//   remarquable.
+export const VITESSE = {premierePhase: 20000, croisiere: 40, ralenti: 150, semainesDeRalentissement: 20};
+
+// Boutons « semaine précédente / suivante » du mode libre : en maintenant
+// le bouton enfoncé, le pas se répète après « delai », puis tous les « pas » (ms).
+const REPETITION = {delai: 400, pas: 80};
 
 // Barre de semaine : curseur et film. Sa valeur est l'indice de la semaine
 // dans la liste. Deux modes :
@@ -66,30 +71,29 @@ export const VITESSE = {croisiere: 25, ralenti: 150, semainesDeRalentissement: 2
 //   dernière semaine : la barre émet alors un événement « arret » (detail =
 //   indice de la semaine).
 //
-//   Mode libre : ▶ fait défiler vers les semaines suivantes, ◀ vers les
-//   précédentes ; un nouveau clic sur la même flèche met en pause, un clic
-//   sur l'autre flèche inverse le sens. Le film s'arrête à la première ou à
-//   la dernière semaine ; relancé depuis ce bout, il repart de l'autre bout.
-//   Déplacer le curseur à la main met le film en pause.
+//   Mode libre : ◀ et ▶ passent à la semaine précédente ou suivante (le pas
+//   se répète si on garde le bouton enfoncé), et le curseur se déplace à la
+//   main. Il n'y a plus de film.
 //
-// La page pilote la barre avec form.lancer(sens), form.pause(),
+// La page pilote la barre avec form.lancer(), form.pause(),
 // form.allerA(indice), form.guider(vrai ou faux) et form.arrets (liste
-// d'indices).
+// d'indices). Le film part de la semaine d'indice « valeur ».
 export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
   const form = document.createElement("form");
   form.className = "choix-semaine";
   form.innerHTML = `<label>Semaine du</label>
-    <button type="button" data-sens="-1"></button>
+    <button type="button" data-pas="-1"></button>
     <button type="button" data-role="lecture"></button>
     <input type="range" min="0" max="${semaines.length - 1}" step="1" value="${valeur}" aria-label="Semaine">
-    <button type="button" data-sens="1"></button>
+    <button type="button" data-pas="1"></button>
     <output></output>`;
-  const fleches = [...form.querySelectorAll("button[data-sens]")];
+  const fleches = [...form.querySelectorAll("button[data-pas]")];
   const lecture = form.querySelector("button[data-role=lecture]");
   const curseur = form.querySelector("input");
   const sortie = form.querySelector("output");
   const dernier = semaines.length - 1;
-  let sens = 0; // 0 = en pause, 1 = vers les semaines suivantes, -1 = vers les précédentes
+  const depart = valeur; // semaine de départ du film
+  let enCours = false; // film en cours
   let film = 0; // numéro du film en cours ; change à chaque pause, pour ignorer les étapes déjà prévues
   let prochaine = 0; // heure prévue de la prochaine semaine (ms)
   let guide = false;
@@ -98,42 +102,40 @@ export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
   const afficher = () => {
     form.value = +curseur.value;
     sortie.value = new Date(semaines[form.value].date).toLocaleDateString("fr-FR", {day: "numeric", month: "short", year: "numeric", timeZone: "UTC"});
+    for (const b of fleches) b.disabled = form.value + +b.dataset.pas < 0 || form.value + +b.dataset.pas > dernier;
   };
   const prevenir = () => form.dispatchEvent(new Event("input", {bubbles: true}));
-  // Boutons : en mode libre, le bouton du sens en cours affiche « pause » ;
-  // en mode guidé, un seul bouton lecture / pause.
+  // Mode guidé : un seul bouton lecture / pause. Mode libre : les deux flèches.
   const majBoutons = () => {
     for (const b of fleches) {
-      const actif = +b.dataset.sens === sens;
+      const suivante = +b.dataset.pas > 0;
       b.hidden = guide;
-      b.textContent = actif ? "⏸" : +b.dataset.sens > 0 ? "▶" : "◀";
-      b.title = actif ? "Pause" : +b.dataset.sens > 0 ? "Défiler vers les semaines suivantes" : "Défiler vers les semaines précédentes";
-      b.setAttribute("aria-pressed", actif);
+      b.textContent = suivante ? "▶" : "◀";
+      b.title = suivante ? "Semaine suivante" : "Semaine précédente";
     }
     lecture.hidden = !guide;
-    lecture.textContent = sens ? "⏸" : "▶";
-    lecture.title = sens ? "Pause" : "Lecture";
-    lecture.setAttribute("aria-pressed", sens !== 0);
+    lecture.textContent = enCours ? "⏸" : "▶";
+    lecture.title = enCours ? "Pause" : "Lecture";
+    lecture.setAttribute("aria-pressed", enCours);
     curseur.disabled = guide;
   };
   const pause = () => {
     film++;
-    sens = 0;
+    enCours = false;
     majBoutons();
   };
   const arreter = (i) => {
     pause();
     form.dispatchEvent(new CustomEvent("arret", {detail: i}));
   };
-  // Passe à la semaine suivante dans le sens du film et prévient la page.
+  // Passe à la semaine suivante du film et prévient la page.
   const avancer = () => {
-    const i = +curseur.value + sens;
-    if (i < 0 || i > dernier) return pause();
+    const i = +curseur.value + 1;
+    if (i > dernier) return pause();
     curseur.value = i;
     afficher();
     prevenir();
-    if (guide && sens > 0 && (form.arrets.includes(i) || i === dernier)) arreter(i);
-    else if (i === 0 || i === dernier) pause();
+    if (form.arrets.includes(i) || i === dernier) arreter(i);
   };
   // Une étape à chaque durée prévue (voir VITESSE), calée sur une heure pour
   // ne pas accumuler de retard. Chaque étape attend aussi que le navigateur
@@ -142,7 +144,8 @@ export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
   // le curseur.
   // Durée d'affichage de la semaine d'indice i, qui va être montrée.
   const duree = (i) => {
-    if (!guide || sens < 0) return VITESSE.libre;
+    const premier = Math.min(dernier, ...form.arrets);
+    if (i <= premier) return VITESSE.premierePhase / Math.max(1, premier - depart);
     // Nombre de semaines jusqu'au prochain arrêt (0 = c'est l'arrêt).
     const arret = Math.min(dernier, ...form.arrets.filter((a) => a >= i));
     const reste = arret - i;
@@ -152,19 +155,16 @@ export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
     return VITESSE.croisiere + (VITESSE.ralenti - VITESSE.croisiere) * t * t;
   };
   const planifier = (numero) => {
-    prochaine += duree(+curseur.value + sens);
+    prochaine += duree(+curseur.value + 1);
     setTimeout(() => requestAnimationFrame(() => {
       if (numero !== film) return; // film mis en pause entre-temps
       avancer();
-      if (sens !== 0) planifier(numero);
+      if (enCours) planifier(numero);
     }), Math.max(0, prochaine - performance.now()));
   };
-  const lancer = (nouveauSens) => {
+  const lancer = () => {
     pause();
-    sens = nouveauSens;
-    // En mode libre, depuis le bout du film, on repart de l'autre bout.
-    if (!guide && sens > 0 && +curseur.value === dernier) curseur.value = 0;
-    if (!guide && sens < 0 && +curseur.value === 0) curseur.value = dernier;
+    enCours = true;
     majBoutons();
     afficher();
     prevenir();
@@ -172,11 +172,33 @@ export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
     planifier(film);
   };
 
+  // Mode libre : un pas de semaine, répété tant que le bouton est enfoncé.
+  let attente, repetition;
+  const arreterRepetition = () => {
+    clearTimeout(attente);
+    clearInterval(repetition);
+  };
+  const pas = (d) => {
+    const i = Math.min(dernier, Math.max(0, +curseur.value + d));
+    if (i === +curseur.value) return arreterRepetition(); // bout de la série
+    curseur.value = i;
+    afficher();
+    prevenir();
+  };
   for (const b of fleches) {
-    b.onclick = () => (+b.dataset.sens === sens ? pause() : lancer(+b.dataset.sens));
+    const d = +b.dataset.pas;
+    b.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      arreterRepetition();
+      pas(d);
+      attente = setTimeout(() => (repetition = setInterval(() => pas(d), REPETITION.pas)), REPETITION.delai);
+    });
+    for (const type of ["pointerup", "pointerleave", "pointercancel"]) b.addEventListener(type, arreterRepetition);
+    // Au clavier (Entrée, Espace), le clic n'a pas de pointeur : detail vaut 0.
+    b.addEventListener("click", (event) => event.detail === 0 && pas(d));
   }
-  lecture.onclick = () => (sens ? pause() : lancer(1));
-  // Curseur déplacé à la main (mode libre) : pause, puis mise à jour.
+  lecture.onclick = () => (enCours ? pause() : lancer());
+  // Curseur déplacé à la main (mode libre) : mise à jour.
   curseur.addEventListener("input", () => {
     pause();
     afficher();
@@ -196,7 +218,10 @@ export function choixSemaine(semaines, {valeur = 0, invalidation} = {}) {
     majBoutons();
   };
 
-  invalidation?.then(pause);
+  invalidation?.then(() => {
+    pause();
+    arreterRepetition();
+  });
   majBoutons();
   afficher();
   return form;
