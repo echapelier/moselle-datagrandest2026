@@ -121,22 +121,22 @@ Les fichiers `donnees.csv` et `cours-eau-region_1791104972648.geojson` ne désig
 
 Script : `preparation/04_filtrer_mesures.py`.
 
-On ne garde que les lignes de `donnees.csv` (nettoyé à l’étape 1) dont le site est dans le bassin de la Moselle (étape 3). Ces lignes sont réparties en trois fichiers, pour ne pas répéter à chaque semaine les informations qui ne changent pas. Ce sont les données de l’application, dans `src/data/` :
+On ne garde que les lignes de `donnees.csv` (nettoyé à l’étape 1) dont le site est rattaché, à l’étape 3, au tracé de la Moselle ou de la Moselle canalisée. Les 51 sites des affluents ne servent ni aux calculs ni à l’affichage : ils ne sont pas gardés. Ces lignes sont réparties en trois fichiers, pour ne pas répéter à chaque semaine les informations qui ne changent pas. Ce sont les données de l’application, dans `src/data/` :
 
 | Fichier | Une ligne par | Colonnes | Lignes |
 | --- | --- | --- | --- |
-| `sites.csv` | site | site, libelle_site, code_cours_eau, libelle_commune, commune, dept, libelle_dept, lat, lon, etiage, et le tracé rattaché à l’étape 3 (CdOH, TopoOH, distance_m) | 64 |
-| `cours_eau.csv` | cours d’eau | code_cours_eau, uri_cours_eau, libelle_cours_eau | 31 |
-| `mesures.csv` | site et semaine | semaine, site, temp, pluie, neige, debit, humidite, date | 89 152 |
+| `sites.csv` | site | site, libelle_site, code_cours_eau, libelle_commune, commune, dept, libelle_dept, lat, lon, etiage, et le tracé rattaché à l’étape 3 (CdOH, TopoOH, distance_m) | 13 |
+| `cours_eau.csv` | cours d’eau | code_cours_eau, uri_cours_eau, libelle_cours_eau | 2 |
+| `mesures.csv` | site et semaine | semaine, site, temp, pluie, neige, debit, humidite, date | 18 109 |
 
 Jointures : `mesures.site` → `sites.site`, puis `sites.code_cours_eau` → `cours_eau.code_cours_eau`. Les fichiers sont lus et écrits en texte : les valeurs restent exactement celles de l’étape 1, zéros initiaux compris.
 
 **Contrôles.**
 - Les colonnes de `sites.csv` sont constantes pour chaque site, et celles de `cours_eau.csv` pour chaque cours d’eau.
-- Chaque site a exactement une ligne par semaine : 1 393 semaines, de 2000W01 à 2026W37, soit 64 × 1 393 = 89 152 lignes.
-- **Jointure complète** : en recollant les trois fichiers écrits, on retrouve exactement les 89 152 lignes de l’étape 1 pour ces sites.
+- Chaque site a exactement une ligne par semaine : 1 393 semaines, de 2000W01 à 2026W37, soit 13 × 1 393 = 18 109 lignes.
+- **Jointure complète** : en recollant les trois fichiers écrits, on retrouve exactement les 18 109 lignes de l’étape 1 pour ces sites.
 
-**À savoir pour les calculs.** Dans `mesures.csv`, 17 645 valeurs de `debit` sont vides (sites qui n’ont pas de mesures sur toute la période) et 74 valeurs valent 0. Ces débits nuls sont de vraies mesures (cours d’eau à sec, ou « assec ») : ils sont gardés dans toutes les analyses (voir l’étape 6 pour les calculs en logarithme). Ils concernent 4 sites, tous sur des affluents : aucun site de la Moselle n’a de débit nul. La valeur -1 (erreur) n’apparaît pas pour ces sites. Les autres paramètres observés (temp, pluie, neige, humidite) n’ont aucune valeur vide.
+**À savoir pour les calculs.** Dans `mesures.csv`, 3 692 valeurs de `debit` sont vides (sites qui n’ont pas de mesures sur toute la période). Aucune valeur n’est nulle ni négative. Les débits nuls du jeu de données sont de vraies mesures (cours d’eau à sec, ou « assec ») : ils concernaient des sites d’affluents, qui ne sont plus gardés. Les règles de l’étape 6 pour les débits nuls restent appliquées par le code, mais ne se déclenchent pas sur ces données. La valeur -1 (erreur) n’apparaît pas pour ces sites. Les autres paramètres observés (temp, pluie, neige, humidite) n’ont aucune valeur vide.
 
 ## Étape 5 : carte
 

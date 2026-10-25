@@ -1,8 +1,10 @@
-"""Étape 4 : ne garder que les sites du bassin de la Moselle, en trois fichiers.
+"""Étape 4 : ne garder que les sites de la Moselle, en trois fichiers.
 
-Les lignes de donnees.csv (nettoyé à l'étape 1) dont le site est dans le
-bassin de la Moselle (étape 3) sont réparties en trois fichiers, pour ne pas
-répéter à chaque semaine ce qui ne change pas :
+Les lignes de donnees.csv (nettoyé à l'étape 1) dont le site est rattaché
+(étape 3) au tracé de la Moselle ou de la Moselle canalisée sont réparties en
+trois fichiers, pour ne pas répéter à chaque semaine ce qui ne change pas.
+Les sites des affluents ne servent ni aux calculs ni à l'affichage : ils ne
+sont pas gardés.
 
   sites.csv     une ligne par site : libellés, commune, département,
                 coordonnées, indicateur d'étiage, et le tracé rattaché
@@ -42,6 +44,8 @@ ENTREE_MESURES = RACINE / "donnees-intermediaires" / "01_donnees_nettoyees.csv"
 ENTREE_SITES = RACINE / "donnees-intermediaires" / "03_sites_rattaches.csv"
 SORTIES = RACINE / "src" / "data"
 
+TRACES_MOSELLE = {"la Moselle", "la Moselle Canalisée"}
+
 COLONNES_SITES = ["site", "libelle_site", "code_cours_eau", "libelle_commune", "commune",
                   "dept", "libelle_dept", "lat", "lon", "etiage"]
 COLONNES_RATTACHEMENT = ["CdOH", "TopoOH", "distance_m"]
@@ -63,8 +67,11 @@ def ecrire(nom: str, colonnes: list[str], lignes: list[dict]) -> None:
 
 def main() -> None:
     with ENTREE_SITES.open(encoding="utf-8", newline="") as f:
-        rattachement = {r["site"]: r for r in csv.DictReader(f) if r["dans_bassin"] == "1"}
-    print(f"Sites du bassin (étape 3) : {len(rattachement)}")
+        lignes_sites = list(csv.DictReader(f))
+    rattachement = {r["site"]: r for r in lignes_sites
+                    if r["dans_bassin"] == "1" and r["TopoOH"] in TRACES_MOSELLE}
+    print(f"Sites du bassin (étape 3) : {sum(1 for r in lignes_sites if r['dans_bassin'] == '1')}, "
+          f"dont sur la Moselle : {len(rattachement)}")
 
     with ENTREE_MESURES.open(encoding="utf-8", newline="") as f:
         lecteur = csv.DictReader(f)
