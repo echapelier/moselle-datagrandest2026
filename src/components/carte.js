@@ -14,7 +14,8 @@ export const COULEURS = {
   moselle: BLEU_MOSELLE, // la Moselle et la Moselle canalisée
   fondRegion: "#f3efe6",
   contourRegion: "#3C3C3C",
-  contourDepartements: "#090909"
+  contourDepartements: "#090909",
+  site: "#000000"
 };
 
 // Couches de cours d'eau, de bas en haut (une par catégorie du fichier des
@@ -33,7 +34,7 @@ const REPERES = [
   {extremite: "aval", texte: ["Tripoint", "Allemagne-France-Luxembourg"], sous: false}
 ];
 
-const RAYON_SITE = 3.2; // en pixels, quel que soit le zoom
+const RAYON_SITE = 6; // en pixels, quel que soit le zoom
 
 const MARGE = 10; // pixels autour du bassin (ou de la région) cadré
 
@@ -108,7 +109,7 @@ export function carte({region, departements, traces, sites, extremites, width, h
     .attr("r", RAYON_SITE)
     .attr("fill", COULEURS.moselle)
     .attr("stroke", "white")
-    .attr("stroke-width", 1.2);
+    .attr("stroke-width", 1.6);
   traitFixe(points);
 
   // Repères aux deux extrémités du tracé de la Moselle : sa source (amont) et
